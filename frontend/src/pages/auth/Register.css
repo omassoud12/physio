@@ -1,0 +1,32 @@
+.register-card {
+  width: min(100%, 520px);
+}
+
+.register-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.register-success {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 22px;
+  padding: 14px;
+  border: 1px solid #b8e5d7;
+  border-radius: 10px;
+  color: #176b58;
+  background: #effaf6;
+  font-size: 0.9rem;
+}
+
+.register-success span {
+  color: #526d67;
+}
+
+@media (max-width: 520px) {
+  .register-name-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
