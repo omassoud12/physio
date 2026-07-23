@@ -2,7 +2,15 @@ import { useCallback, useEffect, useState } from 'react'
 import api from '../../services/api.js'
 import DashboardLayout, { Notice } from './DashboardLayout.jsx'
 
-const emptyClinician = { first_name: '', last_name: '', email: '', phone: '', password: '', professional_title: '', license_number: '', specialization: '', biography: '', years_of_experience: 0, consultation_duration: 30, profile_image: '', is_accepting_patients: true }
+const emptyClinician = { first_name: '', last_name: '', gender: '', email: '', phone: '', password: '', professional_title: '', license_number: '', specialization: '', biography: '', years_of_experience: 0, consultation_duration: 30, profile_image: '', is_accepting_patients: true }
+
+function formatGender(value) {
+  return value ? value.charAt(0).toUpperCase() + value.slice(1) : 'Not set'
+}
+
+function clinicianGender(clinician) {
+  return clinician.profiles?.gender || clinician.gender || ''
+}
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('overview')
@@ -16,6 +24,7 @@ export default function AdminDashboard() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [updatingGenderId, setUpdatingGenderId] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -43,6 +52,20 @@ export default function AdminDashboard() {
     try { await api.patch(`/admin/${role}/${id}`, { is_active: !active }); setMessage(`Account ${active ? 'disabled' : 'enabled'}`); await load() }
     catch (requestError) { setError(requestError.response?.data?.message || 'Unable to update account') }
   }
+  async function updateClinicianGender(person, gender) {
+    setError('')
+    setMessage('')
+    setUpdatingGenderId(person.profile_id)
+    try {
+      await api.patch(`/admin/physiotherapists/${person.profile_id}`, { gender })
+      setMessage(`${person.profiles.first_name}'s gender updated`)
+      await load()
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Unable to update clinician gender')
+    } finally {
+      setUpdatingGenderId('')
+    }
+  }
   async function assignPatient(event) {
     event.preventDefault(); setError('')
     try { const response = await api.post('/admin/patient-assignments', assignment); setMessage(response.data.message); setAssignment({ patient_id: '', physiotherapist_id: '' }); await load() }
@@ -66,9 +89,71 @@ export default function AdminDashboard() {
       </section>
       <section className="panel"><div className="panel-heading"><div><h2>Current assignments</h2><p>Active patient-to-clinician care relationships.</p></div><button className="button" onClick={() => setTab('assignments')}>Manage assignments</button></div><AssignmentTable rows={assignments} onEnd={endAssignment} /></section>
     </>}
-    {!loading && tab === 'patients' && <section className="panel"><div className="panel-heading"><div><h2>Patients</h2><p>Search and manage patient access.</p></div><input className="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, email, phone or record #" /></div><div className="table-wrap"><table><thead><tr><th>Patient</th><th>Contact</th><th>Record</th><th>Status</th><th /></tr></thead><tbody>{patients.map((p) => <tr key={p.id}><td><strong>{p.first_name} {p.last_name}</strong><small>{p.email}</small></td><td>{p.phone || '—'}</td><td>{p.medical_record_number || '—'}</td><td><span className={`badge ${p.is_active ? 'badge--green' : ''}`}>{p.is_active ? 'Active' : 'Disabled'}</span></td><td><button className="text-button" onClick={() => toggleAccount(p, 'patients')}>{p.is_active ? 'Disable' : 'Enable'}</button></td></tr>)}</tbody></table></div></section>}
-    {!loading && tab === 'physiotherapists' && <div className="split-grid"><section className="panel"><div className="panel-heading"><div><h2>Care team</h2><p>{clinicians.length} clinician accounts</p></div></div>{clinicians.map((c) => <article className="person-row" key={c.id}><div className="avatar avatar--large">{c.profiles.first_name[0]}{c.profiles.last_name[0]}</div><div><strong>{c.profiles.first_name} {c.profiles.last_name}</strong><span>{c.professional_title} · {c.specialization}</span><small>License {c.license_number}</small></div><button className="text-button" onClick={() => toggleAccount(c, 'physiotherapists')}>{c.profiles.is_active ? 'Disable' : 'Enable'}</button></article>)}</section>
-      <form className="panel form-grid" onSubmit={createClinician}><div className="panel-heading full"><div><h2>Add physiotherapist</h2><p>Create a secure clinician account.</p></div></div>{Object.keys(emptyClinician).filter((key) => !['biography','is_accepting_patients'].includes(key)).map((key) => <label key={key}><span>{key.replaceAll('_',' ')}</span><input name={key} type={key === 'password' ? 'password' : key.includes('experience') || key.includes('duration') ? 'number' : key === 'email' ? 'email' : 'text'} value={form[key]} onChange={updateForm} required={!['profile_image'].includes(key)} /></label>)}<label className="full"><span>Biography</span><textarea name="biography" value={form.biography} onChange={updateForm} /></label><label className="check full"><input type="checkbox" name="is_accepting_patients" checked={form.is_accepting_patients} onChange={updateForm} /> Accepting new patients</label><button className="button full" type="submit">Create physiotherapist</button></form></div>}
+    {!loading && tab === 'patients' && <section className="panel">
+      <div className="panel-heading">
+        <div><h2>Patients</h2><p>Search and manage patient access.</p></div>
+        <input className="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name, email, phone or record #" />
+      </div>
+      <div className="table-wrap">
+        <table>
+          <thead><tr><th>Patient</th><th>Gender</th><th>Contact</th><th>Record</th><th>Status</th><th /></tr></thead>
+          <tbody>{patients.map((patient) => <tr key={patient.id}>
+            <td><strong>{patient.first_name} {patient.last_name}</strong><small>{patient.email}</small></td>
+            <td>{formatGender(patient.gender)}</td>
+            <td>{patient.phone || '—'}</td>
+            <td>{patient.medical_record_number || '—'}</td>
+            <td><span className={`badge ${patient.is_active ? 'badge--green' : ''}`}>{patient.is_active ? 'Active' : 'Disabled'}</span></td>
+            <td><button className="text-button" onClick={() => toggleAccount(patient, 'patients')}>{patient.is_active ? 'Disable' : 'Enable'}</button></td>
+          </tr>)}</tbody>
+        </table>
+      </div>
+    </section>}
+    {!loading && tab === 'physiotherapists' && <div className="split-grid">
+      <section className="panel">
+        <div className="panel-heading"><div><h2>Care team</h2><p>{clinicians.length} clinician accounts</p></div></div>
+        {clinicians.map((clinician) => <article className="person-row" key={clinician.id}>
+          <div className="avatar avatar--large">{clinician.profiles.first_name[0]}{clinician.profiles.last_name[0]}</div>
+          <div>
+            <strong>{clinician.profiles.first_name} {clinician.profiles.last_name}</strong>
+            <span>{clinician.professional_title} · {clinician.specialization}</span>
+            <small>License {clinician.license_number} · {formatGender(clinicianGender(clinician))}</small>
+          </div>
+          <select
+            aria-label={`Gender for ${clinician.profiles.first_name} ${clinician.profiles.last_name}`}
+            value={clinicianGender(clinician)}
+            disabled={updatingGenderId === clinician.profile_id}
+            onChange={(event) => updateClinicianGender(clinician, event.target.value)}
+            style={{ width: 'auto', minWidth: 118, padding: '8px 10px' }}
+          >
+            <option value="" disabled>Set gender</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+          </select>
+          <button className="text-button" onClick={() => toggleAccount(clinician, 'physiotherapists')}>{clinician.profiles.is_active ? 'Disable' : 'Enable'}</button>
+        </article>)}
+      </section>
+      <form className="panel form-grid" onSubmit={createClinician}>
+        <div className="panel-heading full"><div><h2>Add physiotherapist</h2><p>Create a secure clinician account.</p></div></div>
+        {Object.keys(emptyClinician).filter((key) => !['biography','is_accepting_patients'].includes(key)).map((key) => (
+          key === 'gender'
+            ? <label key={key}>
+              <span>Gender</span>
+              <select name="gender" value={form.gender} onChange={updateForm} required>
+                <option value="">Select gender</option>
+                <option value="female">Female</option>
+                <option value="male">Male</option>
+              </select>
+            </label>
+            : <label key={key}>
+              <span>{key.replaceAll('_',' ')}</span>
+              <input name={key} type={key === 'password' ? 'password' : key.includes('experience') || key.includes('duration') ? 'number' : key === 'email' ? 'email' : 'text'} value={form[key]} onChange={updateForm} required={!['profile_image'].includes(key)} />
+            </label>
+        ))}
+        <label className="full"><span>Biography</span><textarea name="biography" value={form.biography} onChange={updateForm} /></label>
+        <label className="check full"><input type="checkbox" name="is_accepting_patients" checked={form.is_accepting_patients} onChange={updateForm} /> Accepting new patients</label>
+        <button className="button full" type="submit">Create physiotherapist</button>
+      </form>
+    </div>}
     {!loading && tab === 'assignments' && <div className="split-grid"><section className="panel"><div className="panel-heading"><div><h2>Active assignments</h2><p>Care relationships are retained as history when ended.</p></div></div><AssignmentTable rows={assignments} onEnd={endAssignment} /></section><form className="panel stack" onSubmit={assignPatient}><h2>Assign a patient</h2><label><span>Patient</span><select value={assignment.patient_id} onChange={(e) => setAssignment({ ...assignment, patient_id: e.target.value })} required><option value="">Select patient</option>{patients.filter((p) => p.is_active).map((p) => <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}</select></label><label><span>Physiotherapist</span><select value={assignment.physiotherapist_id} onChange={(e) => setAssignment({ ...assignment, physiotherapist_id: e.target.value })} required><option value="">Select clinician</option>{clinicians.filter((c) => c.profiles.is_active).map((c) => <option key={c.profile_id} value={c.profile_id}>{c.profiles.first_name} {c.profiles.last_name}</option>)}</select></label><button className="button" type="submit">Create assignment</button></form></div>}
   </DashboardLayout>
 }

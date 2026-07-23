@@ -1,10 +1,17 @@
 import { apiError, ok, pick, required, sendError } from '../utils/http.js';
 
-const profileFields = ['first_name', 'last_name', 'phone'];
+const profileFields = ['first_name', 'last_name', 'phone', 'gender'];
 const clinicianFields = ['professional_title', 'license_number', 'specialization', 'biography', 'years_of_experience', 'consultation_duration', 'profile_image', 'is_accepting_patients'];
+const genders = ['female', 'male'];
+
+function normalizedGender(value) {
+  const gender = typeof value === 'string' ? value.trim().toLowerCase() : '';
+  if (!genders.includes(gender)) throw apiError('Gender must be female or male', 400);
+  return gender;
+}
 
 async function getRole(db, id, role) {
-  const { data } = await db.from('profiles').select('id, role, is_active').eq('id', id).eq('role', role).single();
+  const { data } = await db.from('profiles').select('id, gender, role, is_active').eq('id', id).eq('role', role).single();
   if (!data) throw apiError(`${role === 'patient' ? 'Patient' : 'Physiotherapist'} not found`, 404);
   return data;
 }
@@ -26,17 +33,18 @@ export async function createPhysiotherapist(req, res) {
   const db = req.db;
   let createdUserId;
   try {
-    required(req.body, ['first_name','last_name','email','phone','password','professional_title','license_number','specialization']);
+    required(req.body, ['first_name','last_name','gender','email','phone','password','professional_title','license_number','specialization']);
     if (req.body.password.length < 8) throw apiError('Password must be at least 8 characters', 400);
+    const gender = normalizedGender(req.body.gender);
     const email = req.body.email.trim().toLowerCase();
     const { data: auth, error: authError } = await db.auth.admin.createUser({
       email, password: req.body.password, email_confirm: true,
-      user_metadata: { first_name: req.body.first_name.trim(), last_name: req.body.last_name.trim() },
+      user_metadata: { first_name: req.body.first_name.trim(), last_name: req.body.last_name.trim(), gender },
     });
     if (authError) throw apiError(authError.message, authError.code === 'email_exists' ? 409 : 400);
     createdUserId = auth.user.id;
 
-    const profile = { id: createdUserId, ...pick(req.body, profileFields), email, role: 'physiotherapist', is_active: true };
+    const profile = { id: createdUserId, ...pick(req.body, profileFields), gender, email, role: 'physiotherapist', is_active: true };
     const { error: profileError } = await db.from('profiles').upsert(profile, { onConflict: 'id' });
     if (profileError) throw profileError;
     const clinician = { profile_id: createdUserId, ...pick(req.body, clinicianFields) };
@@ -55,7 +63,7 @@ export async function createPhysiotherapist(req, res) {
 
 export async function listPhysiotherapists(req, res) {
   try {
-    const { data, error } = await req.db.from('physiotherapists').select('id, profile_id, professional_title, license_number, specialization, biography, years_of_experience, consultation_duration, profile_image, is_accepting_patients, profiles!inner(first_name,last_name,email,phone,is_active)').order('created_at', { ascending: false });
+    const { data, error } = await req.db.from('physiotherapists').select('id, profile_id, professional_title, license_number, specialization, biography, years_of_experience, consultation_duration, profile_image, is_accepting_patients, profiles!inner(first_name,last_name,email,phone,gender,is_active)').order('created_at', { ascending: false });
     if (error) throw error;
     return ok(res, data);
   } catch (error) { return sendError(res, error, 'Unable to load physiotherapists'); }
@@ -65,6 +73,7 @@ export async function updatePhysiotherapist(req, res) {
   try {
     await getRole(req.db, req.params.id, 'physiotherapist');
     const profileUpdate = pick(req.body, [...profileFields, 'is_active']);
+    if (profileUpdate.gender !== undefined) profileUpdate.gender = normalizedGender(profileUpdate.gender);
     const clinicianUpdate = pick(req.body, clinicianFields);
     if (Object.keys(profileUpdate).length) {
       const { error } = await req.db.from('profiles').update({ ...profileUpdate, updated_at: new Date().toISOString() }).eq('id', req.params.id);
@@ -87,7 +96,7 @@ export async function disablePhysiotherapist(req, res) {
 export async function listPatients(req, res) {
   try {
     const search = String(req.query.search || '').trim().replace(/[,%()]/g, '');
-    let query = req.db.from('profiles').select('id,first_name,last_name,email,phone,medical_record_number,is_active,created_at').eq('role', 'patient').order('created_at', { ascending: false });
+    let query = req.db.from('profiles').select('id,first_name,last_name,email,phone,gender,medical_record_number,is_active,created_at').eq('role', 'patient').order('created_at', { ascending: false });
     if (search) query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%,medical_record_number.ilike.%${search}%`);
     const { data, error } = await query;
     if (error) throw error;
@@ -99,7 +108,7 @@ export async function getPatient(req, res) {
   try {
     await getRole(req.db, req.params.id, 'patient');
     const [profile, assignment, appointments] = await Promise.all([
-      req.db.from('profiles').select('id,first_name,last_name,email,phone,date_of_birth,medical_record_number,is_active,created_at').eq('id', req.params.id).single(),
+      req.db.from('profiles').select('id,first_name,last_name,email,phone,gender,date_of_birth,medical_record_number,is_active,created_at').eq('id', req.params.id).single(),
       req.db.from('patient_physiotherapist_assignments').select('id,physiotherapist_id,assigned_at,profiles!patient_physiotherapist_assignments_physiotherapist_id_fkey(first_name,last_name)').eq('patient_id', req.params.id).eq('is_active', true).maybeSingle(),
       req.db.from('appointments').select('id,status,starts_at,treatment_type,physiotherapist_id').eq('patient_id', req.params.id).order('starts_at', { ascending: false }).limit(20),
     ]);
@@ -111,8 +120,9 @@ export async function getPatient(req, res) {
 export async function updatePatient(req, res) {
   try {
     await getRole(req.db, req.params.id, 'patient');
-    const update = pick(req.body, ['first_name','last_name','phone','date_of_birth','medical_record_number','is_active']);
-    const { data, error } = await req.db.from('profiles').update({ ...update, updated_at: new Date().toISOString() }).eq('id', req.params.id).select('id,first_name,last_name,email,phone,date_of_birth,medical_record_number,is_active').single();
+    const update = pick(req.body, ['first_name','last_name','phone','gender','date_of_birth','medical_record_number','is_active']);
+    if (update.gender !== undefined) update.gender = normalizedGender(update.gender);
+    const { data, error } = await req.db.from('profiles').update({ ...update, updated_at: new Date().toISOString() }).eq('id', req.params.id).select('id,first_name,last_name,email,phone,gender,date_of_birth,medical_record_number,is_active').single();
     if (error) throw error;
     return ok(res, data, 'Patient updated successfully');
   } catch (error) { return sendError(res, error, 'Unable to update patient'); }

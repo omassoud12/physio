@@ -2,6 +2,24 @@ import { apiError, ok, pick, required, sendError } from '../utils/http.js';
 import { appointmentStatuses } from './clinicController.js';
 
 const professionalFields = ['professional_title','specialization','biography','years_of_experience','consultation_duration','profile_image','is_accepting_patients'];
+const weekdays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
+
+function validateAvailabilityPeriod(period) {
+  if (!weekdays.includes(period.day_of_week)) {
+    throw apiError('Choose a valid day of the week', 400);
+  }
+  if (!/^\d{2}:\d{2}(:\d{2})?$/.test(String(period.start_time || ''))
+    || !/^\d{2}:\d{2}(:\d{2})?$/.test(String(period.end_time || ''))) {
+    throw apiError('Choose valid start and end times', 400);
+  }
+  if (period.start_time >= period.end_time) {
+    throw apiError('Availability end time must be after its start time', 400);
+  }
+  const duration = Number(period.slot_duration_minutes);
+  if (!Number.isInteger(duration) || duration < 5 || duration > 480) {
+    throw apiError('Slot duration must be a whole number between 5 and 480 minutes', 400);
+  }
+}
 
 export async function me(req, res) {
   try {
@@ -21,13 +39,22 @@ export async function me(req, res) {
 export async function availability(req, res) {
   try {
     if (req.method === 'GET') {
-      const { data, error } = await req.db.from('physiotherapist_working_hours').select('id,day_of_week,start_time,end_time,slot_duration_minutes,is_active').eq('physiotherapist_id', req.auth.user.id).order('day_of_week');
+      const { data, error } = await req.db.from('physiotherapist_working_hours').select('id,day_of_week,start_time,end_time,slot_duration_minutes,is_active').eq('physiotherapist_id', req.auth.user.id);
       if (error) throw error;
-      return ok(res, data);
+      const ordered = (data || []).sort((left, right) => (
+        weekdays.indexOf(left.day_of_week) - weekdays.indexOf(right.day_of_week)
+        || left.start_time.localeCompare(right.start_time)
+      ));
+      return ok(res, ordered);
     }
     required(req.body, ['day_of_week','start_time','end_time','slot_duration_minutes']);
-    const { data, error } = await req.db.from('physiotherapist_working_hours').insert({ ...pick(req.body, ['day_of_week','start_time','end_time','slot_duration_minutes','is_active']), physiotherapist_id: req.auth.user.id }).select().single();
+    const period = pick(req.body, ['day_of_week','start_time','end_time','slot_duration_minutes','is_active']);
+    period.day_of_week = String(period.day_of_week).toLowerCase();
+    period.slot_duration_minutes = Number(period.slot_duration_minutes);
+    validateAvailabilityPeriod(period);
+    const { data, error } = await req.db.from('physiotherapist_working_hours').insert({ ...period, physiotherapist_id: req.auth.user.id }).select().single();
     if (error?.code === '23P01') throw apiError('Availability overlaps an existing period', 409);
+    if (error?.code === '23514') throw apiError('Availability times are invalid', 400);
     if (error) throw error;
     return ok(res, data, 'Availability added successfully', 201);
   } catch (error) { return sendError(res, error, 'Unable to manage availability'); }
@@ -36,8 +63,17 @@ export async function availability(req, res) {
 export async function updateAvailability(req, res) {
   try {
     const update = pick(req.body, ['day_of_week','start_time','end_time','slot_duration_minutes','is_active']);
+    const { data: current, error: currentError } = await req.db.from('physiotherapist_working_hours').select('id,day_of_week,start_time,end_time,slot_duration_minutes,is_active').eq('id', req.params.id).eq('physiotherapist_id', req.auth.user.id).single();
+    if (currentError || !current) throw apiError('Availability period not found', 404);
+    const candidate = { ...current, ...update };
+    candidate.day_of_week = String(candidate.day_of_week).toLowerCase();
+    candidate.slot_duration_minutes = Number(candidate.slot_duration_minutes);
+    validateAvailabilityPeriod(candidate);
+    if (update.day_of_week !== undefined) update.day_of_week = candidate.day_of_week;
+    if (update.slot_duration_minutes !== undefined) update.slot_duration_minutes = candidate.slot_duration_minutes;
     const { data, error } = await req.db.from('physiotherapist_working_hours').update({ ...update, updated_at: new Date().toISOString() }).eq('id', req.params.id).eq('physiotherapist_id', req.auth.user.id).select().single();
     if (error?.code === '23P01') throw apiError('Availability overlaps an existing period', 409);
+    if (error?.code === '23514') throw apiError('Availability times are invalid', 400);
     if (error || !data) throw apiError('Availability period not found', 404);
     return ok(res, data, 'Availability updated successfully');
   } catch (error) { return sendError(res, error, 'Unable to update availability'); }
@@ -59,7 +95,12 @@ export async function timeOff(req, res) {
       return ok(res, data);
     }
     required(req.body, ['start_datetime','end_datetime']);
-    if (new Date(req.body.start_datetime) >= new Date(req.body.end_datetime)) throw apiError('Start must be before end', 400);
+    const start = new Date(req.body.start_datetime);
+    const end = new Date(req.body.end_datetime);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      throw apiError('Choose valid time-off dates and times', 400);
+    }
+    if (start >= end) throw apiError('Start must be before end', 400);
     const { data, error } = await req.db.from('physiotherapist_time_off').insert({ physiotherapist_id: req.auth.user.id, ...pick(req.body, ['start_datetime','end_datetime','reason']) }).select().single();
     if (error) throw error;
     return ok(res, data, 'Time off added successfully', 201);

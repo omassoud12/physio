@@ -3,6 +3,10 @@ import { signInUser, signUpUser } from '../services/authService.js';
 export async function signUp(req, res) {
   try {
     const { firstName, lastName, email, password } = req.body;
+    const gender =
+      typeof req.body.gender === 'string'
+        ? req.body.gender.trim().toLowerCase()
+        : '';
 
     if (
       typeof firstName !== 'string' ||
@@ -11,16 +15,23 @@ export async function signUp(req, res) {
       !lastName.trim() ||
       typeof email !== 'string' ||
       !email.trim() ||
+      !['female', 'male'].includes(gender) ||
       typeof password !== 'string' ||
       password.length < 8
     ) {
       return res.status(400).json({
         success: false,
-        message: 'Enter your name, a valid email, and a password of at least 8 characters',
+        message: 'Enter your name, gender, a valid email, and a password of at least 8 characters',
       });
     }
 
-    const data = await signUpUser({ firstName, lastName, email, password });
+    const data = await signUpUser({
+      firstName,
+      lastName,
+      gender,
+      email,
+      password,
+    });
 
     return res.status(201).json({
       success: true,

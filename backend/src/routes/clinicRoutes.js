@@ -12,6 +12,7 @@ physiotherapistDirectory.get('/:id', clinic.publicPhysiotherapists);
 export const appointmentRoutes = express.Router();
 appointmentRoutes.use(requireAuth, requireRole('patient'));
 appointmentRoutes.post('/', clinic.bookAppointment);
+appointmentRoutes.get('/availability', clinic.calendarAvailability);
 appointmentRoutes.get('/my', clinic.myAppointments);
 appointmentRoutes.patch('/:id/cancel', clinic.cancelAppointment);
 appointmentRoutes.patch('/:id/reschedule', clinic.rescheduleAppointment);

@@ -9,6 +9,7 @@ function Register() {
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
+    gender: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -40,6 +41,7 @@ function Register() {
       const response = await api.post('/auth/signup', {
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
+        gender: form.gender,
         email: form.email.trim().toLowerCase(),
         password: form.password,
       })
@@ -106,6 +108,15 @@ function Register() {
                   <input name="lastName" value={form.lastName} onChange={updateField} autoComplete="family-name" required disabled={loading} />
                 </label>
               </div>
+
+              <label className="signin-field">
+                <span>Gender</span>
+                <select name="gender" value={form.gender} onChange={updateField} required disabled={loading}>
+                  <option value="">Select gender</option>
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                </select>
+              </label>
 
               <label className="signin-field">
                 <span>Email address</span>

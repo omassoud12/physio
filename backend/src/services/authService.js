@@ -8,18 +8,24 @@ function createServiceError(message, statusCode) {
 
 function profileFromUser(user) {
   const metadata = user.user_metadata || {};
+  const gender = String(metadata.gender || '').trim().toLowerCase();
 
   return {
     id: user.id,
     first_name: metadata.first_name || '',
     last_name: metadata.last_name || '',
+    gender: ['female', 'male'].includes(gender) ? gender : null,
     role: 'patient',
   };
 }
 
-export async function signUpUser({ firstName, lastName, email, password }) {
+export async function signUpUser({ firstName, lastName, gender, email, password }) {
   const supabase = createSupabaseClient();
   const normalizedEmail = email.trim().toLowerCase();
+  const normalizedGender = String(gender || '').trim().toLowerCase();
+  if (!['female', 'male'].includes(normalizedGender)) {
+    throw createServiceError('Gender must be female or male', 400);
+  }
   const administratorEmail = (
     process.env.ADMIN_EMAIL || 'omarmassoud27076@gmail.com'
   ).trim().toLowerCase();
@@ -29,6 +35,7 @@ export async function signUpUser({ firstName, lastName, email, password }) {
   const profile = {
     first_name: firstName.trim(),
     last_name: lastName.trim(),
+    gender: normalizedGender,
     role: 'patient',
   };
 
@@ -107,7 +114,7 @@ export async function signInUser(email, password) {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, first_name, last_name, email, phone, role, is_active')
+    .select('id, first_name, last_name, email, phone, gender, role, is_active')
     .eq('id', authData.user.id)
     .single();
 
