@@ -1,0 +1,12 @@
+{
+  "layout": {
+    "portal": "بوابة {{role}}",
+    "signedInAs": "تم تسجيل الدخول باسم {{name}}",
+    "accountMenu": "معلومات الحساب",
+    "headerLabel": "التنقل في البوابة"
+  },
+  "notice": {
+    "success": "تم بنجاح",
+    "error": "خطأ"
+  }
+}

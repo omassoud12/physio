@@ -1,152 +1,181 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
-import api, { testBackendConnection } from '../../services/api.js';
-import './SignIn.css';
+import { useTranslation } from 'react-i18next'
+import { Link, useNavigate } from 'react-router-dom'
+import Brand from '../../components/Brand.jsx'
+import LanguageSwitcher from '../../components/LanguageSwitcher.jsx'
+import api, { testBackendConnection } from '../../services/api.js'
+import './SignIn.css'
 
 const dashboardByRole = {
   patient: '/patient/dashboard',
   physiotherapist: '/physiotherapist/dashboard',
   admin: '/admin/dashboard',
-};
+}
+
+function getSignInErrorKey(error) {
+  const status = error.response?.status
+  const message = String(
+    error.response?.data?.message || error.message || '',
+  ).toLowerCase()
+
+  if (!error.response) return 'signin.errors.network'
+  if (message.includes('confirm') && message.includes('email')) {
+    return 'signin.errors.emailNotConfirmed'
+  }
+  if (status === 401 || message.includes('invalid email or password')) {
+    return 'signin.errors.invalidCredentials'
+  }
+  if (message.includes('not initialized') || message.includes('migration')) {
+    return 'signin.errors.databaseNotReady'
+  }
+  if (status >= 500) return 'signin.errors.serviceUnavailable'
+  return 'signin.errors.default'
+}
 
 function SignIn() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [database, setDatabase] = useState({
-    status: 'checking',
-    message: 'Checking database...',
-  });
+  const navigate = useNavigate()
+  const { t } = useTranslation('auth')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [errorKey, setErrorKey] = useState('')
+  const [databaseStatus, setDatabaseStatus] = useState('checking')
 
   const checkDatabase = useCallback(async () => {
-    setDatabase({ status: 'checking', message: 'Checking database...' });
+    setDatabaseStatus('checking')
 
     try {
-      const data = await testBackendConnection();
-      setDatabase({
-        status: data.database?.connected ? 'connected' : 'unavailable',
-        message: data.message,
-      });
-    } catch (requestError) {
-      setDatabase({
-        status: 'unavailable',
-        message:
-          requestError.response?.data?.message || 'Database unavailable',
-      });
+      const data = await testBackendConnection()
+      setDatabaseStatus(
+        data.database?.connected ? 'connected' : 'unavailable',
+      )
+    } catch {
+      setDatabaseStatus('unavailable')
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    checkDatabase();
-  }, [checkDatabase]);
+    checkDatabase()
+  }, [checkDatabase])
 
   async function handleSubmit(event) {
-    event.preventDefault();
-    setError('');
-    setLoading(true);
+    event.preventDefault()
+    setErrorKey('')
+    setLoading(true)
 
     try {
       const response = await api.post('/auth/signin', {
         email: email.trim().toLowerCase(),
         password,
-      });
+      })
 
-      const { session, profile } = response.data.data;
-      const dashboard = dashboardByRole[profile.role];
+      const { session, profile } = response.data.data
+      const dashboard = dashboardByRole[profile.role]
 
       if (!dashboard) {
-        throw new Error('Your account has an unsupported role');
+        setErrorKey('signin.errors.unsupportedRole')
+        return
       }
 
-      localStorage.setItem('supabase_session', JSON.stringify(session));
-      localStorage.setItem('user_profile', JSON.stringify(profile));
-      navigate(dashboard, { replace: true });
+      localStorage.setItem('supabase_session', JSON.stringify(session))
+      localStorage.setItem('user_profile', JSON.stringify(profile))
+      navigate(dashboard, { replace: true })
     } catch (requestError) {
-      const message =
-        requestError.response?.data?.message ||
-        requestError.message ||
-        'Unable to sign in. Please try again.';
-
-      setError(message);
+      setErrorKey(getSignInErrorKey(requestError))
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   return (
     <main className="signin-page">
-      <section className="signin-intro" aria-label="Clinic introduction">
-        <div className="signin-brand">
-          <span className="signin-brand__mark" aria-hidden="true">
-            +
-          </span>
-          <span>PhysioCare Clinic</span>
-        </div>
+      <section
+        className="signin-intro"
+        aria-labelledby="signin-intro-title"
+      >
+        <Brand fullName inverse />
 
         <div className="signin-intro__content">
-          <p className="signin-eyebrow">Move better. Feel stronger.</p>
-          <h1>Welcome back to your recovery journey.</h1>
-          <p>
-            Sign in to view appointments, follow your care plan, and stay in
-            touch with your physiotherapist.
-          </p>
+          <p className="signin-eyebrow">{t('signin.intro.eyebrow')}</p>
+          <h1 id="signin-intro-title">{t('signin.intro.title')}</h1>
+          <p>{t('signin.intro.description')}</p>
         </div>
+
+        <div className="signin-intro__note">
+          <span aria-hidden="true">✓</span>
+          <p>{t('signin.intro.note')}</p>
+        </div>
+        <span className="signin-intro__orb" aria-hidden="true" />
       </section>
 
-      <section className="signin-panel">
-        <form className="signin-card" onSubmit={handleSubmit}>
+      <section className="signin-panel" aria-labelledby="signin-title">
+        <div className="signin-panel__toolbar">
+          <Brand className="signin-panel__brand" fullName />
+          <LanguageSwitcher compact />
+        </div>
+
+        <form
+          className="signin-card"
+          onSubmit={handleSubmit}
+          aria-busy={loading}
+        >
           <div className="signin-card__heading">
-            <p className="signin-mobile-brand">PhysioCare Clinic</p>
-            <h2>Sign in</h2>
-            <p>Enter your details to access your account.</p>
+            <h2 id="signin-title">{t('signin.title')}</h2>
+            <p>{t('signin.subtitle')}</p>
           </div>
 
           <div
-            className={`database-status database-status--${database.status}`}
+            className={`database-status database-status--${databaseStatus}`}
             role="status"
             aria-live="polite"
+            aria-busy={databaseStatus === 'checking'}
           >
             <span className="database-status__indicator" aria-hidden="true" />
-            <span>{database.message}</span>
-            {database.status === 'unavailable' && (
+            <span>{t(`signin.database.${databaseStatus}`)}</span>
+            {databaseStatus === 'unavailable' && (
               <button type="button" onClick={checkDatabase}>
-                Retry
+                {t('common:actions.retry')}
               </button>
             )}
           </div>
 
-          {error && (
-            <div className="signin-error" role="alert">
-              {error}
+          {errorKey && (
+            <div className="signin-message signin-message--error" role="alert">
+              <span className="signin-message__icon" aria-hidden="true">
+                !
+              </span>
+              <p>{t(errorKey)}</p>
             </div>
           )}
 
-          <label className="signin-field">
-            <span>Email address</span>
+          <label className="signin-field" htmlFor="signin-email">
+            <span>{t('common:fields.email')}</span>
             <input
+              id="signin-email"
               type="email"
               name="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              placeholder="patient@example.com"
+              placeholder={t('signin.fields.emailPlaceholder')}
               autoComplete="email"
               required
               disabled={loading}
             />
           </label>
 
-          <label className="signin-field">
-            <span>Password</span>
+          <div className="signin-field">
+            <label htmlFor="signin-password">
+              {t('common:fields.password')}
+            </label>
             <div className="signin-password">
               <input
+                id="signin-password"
                 type={showPassword ? 'text' : 'password'}
                 name="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter your password"
+                placeholder={t('signin.fields.passwordPlaceholder')}
                 autoComplete="current-password"
                 required
                 disabled={loading}
@@ -154,29 +183,40 @@ function SignIn() {
               <button
                 type="button"
                 onClick={() => setShowPassword((visible) => !visible)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-label={t(
+                  showPassword
+                    ? 'signin.fields.hidePassword'
+                    : 'signin.fields.showPassword',
+                )}
+                aria-pressed={showPassword}
                 disabled={loading}
               >
-                {showPassword ? 'Hide' : 'Show'}
+                {t(
+                  showPassword
+                    ? 'signin.fields.hidePassword'
+                    : 'signin.fields.showPassword',
+                )}
               </button>
             </div>
-          </label>
+          </div>
 
           <div className="signin-options">
-            <Link to="/forgot-password">Forgot password?</Link>
+            <Link to="/forgot-password">{t('signin.forgotPassword')}</Link>
           </div>
 
           <button className="signin-submit" type="submit" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading && <span className="signin-spinner" aria-hidden="true" />}
+            {t(loading ? 'signin.submitting' : 'signin.submit')}
           </button>
 
           <p className="signin-register">
-            New to the clinic? <Link to="/register">Create an account</Link>
+            {t('signin.registerPrompt')}{' '}
+            <Link to="/register">{t('signin.registerAction')}</Link>
           </p>
         </form>
       </section>
     </main>
-  );
+  )
 }
 
 export default SignIn

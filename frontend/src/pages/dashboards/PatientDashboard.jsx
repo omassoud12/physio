@@ -1,9 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import api from '../../services/api.js'
+import {
+  formatNumber,
+  formatUtcDate,
+  formatUtcDateKey,
+} from '../../i18n/formatters.js'
 import DashboardLayout, { Notice } from './DashboardLayout.jsx'
 import './PatientDashboard.css'
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const WEEKDAYS = [
+  'sunday',
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+]
 const blankBooking = { treatment_type: '', notes: '' }
 const supportedGenders = new Set(['female', 'male'])
 
@@ -32,7 +46,9 @@ function monthWeeks(month) {
   const lastDay = new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate()
   const cells = [
     ...Array.from({ length: leadingDays }, () => null),
-    ...Array.from({ length: lastDay }, (_, index) => dateKey(year, monthIndex, index + 1)),
+    ...Array.from({ length: lastDay }, (_, index) =>
+      dateKey(year, monthIndex, index + 1),
+    ),
   ]
 
   while (cells.length % 7) cells.push(null)
@@ -42,50 +58,45 @@ function monthWeeks(month) {
   )
 }
 
-function formatMonth(month) {
-  return new Intl.DateTimeFormat('en', {
+function formatMonth(month, language) {
+  return formatUtcDate(month, language, {
     month: 'long',
     year: 'numeric',
-    timeZone: 'UTC',
-  }).format(month)
+  })
 }
 
-function formatDate(date) {
-  return new Intl.DateTimeFormat('en', {
+function formatDate(date, language) {
+  return formatUtcDateKey(date, language, {
     weekday: 'long',
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T00:00:00.000Z`))
+  })
 }
 
-function formatShortDate(date) {
-  return new Intl.DateTimeFormat('en', {
+function formatShortDate(date, language) {
+  return formatUtcDateKey(date, language, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(`${date}T00:00:00.000Z`))
+  })
 }
 
-function formatTime(value) {
-  return new Intl.DateTimeFormat('en', {
+function formatTime(value, language) {
+  return formatUtcDate(value, language, {
     hour: 'numeric',
     minute: '2-digit',
-    timeZone: 'UTC',
-  }).format(new Date(value))
+  })
 }
 
-function formatDateTime(value) {
-  return new Intl.DateTimeFormat('en', {
+function formatDateTime(value, language) {
+  return formatUtcDate(value, language, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
-    timeZone: 'UTC',
-  }).format(new Date(value))
+  })
 }
 
 function personName(person) {
@@ -97,7 +108,30 @@ function hasGender(profile) {
   return supportedGenders.has(profile?.gender)
 }
 
+function CalendarArrow({ next = false }) {
+  return (
+    <svg
+      className={`patient-calendar__arrow patient-calendar__arrow--${
+        next ? 'next' : 'previous'
+      }`}
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="m14.5 6-6 6 6 6"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      />
+    </svg>
+  )
+}
+
 export default function PatientDashboard() {
+  const { t, i18n } = useTranslation(['patient', 'common'])
+  const language = i18n.resolvedLanguage || 'en'
   const currentMonth = useMemo(() => {
     const now = new Date()
     return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
@@ -120,12 +154,12 @@ export default function PatientDashboard() {
   const [initialLoading, setInitialLoading] = useState(true)
   const [directoryLoading, setDirectoryLoading] = useState(false)
   const [availabilityLoading, setAvailabilityLoading] = useState(false)
-  const [availabilityError, setAvailabilityError] = useState('')
+  const [availabilityError, setAvailabilityError] = useState(false)
   const [availabilityRefresh, setAvailabilityRefresh] = useState(0)
   const [savingGender, setSavingGender] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [cancellingId, setCancellingId] = useState('')
+  const [notice, setNotice] = useState(null)
 
   const range = monthRange(month)
   const weeks = monthWeeks(month)
@@ -137,6 +171,14 @@ export default function PatientDashboard() {
   const selectedSlotDetails = selectedDateSlots.find(
     (slot) => slot.starts_at === selectedSlot,
   )
+
+  function number(value) {
+    return formatNumber(value, language, { useGrouping: false })
+  }
+
+  function pluralValues(count) {
+    return { count, value: number(count) }
+  }
 
   async function refreshAppointments() {
     const response = await api.get('/appointments/my')
@@ -158,7 +200,7 @@ export default function PatientDashboard() {
 
     async function loadDashboard() {
       setInitialLoading(true)
-      setError('')
+      setNotice(null)
       try {
         const [profileResponse, appointmentResponse] = await Promise.all([
           api.get('/profile/me'),
@@ -176,14 +218,16 @@ export default function PatientDashboard() {
           try {
             const directoryResponse = await api.get('/physiotherapists')
             if (active) setClinicians(directoryResponse.data.data || [])
+          } catch {
+            if (active) {
+              setNotice({ key: 'errors.loadClinicians', error: true })
+            }
           } finally {
             if (active) setDirectoryLoading(false)
           }
         }
-      } catch (requestError) {
-        if (active) {
-          setError(requestError.response?.data?.message || 'Unable to load dashboard')
-        }
+      } catch {
+        // The booking panel renders its localized profile-load error.
       } finally {
         if (active) setInitialLoading(false)
       }
@@ -207,11 +251,13 @@ export default function PatientDashboard() {
 
     async function loadAvailability() {
       setAvailabilityLoading(true)
-      setAvailabilityError('')
+      setAvailabilityError(false)
       setSelectedSlot('')
       try {
         const params = { from: range.from, to: range.to }
-        if (selectedDoctorId) params.physiotherapist_id = selectedDoctorId
+        if (selectedDoctorId) {
+          params.physiotherapist_id = selectedDoctorId
+        }
         const response = await api.get('/appointments/availability', { params })
         if (!active) return
 
@@ -221,17 +267,17 @@ export default function PatientDashboard() {
         setTimeZone(availability.time_zone || 'UTC')
         setSelectedDate((current) => {
           if (current && nextDays[current]?.length) return current
-          return Object.keys(nextDays)
-            .sort()
-            .find((key) => key >= today && nextDays[key]?.length) || ''
+          return (
+            Object.keys(nextDays)
+              .sort()
+              .find((key) => key >= today && nextDays[key]?.length) || ''
+          )
         })
-      } catch (requestError) {
+      } catch {
         if (active) {
           setDays({})
           setSelectedDate('')
-          setAvailabilityError(
-            requestError.response?.data?.message || 'Unable to load available times',
-          )
+          setAvailabilityError(true)
         }
       } finally {
         if (active) setAvailabilityLoading(false)
@@ -256,8 +302,7 @@ export default function PatientDashboard() {
     if (!supportedGenders.has(genderDraft)) return
 
     setSavingGender(true)
-    setError('')
-    setMessage('')
+    setNotice(null)
     try {
       const response = await api.patch('/profile/me', { gender: genderDraft })
       const updatedProfile = {
@@ -268,7 +313,9 @@ export default function PatientDashboard() {
       setProfile(updatedProfile)
 
       try {
-        const storedProfile = JSON.parse(localStorage.getItem('user_profile') || '{}')
+        const storedProfile = JSON.parse(
+          localStorage.getItem('user_profile') || '{}',
+        )
         localStorage.setItem(
           'user_profile',
           JSON.stringify({ ...storedProfile, gender: genderDraft }),
@@ -277,10 +324,14 @@ export default function PatientDashboard() {
         // A malformed cached profile should not prevent saving the server profile.
       }
 
-      await refreshClinicians()
-      setMessage('Profile completed. Available clinicians are now matched to you.')
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Unable to save profile')
+      setNotice({ key: 'notice.profileSaved', error: false })
+      try {
+        await refreshClinicians()
+      } catch {
+        setNotice({ key: 'errors.loadClinicians', error: true })
+      }
+    } catch {
+      setNotice({ key: 'errors.saveProfile', error: true })
     } finally {
       setSavingGender(false)
     }
@@ -290,7 +341,11 @@ export default function PatientDashboard() {
     setMonth(
       (current) =>
         new Date(
-          Date.UTC(current.getUTCFullYear(), current.getUTCMonth() + amount, 1),
+          Date.UTC(
+            current.getUTCFullYear(),
+            current.getUTCMonth() + amount,
+            1,
+          ),
         ),
     )
     setSelectedDate('')
@@ -301,13 +356,18 @@ export default function PatientDashboard() {
     setSelectedDoctorId(doctorId)
     setSelectedDate('')
     setSelectedSlot('')
-    setMessage('')
-    setError('')
+    setNotice(null)
   }
 
   function chooseDoctorFromCard(clinician) {
     chooseDoctor(clinician.profile_id)
-    bookingPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches
+    bookingPanelRef.current?.scrollIntoView({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'start',
+    })
     window.requestAnimationFrame(() => doctorSelectRef.current?.focus())
   }
 
@@ -316,32 +376,38 @@ export default function PatientDashboard() {
     if (!recordedGender || !selectedSlot) return
 
     setSubmitting(true)
-    setError('')
-    setMessage('')
+    setNotice(null)
     try {
       const payload = {
         treatment_type: booking.treatment_type.trim(),
         starts_at: selectedSlot,
         notes: booking.notes.trim(),
       }
-      if (selectedDoctorId) payload.physiotherapist_id = selectedDoctorId
+      if (selectedDoctorId) {
+        payload.physiotherapist_id = selectedDoctorId
+      }
 
       const response = await api.post('/appointments', payload)
-      const assignedDoctor = response.data.data?.assigned_doctor
-      const assignedName = personName(assignedDoctor)
-      setMessage(
-        assignedName
-          ? `Appointment requested successfully with ${assignedName}.`
-          : response.data.message || 'Appointment requested successfully.',
-      )
+      const assignedName = personName(response.data.data?.assigned_doctor)
+      setNotice({
+        key: assignedName
+          ? 'notice.appointmentRequestedWith'
+          : 'notice.appointmentRequested',
+        values: assignedName ? { name: assignedName } : undefined,
+        error: false,
+      })
       setBooking(blankBooking)
       setSelectedSlot('')
-      await refreshAppointments()
       setAvailabilityRefresh((value) => value + 1)
+
+      try {
+        await refreshAppointments()
+      } catch {
+        setNotice({ key: 'errors.refreshAppointments', error: true })
+      }
     } catch (requestError) {
-      const status = requestError.response?.status
-      setError(requestError.response?.data?.message || 'Unable to book appointment')
-      if (status === 409) {
+      setNotice({ key: 'errors.bookAppointment', error: true })
+      if (requestError.response?.status === 409) {
         setSelectedSlot('')
         setAvailabilityRefresh((value) => value + 1)
       }
@@ -351,15 +417,21 @@ export default function PatientDashboard() {
   }
 
   async function cancel(id) {
-    setError('')
-    setMessage('')
+    setNotice(null)
+    setCancellingId(id)
     try {
       await api.patch(`/appointments/${id}/cancel`)
-      setMessage('Appointment cancelled')
-      await refreshAppointments()
+      setNotice({ key: 'notice.appointmentCancelled', error: false })
       setAvailabilityRefresh((value) => value + 1)
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Unable to cancel')
+      try {
+        await refreshAppointments()
+      } catch {
+        setNotice({ key: 'errors.refreshAfterCancel', error: true })
+      }
+    } catch {
+      setNotice({ key: 'errors.cancelAppointment', error: true })
+    } finally {
+      setCancellingId('')
     }
   }
 
@@ -368,16 +440,21 @@ export default function PatientDashboard() {
       ['pending', 'confirmed'].includes(appointment.status) &&
       new Date(appointment.starts_at) > new Date(),
   )
-  const availableDates = Object.values(days).filter((slots) => slots?.length).length
+  const availableDates = Object.values(days).filter(
+    (slots) => slots?.length,
+  ).length
   const previousMonthDisabled = range.from <= monthRange(currentMonth).from
 
   return (
     <DashboardLayout
-      role="Patient"
-      title="Your care, in one place"
-      subtitle="Find an available time and arrange an appointment around your schedule."
+      role={t('page.role')}
+      title={t('page.title')}
+      subtitle={t('page.subtitle')}
     >
-      <Notice value={error || message} error={Boolean(error)} />
+      <Notice
+        value={notice ? t(notice.key, notice.values) : ''}
+        error={notice?.error}
+      />
 
       <section
         className="panel patient-booking"
@@ -386,52 +463,52 @@ export default function PatientDashboard() {
       >
         <div className="patient-booking__heading">
           <div>
-            <p className="eyebrow">Book a visit</p>
-            <h2 id="book-appointment-title">Choose a date and time</h2>
-            <p>
-              Pick a physiotherapist or let the clinic assign an available match.
-            </p>
+            <p className="eyebrow">{t('booking.eyebrow')}</p>
+            <h2 id="book-appointment-title">{t('booking.title')}</h2>
+            <p>{t('booking.description')}</p>
           </div>
           {recordedGender && (
-            <span className="patient-time-zone">Times shown in {timeZone}</span>
+            <span className="patient-time-zone">
+              {t('booking.timeZone', { timeZone })}
+            </span>
           )}
         </div>
 
         {initialLoading && (
           <div className="patient-booking-state" role="status">
             <span className="patient-spinner" aria-hidden="true" />
-            Loading your booking calendar…
+            <span>{t('booking.loading')}</span>
           </div>
         )}
 
         {!initialLoading && !profile && (
-          <div className="patient-booking-state patient-booking-state--error">
-            Your profile could not be loaded. Refresh the page to try again.
+          <div
+            className="patient-booking-state patient-booking-state--error"
+            role="alert"
+          >
+            {t('booking.profileError')}
           </div>
         )}
 
         {!initialLoading && profile && !recordedGender && (
           <div className="patient-profile-completion">
             <div>
-              <p className="eyebrow">One detail needed</p>
-              <h3>Complete your profile to see matching clinicians</h3>
-              <p>
-                The clinic uses this information to apply its clinician-matching
-                policy before showing availability.
-              </p>
+              <p className="eyebrow">{t('profile.eyebrow')}</p>
+              <h3>{t('profile.title')}</h3>
+              <p>{t('profile.description')}</p>
             </div>
-            <form onSubmit={saveGender}>
+            <form onSubmit={saveGender} aria-busy={savingGender}>
               <label>
-                <span>Gender</span>
+                <span>{t('common:gender.label')}</span>
                 <select
                   value={genderDraft}
                   onChange={(event) => setGenderDraft(event.target.value)}
                   required
                   disabled={savingGender}
                 >
-                  <option value="">Select gender</option>
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
+                  <option value="">{t('common:gender.select')}</option>
+                  <option value="female">{t('common:gender.female')}</option>
+                  <option value="male">{t('common:gender.male')}</option>
                 </select>
               </label>
               <button
@@ -439,7 +516,7 @@ export default function PatientDashboard() {
                 type="submit"
                 disabled={savingGender || !supportedGenders.has(genderDraft)}
               >
-                {savingGender ? 'Saving…' : 'Save and view times'}
+                {savingGender ? t('profile.saving') : t('profile.save')}
               </button>
             </form>
           </div>
@@ -449,28 +526,39 @@ export default function PatientDashboard() {
           <>
             <div className="patient-doctor-filter">
               <label htmlFor="patient-doctor-select">
-                <span>Physiotherapist</span>
+                <span>{t('filter.label')}</span>
                 <select
                   id="patient-doctor-select"
                   ref={doctorSelectRef}
                   value={selectedDoctorId}
                   onChange={(event) => chooseDoctor(event.target.value)}
+                  aria-describedby="patient-doctor-help"
+                  disabled={directoryLoading}
                 >
-                  <option value="">Any available physiotherapist</option>
+                  <option value="">{t('filter.any')}</option>
                   {clinicians.map((clinician) => (
-                    <option key={clinician.profile_id} value={clinician.profile_id}>
-                      {personName(clinician)}
-                      {clinician.specialization ? ` — ${clinician.specialization}` : ''}
+                    <option
+                      key={clinician.profile_id}
+                      value={clinician.profile_id}
+                    >
+                      {clinician.specialization
+                        ? t('filter.optionWithSpecialty', {
+                            name: personName(clinician),
+                            specialty: clinician.specialization,
+                          })
+                        : personName(clinician)}
                     </option>
                   ))}
                 </select>
               </label>
-              <p>
+              <p id="patient-doctor-help">
                 {directoryLoading
-                  ? 'Loading clinicians…'
+                  ? t('filter.loading')
                   : selectedClinician
-                    ? `Showing times for ${personName(selectedClinician)}.`
-                    : 'We will randomly assign an eligible clinician who is free at your selected time.'}
+                    ? t('filter.selected', {
+                        name: personName(selectedClinician),
+                      })
+                    : t('filter.automatic')}
               </p>
             </div>
 
@@ -484,17 +572,20 @@ export default function PatientDashboard() {
                     type="button"
                     onClick={() => changeMonth(-1)}
                     disabled={previousMonthDisabled || availabilityLoading}
-                    aria-label="Show previous month"
+                    aria-label={t('calendar.previousMonth')}
                   >
-                    <span aria-hidden="true">‹</span>
+                    <CalendarArrow />
                   </button>
                   <div>
-                    <strong>{formatMonth(month)}</strong>
+                    <strong>{formatMonth(month, language)}</strong>
                     {!availabilityLoading && !availabilityError && (
                       <small>
                         {availableDates
-                          ? `${availableDates} available ${availableDates === 1 ? 'day' : 'days'}`
-                          : 'No available days'}
+                          ? t(
+                              'calendar.availableDays',
+                              pluralValues(availableDates),
+                            )
+                          : t('calendar.noAvailableDays')}
                       </small>
                     )}
                   </div>
@@ -502,24 +593,26 @@ export default function PatientDashboard() {
                     type="button"
                     onClick={() => changeMonth(1)}
                     disabled={availabilityLoading}
-                    aria-label="Show next month"
+                    aria-label={t('calendar.nextMonth')}
                   >
-                    <span aria-hidden="true">›</span>
+                    <CalendarArrow next />
                   </button>
                 </div>
 
                 <table
                   className="patient-calendar__grid"
-                  aria-label={`${formatMonth(month)} appointment calendar`}
+                  aria-label={t('calendar.ariaLabel', {
+                    month: formatMonth(month, language),
+                  })}
                 >
                   <caption className="patient-sr-only">
-                    Select a date with available appointment times
+                    {t('calendar.caption')}
                   </caption>
                   <thead>
                     <tr>
                       {WEEKDAYS.map((weekday) => (
                         <th scope="col" key={weekday}>
-                          {weekday}
+                          {t(`common:weekdays.short.${weekday}`)}
                         </th>
                       ))}
                     </tr>
@@ -541,11 +634,15 @@ export default function PatientDashboard() {
                           const isAvailable = slots.length > 0 && key >= today
                           const isSelected = key === selectedDate
                           const isToday = key === today
-                          const label = `${formatDate(key)}. ${
-                            isAvailable
-                              ? `${slots.length} available ${slots.length === 1 ? 'time' : 'times'}`
-                              : 'No available times'
-                          }`
+                          const localizedDate = formatDate(key, language)
+                          const label = isAvailable
+                            ? t('calendar.dayAvailable', {
+                                date: localizedDate,
+                                ...pluralValues(slots.length),
+                              })
+                            : t('calendar.dayUnavailable', {
+                                date: localizedDate,
+                              })
 
                           return (
                             <td key={key}>
@@ -553,8 +650,12 @@ export default function PatientDashboard() {
                                 type="button"
                                 className={[
                                   'patient-calendar__day',
-                                  isAvailable ? 'patient-calendar__day--available' : '',
-                                  isSelected ? 'patient-calendar__day--selected' : '',
+                                  isAvailable
+                                    ? 'patient-calendar__day--available'
+                                    : '',
+                                  isSelected
+                                    ? 'patient-calendar__day--selected'
+                                    : '',
                                   isToday ? 'patient-calendar__day--today' : '',
                                 ]
                                   .filter(Boolean)
@@ -567,7 +668,7 @@ export default function PatientDashboard() {
                                   setSelectedSlot('')
                                 }}
                               >
-                                <span>{Number(key.slice(-2))}</span>
+                                <span>{number(Number(key.slice(-2)))}</span>
                                 {isAvailable && (
                                   <span
                                     className="patient-calendar__marker"
@@ -587,15 +688,19 @@ export default function PatientDashboard() {
               <div className="patient-slots" aria-live="polite">
                 <div className="patient-slots__heading">
                   <div>
-                    <p className="eyebrow">Available times</p>
+                    <p className="eyebrow">{t('calendar.timesEyebrow')}</p>
                     <h3>
-                      {selectedDate ? formatShortDate(selectedDate) : formatMonth(month)}
+                      {selectedDate
+                        ? formatShortDate(selectedDate, language)
+                        : formatMonth(month, language)}
                     </h3>
                   </div>
                   {selectedDateSlots.length > 0 && (
                     <span>
-                      {selectedDateSlots.length}{' '}
-                      {selectedDateSlots.length === 1 ? 'time' : 'times'}
+                      {t(
+                        'calendar.timeCount',
+                        pluralValues(selectedDateSlots.length),
+                      )}
                     </span>
                   )}
                 </div>
@@ -603,19 +708,24 @@ export default function PatientDashboard() {
                 {availabilityLoading && (
                   <div className="patient-booking-state" role="status">
                     <span className="patient-spinner" aria-hidden="true" />
-                    Checking availability…
+                    <span>{t('calendar.checking')}</span>
                   </div>
                 )}
 
                 {!availabilityLoading && availabilityError && (
-                  <div className="patient-slot-state patient-slot-state--error">
-                    <p>{availabilityError}</p>
+                  <div
+                    className="patient-slot-state patient-slot-state--error"
+                    role="alert"
+                  >
+                    <p>{t('errors.loadAvailability')}</p>
                     <button
                       className="text-button"
                       type="button"
-                      onClick={() => setAvailabilityRefresh((value) => value + 1)}
+                      onClick={() =>
+                        setAvailabilityRefresh((value) => value + 1)
+                      }
                     >
-                      Try again
+                      {t('calendar.tryAgain')}
                     </button>
                   </div>
                 )}
@@ -625,8 +735,8 @@ export default function PatientDashboard() {
                   !selectedDate &&
                   availableDates === 0 && (
                     <div className="patient-slot-state">
-                      <strong>No times available this month</strong>
-                      <p>Try the next month or choose another physiotherapist.</p>
+                      <strong>{t('calendar.emptyMonthTitle')}</strong>
+                      <p>{t('calendar.emptyMonthDescription')}</p>
                     </div>
                   )}
 
@@ -635,8 +745,8 @@ export default function PatientDashboard() {
                   selectedDate &&
                   selectedDateSlots.length === 0 && (
                     <div className="patient-slot-state">
-                      <strong>No times on this date</strong>
-                      <p>Choose another marked date in the calendar.</p>
+                      <strong>{t('calendar.emptyDateTitle')}</strong>
+                      <p>{t('calendar.emptyDateDescription')}</p>
                     </div>
                   )}
 
@@ -644,7 +754,9 @@ export default function PatientDashboard() {
                   <div
                     className="patient-slot-grid"
                     role="group"
-                    aria-label={`Times available on ${formatDate(selectedDate)}`}
+                    aria-label={t('calendar.timesOnDate', {
+                      date: formatDate(selectedDate, language),
+                    })}
                   >
                     {selectedDateSlots.map((slot) => {
                       const isSelected = slot.starts_at === selectedSlot
@@ -658,11 +770,15 @@ export default function PatientDashboard() {
                           aria-pressed={isSelected}
                           onClick={() => setSelectedSlot(slot.starts_at)}
                         >
-                          <strong>{formatTime(slot.starts_at)}</strong>
+                          <strong>
+                            {formatTime(slot.starts_at, language)}
+                          </strong>
                           {!selectedDoctorId && (
                             <small>
-                              {slot.available_doctor_count}{' '}
-                              {slot.available_doctor_count === 1 ? 'doctor' : 'doctors'}
+                              {t(
+                                'calendar.doctorCount',
+                                pluralValues(slot.available_doctor_count),
+                              )}
                             </small>
                           )}
                         </button>
@@ -674,46 +790,58 @@ export default function PatientDashboard() {
             </div>
 
             {selectedSlotDetails && (
-              <form className="patient-booking-details" onSubmit={submit}>
+              <form
+                className="patient-booking-details"
+                onSubmit={submit}
+                aria-busy={submitting}
+              >
                 <div className="patient-booking-summary">
                   <div>
-                    <span>Date and time</span>
+                    <span>{t('details.dateTime')}</span>
                     <strong>
-                      {formatShortDate(selectedDate)} at{' '}
-                      {formatTime(selectedSlotDetails.starts_at)}
+                      {t('details.dateAtTime', {
+                        date: formatShortDate(selectedDate, language),
+                        time: formatTime(
+                          selectedSlotDetails.starts_at,
+                          language,
+                        ),
+                      })}
                     </strong>
                   </div>
                   <div>
-                    <span>Physiotherapist</span>
+                    <span>{t('details.physiotherapist')}</span>
                     <strong>
                       {selectedClinician
                         ? personName(selectedClinician)
-                        : 'Automatically assigned'}
+                        : t('details.automaticallyAssigned')}
                     </strong>
                   </div>
                 </div>
 
                 <div className="patient-booking-fields">
                   <label>
-                    <span>Treatment type</span>
+                    <span>{t('details.treatmentType')}</span>
                     <input
                       value={booking.treatment_type}
                       onChange={(event) =>
-                        setBooking({ ...booking, treatment_type: event.target.value })
+                        setBooking({
+                          ...booking,
+                          treatment_type: event.target.value,
+                        })
                       }
-                      placeholder="e.g. Initial assessment"
+                      placeholder={t('details.treatmentPlaceholder')}
                       required
                       disabled={submitting}
                     />
                   </label>
                   <label>
-                    <span>Reason or notes</span>
+                    <span>{t('details.notes')}</span>
                     <textarea
                       value={booking.notes}
                       onChange={(event) =>
                         setBooking({ ...booking, notes: event.target.value })
                       }
-                      placeholder="Tell your physiotherapist what brings you in"
+                      placeholder={t('details.notesPlaceholder')}
                       disabled={submitting}
                     />
                   </label>
@@ -721,13 +849,12 @@ export default function PatientDashboard() {
 
                 {!selectedClinician && (
                   <p className="patient-assignment-note">
-                    An eligible physiotherapist will be randomly assigned when your
-                    request is submitted.
+                    {t('details.assignmentNote')}
                   </p>
                 )}
 
                 <button className="button" type="submit" disabled={submitting}>
-                  {submitting ? 'Requesting appointment…' : 'Request appointment'}
+                  {submitting ? t('details.requesting') : t('details.request')}
                 </button>
               </form>
             )}
@@ -735,86 +862,94 @@ export default function PatientDashboard() {
         )}
       </section>
 
-      {upcoming.length > 0 && (
-        <section className="panel">
-          <div className="panel-heading">
-            <div>
-              <h2>Upcoming appointments</h2>
-              <p>Your pending and confirmed visits.</p>
-            </div>
+      <section className="panel">
+        <div className="panel-heading">
+          <div>
+            <h2>{t('appointments.title')}</h2>
+            <p>{t('appointments.description')}</p>
           </div>
+        </div>
+        {upcoming.length > 0 ? (
           <div className="appointment-list">
             {upcoming.map((appointment) => (
               <article key={appointment.id}>
                 <div className="date-tile">
                   <strong>
-                    {new Date(appointment.starts_at).toLocaleString('en', {
+                    {formatUtcDate(appointment.starts_at, language, {
                       day: 'numeric',
-                      timeZone: 'UTC',
                     })}
                   </strong>
                   <span>
-                    {new Date(appointment.starts_at).toLocaleString('en', {
+                    {formatUtcDate(appointment.starts_at, language, {
                       month: 'short',
-                      timeZone: 'UTC',
                     })}
                   </span>
                 </div>
                 <div>
                   <strong>{appointment.treatment_type}</strong>
-                  <span>with {personName(appointment.profiles)}</span>
-                  <small>{formatDateTime(appointment.starts_at)}</small>
+                  <span>
+                    {t('appointments.with', {
+                      name: personName(appointment.profiles),
+                    })}
+                  </span>
+                  <small>
+                    {formatDateTime(appointment.starts_at, language)}
+                  </small>
                 </div>
                 <span
                   className={`badge ${
                     appointment.status === 'confirmed' ? 'badge--green' : ''
                   }`}
                 >
-                  {appointment.status}
+                  {t(`common:statuses.${appointment.status}`)}
                 </span>
                 <button
                   className="text-button text-button--danger"
                   type="button"
                   onClick={() => cancel(appointment.id)}
+                  disabled={cancellingId === appointment.id}
                 >
-                  Cancel
+                  {cancellingId === appointment.id
+                    ? t('common:state.working')
+                    : t('common:actions.cancel')}
                 </button>
               </article>
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="empty">
+            <strong>{t('appointments.emptyTitle')}</strong>
+            <span>{t('appointments.emptyDescription')}</span>
+          </div>
+        )}
+      </section>
 
       {recordedGender && (
         <section>
           <div className="section-heading">
             <div>
-              <p className="eyebrow">Our clinical team</p>
-              <h2>Choose your physiotherapist</h2>
+              <p className="eyebrow">{t('clinicians.eyebrow')}</p>
+              <h2>{t('clinicians.title')}</h2>
             </div>
-            <p>
-              Select a clinician to filter the calendar, or leave the calendar set
-              to any available physiotherapist.
-            </p>
+            <p>{t('clinicians.description')}</p>
           </div>
 
           {directoryLoading && (
             <div className="panel patient-booking-state" role="status">
               <span className="patient-spinner" aria-hidden="true" />
-              Loading clinicians…
+              <span>{t('clinicians.loading')}</span>
             </div>
           )}
 
           {!directoryLoading && clinicians.length === 0 && (
-            <div className="panel empty">
-              No physiotherapists are currently accepting appointments.
-            </div>
+            <div className="panel empty">{t('clinicians.empty')}</div>
           )}
 
           {!directoryLoading && clinicians.length > 0 && (
             <div className="clinician-grid">
               {clinicians.map((clinician) => {
                 const isSelected = clinician.profile_id === selectedDoctorId
+                const name = personName(clinician)
                 return (
                   <article
                     className={`clinician-card patient-clinician-card ${
@@ -826,30 +961,47 @@ export default function PatientDashboard() {
                       {clinician.profile_image ? (
                         <img
                           src={clinician.profile_image}
-                          alt={`Portrait of ${personName(clinician)}`}
+                          alt={t('clinicians.portraitAlt', { name })}
                         />
                       ) : (
                         <span aria-hidden="true">
-                          {clinician.profiles.first_name[0]}
-                          {clinician.profiles.last_name[0]}
+                          {clinician.profiles?.first_name?.[0]}
+                          {clinician.profiles?.last_name?.[0]}
                         </span>
                       )}
-                      <span className="available-dot">Accepting appointments</span>
+                      <span className="available-dot">
+                        {t('clinicians.accepting')}
+                      </span>
                     </div>
                     <div className="clinician-body">
                       <p className="eyebrow">{clinician.professional_title}</p>
-                      <h3>{personName(clinician)}</h3>
-                      <strong className="specialty">{clinician.specialization}</strong>
+                      <h3>{name}</h3>
+                      <strong className="specialty">
+                        {clinician.specialization}
+                      </strong>
                       <p>
-                        {clinician.biography ||
-                          'Dedicated to helping patients move comfortably and confidently.'}
+                        {clinician.biography || t('clinicians.defaultBiography')}
                       </p>
                       <div className="clinician-facts">
                         <span>
-                          <strong>{clinician.years_of_experience}</strong> years
+                          <strong>
+                            {t(
+                              'clinicians.years',
+                              pluralValues(
+                                Number(clinician.years_of_experience) || 0,
+                              ),
+                            )}
+                          </strong>
                         </span>
                         <span>
-                          <strong>{clinician.consultation_duration}</strong> min
+                          <strong>
+                            {t(
+                              'clinicians.minutes',
+                              pluralValues(
+                                Number(clinician.consultation_duration) || 0,
+                              ),
+                            )}
+                          </strong>
                         </span>
                       </div>
                       <button
@@ -860,7 +1012,9 @@ export default function PatientDashboard() {
                         aria-pressed={isSelected}
                         onClick={() => chooseDoctorFromCard(clinician)}
                       >
-                        {isSelected ? 'Selected in calendar' : 'View availability'}
+                        {isSelected
+                          ? t('clinicians.selected')
+                          : t('clinicians.viewAvailability')}
                       </button>
                     </div>
                   </article>

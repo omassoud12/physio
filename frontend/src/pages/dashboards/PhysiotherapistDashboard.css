@@ -1,7 +1,274 @@
+.physiotherapist-dashboard,
+.physiotherapist-dashboard * {
+  min-width: 0;
+}
+
+.physiotherapist-dashboard {
+  --physio-focus: rgba(23, 107, 100, 0.22);
+}
+
+.physiotherapist-tabs-nav {
+  margin-block-end: 24px;
+}
+
+.physiotherapist-dashboard .dashboard-tabs {
+  width: 100%;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: visible;
+}
+
+.physiotherapist-dashboard .dashboard-tabs button {
+  min-height: 42px;
+  padding: 8px 10px;
+  text-transform: none;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.physiotherapist-dashboard .dashboard-tabs button:hover:not(.active) {
+  color: var(--clinic-dark);
+  background: var(--clinic-soft);
+}
+
+.physiotherapist-dashboard :where(button, input, select, textarea):focus-visible,
+.physiotherapist-tabpanel:focus-visible {
+  outline: 3px solid var(--physio-focus);
+  outline-offset: 2px;
+}
+
+.physiotherapist-dashboard :where(button, input, select, textarea):disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.physiotherapist-dashboard .button,
+.physiotherapist-dashboard .text-button {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.physiotherapist-dashboard .button:hover:not(:disabled) {
+  box-shadow: 0 8px 20px rgba(13, 64, 60, 0.18);
+  transform: translateY(-1px);
+}
+
+.physiotherapist-dashboard .text-button {
+  padding: 7px 9px;
+  border-radius: 8px;
+  text-align: start;
+}
+
+.physiotherapist-dashboard .text-button:hover:not(:disabled) {
+  background: var(--clinic-soft);
+}
+
+.physiotherapist-dashboard .text-button--danger:hover:not(:disabled) {
+  background: #fff0f0;
+}
+
+.physiotherapist-tabpanel {
+  border-radius: 18px;
+}
+
+.physiotherapist-dashboard .panel {
+  overflow: hidden;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.physiotherapist-dashboard .panel:hover {
+  border-color: #cbdeda;
+  box-shadow: 0 12px 34px rgba(23, 107, 100, 0.075);
+}
+
+.physiotherapist-sr-only {
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.physiotherapist-dashboard .physiotherapist-stat-grid {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.physiotherapist-dashboard .physiotherapist-stat-grid article {
+  min-height: 122px;
+  padding: 19px;
+}
+
+.physiotherapist-dashboard .physiotherapist-stat-grid article strong {
+  font-size: clamp(34px, 9vw, 42px);
+}
+
+.physiotherapist-loading {
+  min-height: 280px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-content: center;
+  align-items: center;
+  gap: 14px;
+}
+
+.physiotherapist-loading h2,
+.physiotherapist-loading p,
+.physiotherapist-empty-panel h2,
+.physiotherapist-empty-panel p {
+  margin: 0;
+}
+
+.physiotherapist-loading p,
+.physiotherapist-empty-panel p {
+  color: var(--muted);
+}
+
+.physiotherapist-spinner {
+  width: 28px;
+  height: 28px;
+  display: inline-block;
+  flex: 0 0 auto;
+  border: 3px solid #cfe4df;
+  border-block-start-color: var(--clinic);
+  border-radius: 50%;
+  animation: physiotherapist-spin 720ms linear infinite;
+}
+
+.physiotherapist-spinner--small {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.physiotherapist-loading__skeleton {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  margin-block-start: 18px;
+}
+
+.physiotherapist-loading__skeleton span {
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #eef5f3 25%, #dfece9 50%, #eef5f3 75%);
+  background-size: 220% 100%;
+  animation: physiotherapist-shimmer 1.2s ease-in-out infinite;
+}
+
+.physiotherapist-loading__skeleton span:nth-child(2) {
+  width: 82%;
+}
+
+.physiotherapist-loading__skeleton span:nth-child(3) {
+  width: 62%;
+}
+
+.physiotherapist-empty-panel {
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  text-align: center;
+}
+
+.physiotherapist-empty-panel__icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  margin-block-end: 4px;
+  border-radius: 50%;
+  color: #9d3434;
+  background: #fff0f0;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.physiotherapist-empty-panel .button {
+  margin-block-start: 8px;
+}
+
+.physiotherapist-empty-state {
+  margin-block-start: 2px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: #fbfdfc;
+}
+
+.physiotherapist-person-grid {
+  gap: 0;
+}
+
+.physiotherapist-person-row {
+  min-width: 0;
+  border-radius: 10px;
+  transition: background-color 160ms ease;
+}
+
+.physiotherapist-person-row:hover {
+  background: #f8fbfa;
+}
+
+.physiotherapist-person-row > div:not(.avatar),
+.physiotherapist-appointment__details {
+  min-width: 0;
+}
+
+.physiotherapist-person-row strong,
+.physiotherapist-person-row span,
+.physiotherapist-person-row small,
+.physiotherapist-appointment__details strong,
+.physiotherapist-appointment__details span,
+.physiotherapist-appointment__details small {
+  overflow-wrap: anywhere;
+}
+
+.physiotherapist-patient-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 7px;
+}
+
+.physiotherapist-profile-form {
+  grid-template-columns: 1fr;
+}
+
+.physiotherapist-profile-form__check {
+  width: fit-content;
+  padding: 8px 0;
+  text-transform: none;
+}
+
+.physiotherapist-profile-form__check input {
+  flex: 0 0 auto;
+  accent-color: var(--clinic);
+}
+
+.physiotherapist-profile-form .button.full {
+  min-height: 44px;
+}
+
 .availability-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(290px, .7fr);
-  gap: 22px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
   align-items: start;
 }
 
@@ -12,14 +279,12 @@
 
 .availability-sidebar {
   display: grid;
-  gap: 22px;
-}
-
-.availability-exceptions {
-  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
 }
 
 .clinic-time-label {
+  width: fit-content;
   flex: 0 0 auto;
   padding: 7px 11px;
   border: 1px solid #b9dcd6;
@@ -32,27 +297,27 @@
 
 .availability-days {
   display: grid;
-  border-top: 1px solid var(--line);
+  border-block-start: 1px solid var(--line);
 }
 
 .availability-day {
   display: grid;
-  grid-template-columns: 105px minmax(0, 1fr);
-  gap: 18px;
-  padding: 17px 0;
-  border-bottom: 1px solid #edf2f1;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding-block: 16px;
+  border-block-end: 1px solid #edf2f1;
 }
 
 .availability-day:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
+  padding-block-end: 0;
+  border-block-end: 0;
 }
 
 .availability-day__heading {
-  display: grid;
-  align-content: start;
-  gap: 3px;
-  padding-top: 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .availability-day__heading strong {
@@ -61,6 +326,7 @@
 
 .availability-day__heading small {
   color: var(--muted);
+  text-align: end;
 }
 
 .availability-day__periods {
@@ -70,13 +336,29 @@
 
 .availability-period {
   display: grid;
-  grid-template-columns: 78px minmax(105px, .95fr) repeat(3, minmax(92px, .8fr)) auto;
-  gap: 9px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "toggle"
+    "day"
+    "start"
+    "end"
+    "duration"
+    "actions";
+  gap: 10px;
   align-items: end;
-  padding: 12px;
+  padding: 13px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 13px;
   background: #fbfdfc;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.availability-period:hover {
+  border-color: #c7ddd8;
+  box-shadow: 0 7px 18px rgba(23, 107, 100, 0.06);
 }
 
 .availability-period--paused {
@@ -92,14 +374,14 @@
 .availability-period input,
 .availability-period select {
   min-width: 0;
-  padding: 8px;
+  padding: 9px;
 }
 
 .availability-toggle {
+  grid-area: toggle;
   display: flex;
   align-items: center;
-  align-self: center;
-  gap: 7px;
+  gap: 8px;
   color: var(--ink);
   font-size: 12px;
   font-weight: 700;
@@ -111,16 +393,30 @@
   accent-color: var(--clinic);
 }
 
-.availability-period__actions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 39px;
+.availability-period__day {
+  grid-area: day;
 }
 
-.availability-period__actions button:disabled {
-  cursor: wait;
-  opacity: .55;
+.availability-period__start {
+  grid-area: start;
+}
+
+.availability-period__end {
+  grid-area: end;
+}
+
+.availability-period__duration {
+  grid-area: duration;
+}
+
+.availability-period__actions {
+  grid-area: actions;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 3px;
+  min-height: 39px;
 }
 
 .availability-form > div:first-child {
@@ -139,8 +435,12 @@
 
 .availability-form__times {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 10px;
+}
+
+.availability-form .button {
+  min-height: 44px;
 }
 
 .availability-exception-list {
@@ -149,20 +449,20 @@
 
 .availability-exception-list article {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 14px 0;
-  border-bottom: 1px solid #edf2f1;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 10px;
+  padding-block: 14px;
+  border-block-end: 1px solid #edf2f1;
 }
 
 .availability-exception-list article:first-child {
-  padding-top: 0;
+  padding-block-start: 0;
 }
 
 .availability-exception-list article:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
+  padding-block-end: 0;
+  border-block-end: 0;
 }
 
 .availability-exception-list article > div {
@@ -173,60 +473,228 @@
 .availability-exception-list span {
   color: var(--muted);
   font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
-@media (max-width: 1120px) {
-  .availability-workspace {
-    grid-template-columns: 1fr;
-  }
+.physiotherapist-appointment-list {
+  display: grid;
+}
 
-  .availability-exceptions {
-    grid-column: auto;
-  }
+.physiotherapist-dashboard .physiotherapist-appointment {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "date details"
+    ". status"
+    ". actions";
+  gap: 8px 13px;
+  padding-block: 15px;
+}
 
-  .availability-sidebar {
-    grid-template-columns: 1fr 1fr;
+.physiotherapist-appointment .date-tile {
+  grid-area: date;
+}
+
+.physiotherapist-appointment__details {
+  grid-area: details;
+  display: grid;
+  align-self: center;
+}
+
+.physiotherapist-dashboard .physiotherapist-appointment > .physiotherapist-status {
+  grid-area: status;
+  align-self: center;
+  justify-self: start;
+}
+
+.physiotherapist-dashboard .physiotherapist-appointment > .physiotherapist-appointment__actions {
+  grid-area: actions;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-self: start;
+}
+
+.physiotherapist-inline-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.physiotherapist-dashboard .physiotherapist-status--confirmed,
+.physiotherapist-dashboard .physiotherapist-status--completed {
+  color: #17623b;
+  background: #e2f5e9;
+}
+
+.physiotherapist-dashboard .physiotherapist-status--rejected,
+.physiotherapist-dashboard .physiotherapist-status--cancelled,
+.physiotherapist-dashboard .physiotherapist-status--no_show {
+  color: #923d3d;
+  background: #fde9e9;
+}
+
+.physiotherapist-dashboard .physiotherapist-status--pending {
+  color: #79521b;
+  background: #fff0cf;
+}
+
+@keyframes physiotherapist-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 820px) {
-  .availability-period {
+@keyframes physiotherapist-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (min-width: 480px) {
+  .physiotherapist-dashboard .dashboard-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .physiotherapist-dashboard .physiotherapist-stat-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .availability-toggle,
-  .availability-period__actions {
-    min-height: auto;
-  }
-}
-
-@media (max-width: 620px) {
-  .availability-sidebar {
-    grid-template-columns: 1fr;
+  .physiotherapist-dashboard .physiotherapist-stat-grid article:last-child {
+    grid-column: 1 / -1;
   }
 
-  .availability-day {
-    grid-template-columns: 1fr;
-    gap: 9px;
-  }
-
-  .availability-day__heading {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding-top: 0;
+  .availability-form__times {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .availability-period {
-    grid-template-columns: 1fr;
-  }
-
-  .availability-period__actions {
-    justify-content: flex-end;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "toggle toggle"
+      "day day"
+      "start end"
+      "duration actions";
   }
 
   .availability-exception-list article {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 18px;
+  }
+}
+
+@media (min-width: 700px) {
+  .physiotherapist-profile-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .physiotherapist-profile-form .full {
+    grid-column: 1 / -1;
+  }
+
+  .availability-day {
+    grid-template-columns: 105px minmax(0, 1fr);
+    gap: 18px;
+    padding-block: 17px;
+  }
+
+  .availability-day__heading {
+    display: grid;
+    align-content: start;
+    justify-content: stretch;
+    gap: 3px;
+    padding-block-start: 8px;
+  }
+
+  .availability-day__heading small {
+    text-align: start;
+  }
+
+  .availability-period {
+    grid-template-columns: minmax(118px, 1fr) repeat(3, minmax(88px, 0.72fr));
+    grid-template-areas:
+      "toggle toggle toggle actions"
+      "day start end duration";
+  }
+
+  .physiotherapist-dashboard .physiotherapist-appointment {
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(150px, auto);
+    grid-template-areas: "date details status actions";
+    gap: 16px;
+  }
+
+  .physiotherapist-dashboard .physiotherapist-appointment > .physiotherapist-appointment__actions {
+    justify-content: flex-end;
+    justify-self: end;
+  }
+}
+
+@media (min-width: 769px) {
+  .physiotherapist-dashboard .dashboard-tabs {
+    width: fit-content;
+    grid-template-columns: repeat(5, auto);
+  }
+
+  .physiotherapist-dashboard .dashboard-tabs button {
+    padding-inline: 15px;
+  }
+
+  .physiotherapist-dashboard .physiotherapist-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .physiotherapist-dashboard .physiotherapist-stat-grid article:last-child {
+    grid-column: auto;
+  }
+
+  .physiotherapist-person-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 24px;
+  }
+
+  .availability-sidebar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1121px) {
+  .availability-workspace {
+    grid-template-columns: minmax(0, 1.55fr) minmax(290px, 0.7fr);
+    gap: 22px;
+  }
+
+  .availability-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  .availability-exceptions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 699px) {
+  .physiotherapist-dashboard .panel-heading {
+    gap: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .physiotherapist-dashboard *,
+  .physiotherapist-dashboard *::before,
+  .physiotherapist-dashboard *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

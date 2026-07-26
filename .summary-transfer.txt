@@ -1,0 +1,815 @@
+PHYSIOCARE CLINIC - COMPLETE PROJECT SUMMARY
+Last updated: July 23, 2026
+
+======================================================================
+1. PURPOSE OF THIS FILE
+======================================================================
+
+This is the main, easy-to-read reference for the PhysioCare Clinic
+project.
+
+It explains:
+
+- What the project is.
+- What every website page does.
+- What each type of user can do.
+- How appointments and doctor availability work.
+- How the backend and database work.
+- The main security rules.
+- How to install, run, and test the project.
+- Every important update made with Codex.
+
+This file should be updated whenever Codex changes the project.
+
+In this document, the words "doctor" and "physiotherapist" refer to the
+same clinic user. The application uses the official role name
+"physiotherapist."
+
+
+======================================================================
+2. PROJECT OVERVIEW
+======================================================================
+
+PhysioCare Clinic is a website for managing a physiotherapy clinic.
+
+The system has:
+
+- A public clinic website.
+- Patient registration and sign-in.
+- A separate dashboard for patients.
+- A separate dashboard for physiotherapists.
+- A separate dashboard for the administrator.
+- An appointment calendar.
+- Doctor working-hours and time-off management.
+- Automatic doctor assignment when a patient does not choose a doctor.
+- Gender-aware doctor matching.
+- Clinic account and patient assignment management.
+
+Main technology:
+
+- Frontend: React and Vite.
+- Backend: Node.js and Express.
+- Login system: Supabase Auth.
+- Database: Supabase PostgreSQL.
+- API communication: Axios.
+- Security: access tokens, role checks, ownership checks, database
+  triggers, and Supabase Row Level Security.
+
+Main project folder:
+
+C:\Users\USER\Desktop\physiotherapy-clinic
+
+
+======================================================================
+3. USER ROLES
+======================================================================
+
+3.1 Patient
+
+A patient can:
+
+- Create a patient account.
+- Sign in to the patient dashboard.
+- Complete their profile gender if it is missing.
+- View doctors who are active and accepting appointments.
+- View a monthly calendar of available appointment days.
+- View the available times on a selected day.
+- Choose a specific physiotherapist.
+- Leave the doctor choice open and let the system assign one.
+- Enter a treatment type and optional appointment notes.
+- Request an appointment.
+- See the doctor assigned to the appointment.
+- View upcoming pending and confirmed appointments.
+- Cancel an upcoming appointment.
+
+A patient cannot:
+
+- Open the physiotherapist dashboard.
+- Open the administrator dashboard.
+- Manage another patient's appointments.
+- Change a doctor schedule.
+- Manage clinic accounts.
+
+
+3.2 Physiotherapist
+
+A physiotherapist can:
+
+- Sign in to the physiotherapist dashboard.
+- View today's schedule and upcoming appointments.
+- Confirm or reject a pending appointment.
+- Mark a confirmed appointment as completed or no-show.
+- View only patients connected to them through an assignment or
+  appointment.
+- Edit their professional profile.
+- Choose whether they are accepting new patients.
+- Add weekly working periods.
+- Edit, pause, enable, or remove weekly working periods.
+- Choose the length of appointment slots.
+- Add or remove time-off exceptions.
+
+A physiotherapist cannot:
+
+- Open the patient dashboard as a patient.
+- Open the administrator dashboard.
+- View another physiotherapist's private appointment list.
+- Change another physiotherapist's working hours.
+- Manage unrelated patient records.
+- Change their own gender or license number. The administrator manages
+  those fields.
+
+
+3.3 Administrator
+
+The administrator can:
+
+- Sign in to the administrator dashboard.
+- View clinic totals and pending appointment totals.
+- Search and view patients.
+- Enable or disable patient accounts.
+- Create physiotherapist accounts.
+- View and manage physiotherapist accounts.
+- Enable or disable physiotherapist accounts.
+- Set or correct a physiotherapist's gender.
+- Create a patient-to-physiotherapist assignment.
+- End an active assignment while keeping its history.
+
+The current database design allows one active administrator account.
+
+
+======================================================================
+4. WEBSITE PAGES
+======================================================================
+
+4.1 Home Page
+Address: /
+Access: Everyone
+
+Purpose:
+
+- Introduces PhysioCare Clinic.
+- Explains pain management, sports rehabilitation, and post-surgery
+  recovery.
+- Explains the clinic's care and recovery approach.
+- Shows clinic highlights and calls to action.
+- Links visitors to Sign In and Create Account.
+- Includes links to the Services and Our Approach sections.
+
+
+4.2 Sign In Page
+Address: /signin
+Access: Everyone
+
+Purpose:
+
+- Checks whether the backend and database are available.
+- Lets a user sign in with an email address and password.
+- Includes a Show/Hide password button.
+- Saves the login session and user profile in the browser.
+- Sends the user to the correct dashboard for their role.
+- Shows a clear error if sign-in fails.
+
+Role redirects:
+
+- Patient -> /patient/dashboard
+- Physiotherapist -> /physiotherapist/dashboard
+- Administrator -> /admin/dashboard
+
+Current limitation:
+
+- The "Forgot password?" link points to /forgot-password.
+- There is no forgot-password page yet.
+- Because the route does not exist, the user is currently redirected to
+  the Home page.
+
+
+4.3 Register Page
+Address: /register
+Access: Everyone
+
+Purpose:
+
+- Creates patient accounts only.
+- Collects first name, last name, gender, email, password, and password
+  confirmation.
+- Requires a password with at least eight characters.
+- Checks that both password fields match.
+- Prevents the configured administrator email from being registered as a
+  patient.
+- Shows an email-confirmation message when Supabase email confirmation is
+  enabled.
+- Signs the patient in immediately when email confirmation is disabled.
+
+
+4.4 Connection Test Page
+Address: /connection-test
+Access: Everyone
+
+Purpose:
+
+- Provides a technical connection check for developers.
+- Tests the frontend, backend, and Supabase connection.
+- Shows loading, success, or error information.
+- Lets the user run the connection test again.
+
+This is mainly a development and troubleshooting page.
+
+
+4.5 Patient Dashboard
+Address: /patient/dashboard
+Access: Patients only
+
+Main booking area:
+
+- Loads the patient's profile and appointment list.
+- Asks older patients to add gender if the value is missing.
+- Displays an appointment calendar for the selected month.
+- Marks days that have available appointment times.
+- Displays time buttons for the selected day.
+- Shows the number of available doctors for each time when the patient
+  selects "Any available physiotherapist."
+- Lets the patient filter the calendar by one doctor.
+- Lets the patient enter a treatment type and optional notes.
+- Requests the appointment from the backend.
+- Shows the assigned doctor's name after a successful booking.
+- Refreshes the calendar if another patient takes the time first.
+
+Upcoming appointments:
+
+- Shows pending and confirmed future appointments.
+- Displays the treatment type, doctor, date, time, and status.
+- Lets the patient cancel an active upcoming appointment.
+
+Doctor directory:
+
+- Shows eligible doctors returned by the backend.
+- Displays each doctor's name, title, specialization, biography,
+  experience, and normal consultation length.
+- Lets the patient select a doctor card and filter the calendar.
+
+Gender rule:
+
+- A female patient only sees female physiotherapists.
+- This is not only a visual frontend filter.
+- The backend, database trigger, and database security policies also
+  enforce the rule.
+
+Time rule:
+
+- Calendar and appointment times are currently handled and shown in UTC.
+
+
+4.6 Physiotherapist Dashboard
+Address: /physiotherapist/dashboard
+Access: Physiotherapists only
+
+The dashboard has five tabs.
+
+Schedule tab:
+
+- Shows the number of appointments today.
+- Shows the number of upcoming active appointments.
+- Shows the number of authorized patients.
+- Displays today's visits or the next upcoming visits.
+
+Appointments tab:
+
+- Shows only appointments booked with the signed-in physiotherapist.
+- Lets the physiotherapist confirm or reject pending appointments.
+- Lets the physiotherapist complete a confirmed appointment.
+- Lets the physiotherapist mark a confirmed appointment as no-show.
+
+Patients tab:
+
+- Shows patients assigned to the physiotherapist.
+- Also shows patients who have an appointment with the physiotherapist.
+- Displays limited patient contact and medical-record information.
+
+Availability tab:
+
+- Shows Monday through Sunday in the correct order.
+- Lets the physiotherapist add more than one working period on a day.
+- Lets the physiotherapist edit the day, start time, end time, and slot
+  length.
+- Lets the physiotherapist pause or enable a working period.
+- Lets the physiotherapist save or remove a working period.
+- Prevents invalid times and overlapping active periods.
+- Lets the physiotherapist block time for holidays, training, or personal
+  leave.
+- Lets the physiotherapist remove a time-off block.
+- Uses UTC as the clinic scheduling time.
+
+Profile tab:
+
+- Lets the physiotherapist update their first name, last name, and phone.
+- Lets the physiotherapist update professional title and specialization.
+- Lets the physiotherapist update biography and years of experience.
+- Lets the physiotherapist update consultation length and profile image.
+- Lets the physiotherapist choose whether they are accepting patients.
+- The public doctor directory uses this information.
+
+
+4.7 Administrator Dashboard
+Address: /admin/dashboard
+Access: Administrators only
+
+The dashboard has four tabs.
+
+Overview tab:
+
+- Shows total active patients.
+- Shows total active physiotherapists.
+- Shows total appointments.
+- Shows pending appointments.
+- Shows current patient-to-physiotherapist assignments.
+
+Patients tab:
+
+- Searches patients by name, email, phone, or medical record number.
+- Shows patient name, email, gender, contact information, record number,
+  and account status.
+- Lets the administrator enable or disable a patient account.
+
+Physiotherapists tab:
+
+- Lists clinic physiotherapists and their professional details.
+- Shows each physiotherapist's gender.
+- Lets the administrator set gender for an older clinician profile.
+- Lets the administrator correct a clinician's gender.
+- Lets the administrator enable or disable a clinician account.
+- Creates a new physiotherapist login and professional profile.
+- Collects name, gender, email, phone, temporary password, title, license
+  number, specialization, experience, consultation length, image, and
+  biography.
+
+Assignments tab:
+
+- Shows active patient-to-physiotherapist assignments.
+- Creates a new assignment between an active patient and active
+  physiotherapist.
+- Ends an assignment without deleting its history.
+
+
+4.8 Unknown Page Addresses
+
+- Any frontend address that does not exist redirects to the Home page.
+- Protected dashboards also redirect users when their saved role is not
+  allowed to open that dashboard.
+
+
+======================================================================
+5. MAIN SYSTEM WORKFLOWS
+======================================================================
+
+5.1 Sign-In and Role Protection
+
+1. The user enters an email and password.
+2. Supabase checks the credentials.
+3. The backend loads the user's current active profile.
+4. The frontend saves the session and profile in browser storage.
+5. The user is sent to the correct dashboard.
+6. Every protected API request includes the access token.
+7. The backend checks the token again and reloads the profile.
+8. The backend checks the user's role before allowing the action.
+9. If the session expires, the frontend clears it and returns to Sign In.
+
+
+5.2 Doctor Availability
+
+1. A physiotherapist adds recurring weekly working periods.
+2. Every period has a weekday, start time, end time, and slot length.
+3. The system prevents active periods for the same doctor from
+   overlapping.
+4. The physiotherapist can pause a period without deleting it.
+5. The physiotherapist can add time off for a specific date and time.
+6. The booking service generates appointment slots from active periods.
+7. Past times are removed.
+8. Time-off periods are removed.
+9. Times used by pending or confirmed appointments are removed.
+
+
+5.3 Patient Calendar
+
+1. The patient opens the monthly calendar.
+2. The frontend asks the backend for a date range.
+3. The backend finds doctors who are active and accepting patients.
+4. The backend applies the patient's gender-matching rule.
+5. The backend generates free slots from doctor working hours.
+6. Times offered by more than one doctor are grouped together.
+7. The calendar marks days with at least one available time.
+8. The patient selects a day and then a time.
+
+The calendar API accepts a range of up to 42 days.
+
+
+5.4 Booking a Specific Doctor
+
+1. The patient chooses a physiotherapist.
+2. The calendar shows only that doctor's available times.
+3. The patient selects a time and sends the request.
+4. The backend checks the doctor's activity, gender eligibility, working
+   hours, time off, and existing appointments again.
+5. The backend saves the appointment as pending if the time is still free.
+6. If the time was just taken, the patient receives a conflict message and
+   the calendar refreshes.
+
+
+5.5 Automatic Random Doctor Assignment
+
+1. The patient leaves the doctor selector on "Any available
+   physiotherapist."
+2. The patient selects a time.
+3. The backend finds every eligible doctor free at that exact time.
+4. The backend puts those doctors in a random order.
+5. The backend tries to create the appointment with one doctor.
+6. If another patient took that doctor's slot at the same moment, the
+   backend tries another eligible doctor.
+7. The backend returns the assigned doctor's name after a successful
+   booking.
+
+For a female patient, the eligible list contains female doctors only.
+
+
+5.6 Appointment Status
+
+New appointments start with the status "pending."
+
+Normal status changes:
+
+- Pending -> Confirmed
+- Pending -> Rejected
+- Pending -> Cancelled
+- Confirmed -> Completed
+- Confirmed -> Cancelled
+- Confirmed -> No-show
+
+The database keeps an appointment status history.
+
+
+5.7 Patient and Physiotherapist Assignments
+
+- An administrator can assign one physiotherapist to a patient.
+- The database allows one active assignment per patient.
+- Ending an assignment marks it inactive and keeps the history.
+- A physiotherapist can view a patient's limited details when there is an
+  active assignment or appointment relationship.
+
+
+======================================================================
+6. BACKEND AND API
+======================================================================
+
+The backend is an Express application.
+
+Main API groups:
+
+Authentication and profile:
+
+- POST /api/auth/signup
+- POST /api/auth/signin
+- GET /api/profile/me
+- PATCH /api/profile/me
+
+Doctor directory and patient booking:
+
+- GET /api/physiotherapists
+- GET /api/physiotherapists/:id
+- GET /api/physiotherapists/:id/available-slots
+- GET /api/appointments/availability
+- POST /api/appointments
+- GET /api/appointments/my
+- PATCH /api/appointments/:id/cancel
+- PATCH /api/appointments/:id/reschedule
+
+Note:
+
+- The backend supports patient rescheduling.
+- The current patient dashboard does not yet show a reschedule control.
+
+Physiotherapist tools:
+
+- GET and PATCH /api/physiotherapist/me
+- GET and POST /api/physiotherapist/availability
+- PATCH and DELETE /api/physiotherapist/availability/:id
+- GET and POST /api/physiotherapist/time-off
+- DELETE /api/physiotherapist/time-off/:id
+- GET /api/physiotherapist/appointments
+- PATCH /api/physiotherapist/appointments/:id/status
+- GET /api/physiotherapist/patients
+- GET /api/physiotherapist/patients/:id
+
+Administrator tools:
+
+- GET /api/admin/dashboard
+- GET and POST /api/admin/physiotherapists
+- PATCH and DELETE /api/admin/physiotherapists/:id
+- GET /api/admin/patients
+- GET, PATCH, and DELETE /api/admin/patients/:id
+- GET and POST /api/admin/patient-assignments
+- PATCH and DELETE /api/admin/patient-assignments/:id
+
+Connection test:
+
+- GET /api/test
+
+
+======================================================================
+7. DATABASE INFORMATION
+======================================================================
+
+Important database tables:
+
+profiles:
+
+- Stores the basic account profile.
+- Includes name, email, phone, gender, role, and active status.
+- Patient medical information can include date of birth and medical record
+  number.
+
+physiotherapists:
+
+- Stores professional information for physiotherapist accounts.
+- Includes title, license number, specialization, biography, experience,
+  normal consultation length, image, and accepting-patients status.
+
+physiotherapist_working_hours:
+
+- Stores recurring weekly working periods.
+- Includes weekday, start time, end time, slot length, and active status.
+
+physiotherapist_time_off:
+
+- Stores one-time unavailable periods and an optional reason.
+
+appointments:
+
+- Stores patient, doctor, treatment type, start and end times, notes, and
+  appointment status.
+- Prevents two active appointments from using overlapping time for the
+  same doctor.
+
+appointment_status_history:
+
+- Stores appointment status changes and the user who made each change.
+
+patient_physiotherapist_assignments:
+
+- Stores active and past care assignments.
+- Keeps the administrator who created the assignment and the assignment
+  dates.
+
+
+======================================================================
+8. SECURITY AND PRIVACY RULES
+======================================================================
+
+- Passwords are managed by Supabase Auth.
+- Passwords are not stored in the project files or normal database tables.
+- The Supabase service secret belongs only in the backend environment.
+- The frontend must never receive the service secret.
+- Protected endpoints require a valid access token.
+- The backend reloads the account profile for every protected request.
+- Disabled users cannot continue using protected API features.
+- Role middleware blocks users from other role areas.
+- Patient appointment actions are limited to that patient.
+- Physiotherapist actions are limited to that physiotherapist.
+- Physiotherapists only see related patients.
+- Database Row Level Security adds another layer of separation.
+- Database triggers check important role and appointment relationships.
+- Female patients are limited to female doctors in directory reads and
+  booking.
+- Disabling an account keeps clinical and appointment history.
+
+
+======================================================================
+9. PROJECT FOLDER GUIDE
+======================================================================
+
+frontend:
+
+- Contains the React website.
+- src/App.jsx defines the website routes.
+- src/pages contains public pages, auth pages, and dashboards.
+- src/components contains shared route protection.
+- src/services/api.js sends authenticated API requests.
+
+backend:
+
+- Contains the Express API.
+- src/routes defines endpoint addresses.
+- src/controllers contains endpoint behavior.
+- src/services contains authentication and availability logic.
+- src/middleware checks login and user roles.
+- src/config contains Supabase client setup.
+- test contains backend tests.
+
+supabase:
+
+- Contains database migrations.
+- Migrations create and update tables, functions, triggers, indexes, and
+  security policies.
+
+README.md:
+
+- Contains the shorter developer setup and verification guide.
+
+
+======================================================================
+10. INSTALLATION AND LOCAL RUNNING
+======================================================================
+
+10.1 Database migrations
+
+Run these files in the Supabase SQL editor in this order:
+
+1. supabase/migrations/202607210001_create_profiles.sql
+2. supabase/migrations/202607220001_clinic_management.sql
+3. supabase/migrations/202607220002_replace_administrator.sql
+4. supabase/migrations/202607220003_reconcile_physiotherapist_schema.sql
+5. supabase/migrations/202607230001_gender_aware_booking.sql
+
+Important:
+
+- Existing profiles keep an empty gender after the gender migration.
+- Older patients are asked to complete gender on their dashboard.
+- The administrator can set missing physiotherapist genders.
+- Confirm that the configured administrator Auth user exists before
+  running the administrator replacement migration.
+
+
+10.2 Backend environment
+
+Create backend/.env with:
+
+PORT=5000
+FRONTEND_URL=http://localhost:5173
+SUPABASE_URL=your Supabase project URL
+SUPABASE_PUBLISHABLE_KEY=your publishable key
+SUPABASE_SERVICE_ROLE_KEY=your backend-only service key
+ADMIN_EMAIL=the administrator email
+
+A newer SUPABASE_SECRET_KEY can be used instead of
+SUPABASE_SERVICE_ROLE_KEY.
+
+
+10.3 Frontend environment
+
+Create frontend/.env with:
+
+VITE_API_URL=http://localhost:5000/api
+
+
+10.4 Install and run
+
+From the main project folder:
+
+npm install
+npm run install-all
+npm run dev
+
+Default local addresses:
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5000
+
+
+10.5 Checks
+
+Backend tests:
+
+npm test --prefix backend
+
+Frontend code check:
+
+npm run lint --prefix frontend
+
+Frontend production build:
+
+npm run build --prefix frontend
+
+Current result on July 23, 2026:
+
+- Six backend tests pass.
+- Frontend lint passes.
+- Frontend production build passes.
+- Backend JavaScript syntax checks pass.
+
+
+======================================================================
+11. CURRENT IMPORTANT RULES AND KNOWN LIMITATIONS
+======================================================================
+
+- All clinic schedule and appointment times are currently shown in UTC.
+- New patient and physiotherapist profiles use "female" or "male" as the
+  accepted gender values.
+- Older profiles can have no gender until they are completed.
+- Female patients only see and book female physiotherapists.
+- A doctor must be active, accepting patients, working at the selected
+  time, not on time off, and not already booked.
+- The forgot-password page has not been built yet.
+- The backend supports rescheduling, but the current patient dashboard has
+  no reschedule button.
+- The female-patient rule is enforced for doctor display and appointment
+  booking. The separate administrator assignment tool does not currently
+  stop an administrator from assigning a female patient to a male doctor.
+- The database prevents a doctor from having overlapping active
+  appointments. It does not currently stop one patient from booking
+  overlapping appointments with different doctors.
+- The Express API performs the full working-hours, time-off, and
+  appointment-status checks. Direct Supabase access is restricted by Row
+  Level Security, but it does not repeat every calendar rule from the API.
+- The Connection Test page is a developer utility, not a normal patient
+  workflow.
+- This project summary is stored outside the source repository in the
+  Desktop "summery project" folder.
+
+
+======================================================================
+12. CODEX UPDATE HISTORY
+======================================================================
+
+July 22, 2026 - First complete clinic platform
+
+- Built the first full version of the physiotherapy clinic website.
+- Added the public Home, Sign In, Register, and Connection Test pages.
+- Added protected dashboards for patients, physiotherapists, and the
+  administrator.
+- Added secure patient sign-up and role-based sign-in with Supabase.
+- Added the first patient directory and appointment booking workflow.
+- Added appointment cancellation and backend rescheduling.
+- Added physiotherapist profile, availability, time-off, appointment, and
+  authorized-patient tools.
+- Added administrator clinic totals, patient search, clinician account
+  management, account disabling, and patient assignments.
+- Added the Express API and Supabase database structure.
+- Added token checks, role checks, ownership checks, triggers, and Row
+  Level Security.
+- Added environment examples, setup instructions, and database migrations.
+
+
+July 22, 2026 - Repository history cleanup
+
+- Merged the existing repository history into the main history.
+- This was a repository-management update and did not add a visible
+  website feature.
+
+
+July 23, 2026 - Calendar, doctor availability, and gender-aware booking
+
+- Rebuilt the patient booking area with a monthly calendar.
+- Added available-day markers and available-time buttons.
+- Added doctor filtering directly from the calendar.
+- Added "Any available physiotherapist."
+- Added secure server-side random doctor assignment.
+- Added retry behavior when another patient takes one doctor's slot at the
+  same moment.
+- Added one shared availability service for calendar viewing, booking, and
+  rescheduling.
+- Removed past times, existing bookings, inactive hours, and time off from
+  available slots.
+- Added a date-range calendar API for up to 42 days.
+- Expanded doctor working-hours management with edit, pause, enable, save,
+  and remove controls.
+- Added doctor time-off management to the dashboard.
+- Added working-hours, overlap, slot-length, and time-off validation.
+- Added gender to patient registration.
+- Added gender to new physiotherapist creation.
+- Added legacy patient profile completion.
+- Added administrator controls for missing clinician gender.
+- Enforced the female-patient/female-doctor rule in the frontend result,
+  backend, database trigger, and database security policies.
+- Added database migration
+  202607230001_gender_aware_booking.sql.
+- Added six backend tests for dates, slots, busy times, grouped
+  availability, female filtering, and random assignment retry behavior.
+- Updated the README with the new migration, API, tests, and manual checks.
+
+
+July 23, 2026 - Complete project documentation
+
+- Created this one-file project summary.
+- Documented every page and user role.
+- Documented the main workflows, API groups, database tables, security,
+  setup, testing, current limitations, and Codex update history.
+
+
+======================================================================
+13. HOW TO RECORD FUTURE CODEX UPDATES
+======================================================================
+
+After every important Codex change, add a new dated entry to Section 12.
+
+Each entry should explain:
+
+- What the user asked for.
+- What visible behavior changed.
+- Which role or page was affected.
+- What backend or database behavior changed.
+- Any migration or environment step that is required.
+- What tests or build checks passed.
+- Any known limitation that remains.
+
+Also update the page, workflow, API, database, security, setup, or
+limitation sections when the change affects them.
+
+This keeps one clear source of truth for the entire project.

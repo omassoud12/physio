@@ -1,0 +1,171 @@
+{
+  "page": {
+    "title": "إدارة العيادة",
+    "subtitle": "أدِر فريق الرعاية والمرضى والإسنادات ونشاط المواعيد من مكان واحد."
+  },
+  "tabs": {
+    "label": "أقسام لوحة تحكم مسؤول النظام",
+    "overview": "نظرة عامة",
+    "patients": "المرضى",
+    "physiotherapists": "أخصائيو العلاج الطبيعي",
+    "assignments": "الإسنادات"
+  },
+  "loading": {
+    "title": "جارٍ تحميل بيانات العيادة…",
+    "description": "نحضّر أحدث معلومات الحسابات والإسنادات.",
+    "refreshing": "جارٍ تحديث بيانات العيادة…"
+  },
+  "shared": {
+    "personName": "{{firstName}} {{lastName}}",
+    "notAvailable": "غير متوفر"
+  },
+  "overview": {
+    "stats": {
+      "label": "ملخص نشاط العيادة",
+      "patients": {
+        "title": "المرضى",
+        "description": "الحسابات النشطة"
+      },
+      "physiotherapists": {
+        "title": "أخصائيو العلاج الطبيعي",
+        "description": "الأخصائيون النشطون"
+      },
+      "appointments": {
+        "title": "المواعيد",
+        "description": "إجمالي المواعيد"
+      },
+      "pending": {
+        "title": "قيد الانتظار",
+        "description": "تحتاج إلى مراجعة"
+      }
+    },
+    "assignments": {
+      "title": "الإسنادات الحالية",
+      "description": "علاقات الرعاية النشطة بين المرضى والأخصائيين.",
+      "manage": "إدارة الإسنادات"
+    }
+  },
+  "patients": {
+    "title": "المرضى",
+    "description": "ابحث في سجلات المرضى وأدِر صلاحية الوصول إلى حساباتهم.",
+    "search": {
+      "label": "البحث عن المرضى",
+      "placeholder": "ابحث بالاسم أو البريد أو الهاتف أو رقم السجل"
+    },
+    "tableCaption": "حسابات المرضى",
+    "columns": {
+      "patient": "المريض",
+      "gender": "الجنس",
+      "contact": "الهاتف",
+      "record": "السجل",
+      "status": "الحالة",
+      "actions": "إجراءات الحساب"
+    },
+    "actions": {
+      "enableAccount": "تفعيل حساب {{name}}",
+      "disableAccount": "تعطيل حساب {{name}}"
+    },
+    "empty": {
+      "title": "لا يوجد مرضى بعد",
+      "description": "ستظهر حسابات المرضى هنا بعد إنشائها.",
+      "searchTitle": "لا توجد نتائج مطابقة",
+      "searchDescription": "جرّب اسمًا أو بريدًا إلكترونيًا أو رقم هاتف أو سجل مختلفًا."
+    }
+  },
+  "clinicians": {
+    "title": "فريق الرعاية",
+    "accountCount_zero": "لا توجد حسابات لأخصائيي العلاج الطبيعي",
+    "accountCount_one": "حساب واحد لأخصائي علاج طبيعي",
+    "accountCount_two": "حسابان لأخصائيَي علاج طبيعي",
+    "accountCount_few": "{{formattedCount}} حسابات لأخصائيي العلاج الطبيعي",
+    "accountCount_many": "{{formattedCount}} حسابًا لأخصائي علاج طبيعي",
+    "accountCount_other": "{{formattedCount}} حساب لأخصائي علاج طبيعي",
+    "professionalSummary": "{{title}} · {{specialization}}",
+    "licenseAndGender": "الترخيص {{license}} · {{gender}}",
+    "actions": {
+      "setGender": "تحديد جنس {{name}}",
+      "enableAccount": "تفعيل حساب {{name}}",
+      "disableAccount": "تعطيل حساب {{name}}"
+    },
+    "empty": {
+      "title": "لا يوجد أخصائيو علاج طبيعي بعد",
+      "description": "أنشئ حساب أخصائي لبدء تكوين فريق الرعاية."
+    }
+  },
+  "form": {
+    "title": "إضافة أخصائي علاج طبيعي",
+    "description": "أنشئ حسابًا آمنًا لأخصائي العلاج الطبيعي.",
+    "acceptingPatients": "يستقبل مرضى جددًا",
+    "submit": "إنشاء حساب الأخصائي",
+    "placeholders": {
+      "firstName": "مثال: مايا",
+      "lastName": "مثال: حداد",
+      "email": "name@example.com",
+      "phone": "+961 1 234 567",
+      "password": "8 أحرف على الأقل",
+      "professionalTitle": "مثال: أخصائي علاج طبيعي أول",
+      "licenseNumber": "مثال: PT-12345",
+      "specialization": "مثال: التأهيل الرياضي",
+      "yearsOfExperience": "مثال: 5",
+      "consultationDuration": "مثال: 30 دقيقة",
+      "profileImage": "https://example.com/photo.jpg",
+      "biography": "اكتب ملخصًا عن خبرة الأخصائي ونهجه في تقديم الرعاية."
+    }
+  },
+  "assignments": {
+    "activeTitle": "الإسنادات النشطة",
+    "activeDescription": "تبقى علاقات الرعاية المنتهية محفوظة في سجل العيادة.",
+    "tableCaption": "حالات إسناد المرضى النشطة إلى أخصائيي العلاج الطبيعي",
+    "columns": {
+      "patient": "المريض",
+      "physiotherapist": "أخصائي العلاج الطبيعي",
+      "assigned": "تاريخ الإسناد",
+      "actions": "إجراءات الإسناد"
+    },
+    "actions": {
+      "end": "إنهاء إسناد المريض {{name}}"
+    },
+    "empty": {
+      "title": "لا توجد إسنادات نشطة",
+      "description": "أسند مريضًا إلى أخصائي علاج طبيعي لإنشاء علاقة رعاية."
+    },
+    "form": {
+      "title": "إسناد مريض إلى أخصائي",
+      "patient": "المريض",
+      "physiotherapist": "أخصائي العلاج الطبيعي",
+      "selectPatient": "اختر مريضًا",
+      "selectClinician": "اختر أخصائي علاج طبيعي",
+      "submit": "إنشاء الإسناد"
+    }
+  },
+  "actions": {
+    "updating": "جارٍ التحديث…",
+    "creatingClinician": "جارٍ إنشاء الحساب…",
+    "creatingAssignment": "جارٍ إنشاء الإسناد…",
+    "endingAssignment": "جارٍ إنهاء الإسناد…"
+  },
+  "success": {
+    "clinicianCreated": "تم إنشاء حساب أخصائي العلاج الطبيعي بنجاح.",
+    "accountDisabled": "تم تعطيل الحساب بنجاح.",
+    "accountEnabled": "تم تفعيل الحساب بنجاح.",
+    "genderUpdated": "تم تحديث جنس {{name}} بنجاح.",
+    "assignmentCreated": "تم إسناد المريض إلى الأخصائي بنجاح.",
+    "assignmentEnded": "تم إنهاء الإسناد بنجاح."
+  },
+  "errors": {
+    "loadDashboard": "تعذّر تحميل لوحة إدارة العيادة. يرجى المحاولة مجددًا.",
+    "createClinician": "تعذّر إنشاء حساب أخصائي العلاج الطبيعي. راجع البيانات وحاول مجددًا.",
+    "updateAccount": "تعذّر تحديث هذا الحساب. يرجى المحاولة مجددًا.",
+    "updateGender": "تعذّر تحديث جنس الأخصائي. يرجى المحاولة مجددًا.",
+    "assignPatient": "تعذّر إسناد هذا المريض إلى الأخصائي. يرجى المحاولة مجددًا.",
+    "endAssignment": "تعذّر إنهاء هذا الإسناد. يرجى المحاولة مجددًا.",
+    "invalidGender": "اختر أنثى أو ذكرًا.",
+    "patientNotFound": "تعذّر العثور على حساب هذا المريض.",
+    "physiotherapistNotFound": "تعذّر العثور على حساب أخصائي العلاج الطبيعي.",
+    "passwordLength": "يجب ألا تقل كلمة المرور عن 8 أحرف.",
+    "duplicateClinician": "يوجد حساب يستخدم هذا البريد الإلكتروني أو رقم الترخيص.",
+    "duplicateAssignment": "لدى هذا المريض إسناد نشط بالفعل.",
+    "assignmentNotFound": "تعذّر العثور على هذا الإسناد النشط.",
+    "requiredFields": "أكمل جميع الحقول المطلوبة قبل المتابعة."
+  }
+}

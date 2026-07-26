@@ -1,49 +1,48 @@
+.register-intro {
+  background:
+    radial-gradient(
+      circle at 18% 14%,
+      rgba(255, 255, 255, 0.17),
+      transparent 28%
+    ),
+    linear-gradient(145deg, #103f36, #197c69);
+}
+
 .register-card {
-  width: min(100%, 520px);
+  width: min(100%, 35rem);
 }
 
 .register-name-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  min-width: 0;
 }
 
 .register-success {
-  display: grid;
-  gap: 5px;
-  margin-bottom: 22px;
-  padding: 14px;
-  border: 1px solid #b8e5d7;
-  border-radius: 10px;
+  border-color: #b8e5d7;
   color: #176b58;
   background: #effaf6;
-  font-size: 0.9rem;
 }
 
-.register-success span {
-  color: #526d67;
+.register-success > div {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.register-success strong {
+  color: #115746;
+}
+
+.register-success p {
+  color: #4e7168;
 }
 
 .register-card .signin-field select {
-  width: 100%;
-  height: 50px;
-  padding: 0 14px;
-  border: 1px solid #cbded8;
-  border-radius: 10px;
-  outline: none;
-  color: #17352f;
-  background: #fbfefd;
-  transition: border-color 160ms ease, box-shadow 160ms ease;
+  appearance: auto;
 }
 
-.register-card .signin-field select:focus {
-  border-color: #178b75;
-  box-shadow: 0 0 0 4px rgba(23, 139, 117, 0.12);
-}
-
-@media (max-width: 520px) {
+@media (min-width: 36rem) {
   .register-name-row {
-    grid-template-columns: 1fr;
-    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
   }
 }

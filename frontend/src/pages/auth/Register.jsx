@@ -1,11 +1,37 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
+import Brand from '../../components/Brand.jsx'
+import LanguageSwitcher from '../../components/LanguageSwitcher.jsx'
 import api from '../../services/api.js'
 import './SignIn.css'
 import './Register.css'
 
+function getRegisterErrorKey(error) {
+  const status = error.response?.status
+  const message = String(
+    error.response?.data?.message || error.message || '',
+  ).toLowerCase()
+
+  if (!error.response) return 'register.errors.network'
+  if (
+    status === 409 ||
+    message.includes('already exists') ||
+    message.includes('already registered')
+  ) {
+    return 'register.errors.emailExists'
+  }
+  if (message.includes('profile') && message.includes('not be saved')) {
+    return 'register.errors.profileNotSaved'
+  }
+  if (status === 400) return 'register.errors.invalidDetails'
+  if (status >= 500) return 'register.errors.serviceUnavailable'
+  return 'register.errors.default'
+}
+
 function Register() {
   const navigate = useNavigate()
+  const { t } = useTranslation('auth')
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -14,9 +40,13 @@ function Register() {
     password: '',
     confirmPassword: '',
   })
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    confirmPassword: false,
+  })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+  const [errorKey, setErrorKey] = useState('')
+  const [success, setSuccess] = useState(false)
 
   function updateField(event) {
     setForm((current) => ({
@@ -25,13 +55,20 @@ function Register() {
     }))
   }
 
+  function togglePassword(field) {
+    setShowPassword((current) => ({
+      ...current,
+      [field]: !current[field],
+    }))
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
-    setError('')
-    setSuccess('')
+    setErrorKey('')
+    setSuccess(false)
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match')
+      setErrorKey('register.errors.passwordMismatch')
       return
     }
 
@@ -48,7 +85,7 @@ function Register() {
       const { session, profile, requiresEmailConfirmation } = response.data.data
 
       if (requiresEmailConfirmation) {
-        setSuccess(response.data.message)
+        setSuccess(true)
         return
       }
 
@@ -56,11 +93,7 @@ function Register() {
       localStorage.setItem('user_profile', JSON.stringify(profile))
       navigate('/patient/dashboard', { replace: true })
     } catch (requestError) {
-      setError(
-        requestError.response?.data?.message ||
-          requestError.message ||
-          'Unable to create account',
-      )
+      setErrorKey(getRegisterErrorKey(requestError))
     } finally {
       setLoading(false)
     }
@@ -68,77 +101,213 @@ function Register() {
 
   return (
     <main className="signin-page register-page">
-      <section className="signin-intro" aria-label="Clinic introduction">
-        <div className="signin-brand">
-          <span className="signin-brand__mark" aria-hidden="true">+</span>
-          <span>PhysioCare Clinic</span>
-        </div>
+      <section
+        className="signin-intro register-intro"
+        aria-labelledby="register-intro-title"
+      >
+        <Brand fullName inverse />
+
         <div className="signin-intro__content">
-          <p className="signin-eyebrow">Start your recovery journey</p>
-          <h1>Care designed around your progress.</h1>
-          <p>Create your patient account to manage appointments and follow your care plan.</p>
+          <p className="signin-eyebrow">{t('register.intro.eyebrow')}</p>
+          <h1 id="register-intro-title">{t('register.intro.title')}</h1>
+          <p>{t('register.intro.description')}</p>
         </div>
+
+        <div className="signin-intro__note">
+          <span aria-hidden="true">✓</span>
+          <p>{t('register.intro.note')}</p>
+        </div>
+        <span className="signin-intro__orb" aria-hidden="true" />
       </section>
 
-      <section className="signin-panel">
-        <form className="signin-card register-card" onSubmit={handleSubmit}>
+      <section className="signin-panel" aria-labelledby="register-title">
+        <div className="signin-panel__toolbar">
+          <Brand className="signin-panel__brand" fullName />
+          <LanguageSwitcher compact />
+        </div>
+
+        <form
+          className="signin-card register-card"
+          onSubmit={handleSubmit}
+          aria-busy={loading}
+        >
           <div className="signin-card__heading">
-            <p className="signin-mobile-brand">PhysioCare Clinic</p>
-            <h2>Create an account</h2>
-            <p>Enter your details to create a patient account.</p>
+            <h2 id="register-title">{t('register.title')}</h2>
+            <p>{t('register.subtitle')}</p>
           </div>
 
-          {error && <div className="signin-error" role="alert">{error}</div>}
+          {errorKey && (
+            <div className="signin-message signin-message--error" role="alert">
+              <span className="signin-message__icon" aria-hidden="true">
+                !
+              </span>
+              <p>{t(errorKey)}</p>
+            </div>
+          )}
+
           {success && (
-            <div className="register-success" role="status">
-              <strong>{success}</strong>
-              <span>After confirming, return here to sign in.</span>
+            <div
+              className="signin-message register-success"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="signin-message__icon" aria-hidden="true">
+                ✓
+              </span>
+              <div>
+                <strong>{t('register.success.title')}</strong>
+                <p>{t('register.success.description')}</p>
+              </div>
             </div>
           )}
 
           {!success && (
             <>
               <div className="register-name-row">
-                <label className="signin-field">
-                  <span>First name</span>
-                  <input name="firstName" value={form.firstName} onChange={updateField} autoComplete="given-name" required disabled={loading} />
+                <label className="signin-field" htmlFor="register-first-name">
+                  <span>{t('register.fields.firstName')}</span>
+                  <input
+                    id="register-first-name"
+                    name="firstName"
+                    value={form.firstName}
+                    onChange={updateField}
+                    autoComplete="given-name"
+                    required
+                    disabled={loading}
+                  />
                 </label>
-                <label className="signin-field">
-                  <span>Last name</span>
-                  <input name="lastName" value={form.lastName} onChange={updateField} autoComplete="family-name" required disabled={loading} />
+                <label className="signin-field" htmlFor="register-last-name">
+                  <span>{t('register.fields.lastName')}</span>
+                  <input
+                    id="register-last-name"
+                    name="lastName"
+                    value={form.lastName}
+                    onChange={updateField}
+                    autoComplete="family-name"
+                    required
+                    disabled={loading}
+                  />
                 </label>
               </div>
 
-              <label className="signin-field">
-                <span>Gender</span>
-                <select name="gender" value={form.gender} onChange={updateField} required disabled={loading}>
-                  <option value="">Select gender</option>
-                  <option value="female">Female</option>
-                  <option value="male">Male</option>
+              <label className="signin-field" htmlFor="register-gender">
+                <span>{t('common:gender.label')}</span>
+                <select
+                  id="register-gender"
+                  name="gender"
+                  value={form.gender}
+                  onChange={updateField}
+                  required
+                  disabled={loading}
+                >
+                  <option value="">{t('common:gender.select')}</option>
+                  <option value="female">{t('common:gender.female')}</option>
+                  <option value="male">{t('common:gender.male')}</option>
                 </select>
               </label>
 
-              <label className="signin-field">
-                <span>Email address</span>
-                <input type="email" name="email" value={form.email} onChange={updateField} autoComplete="email" required disabled={loading} />
-              </label>
-              <label className="signin-field">
-                <span>Password</span>
-                <input type="password" name="password" value={form.password} onChange={updateField} autoComplete="new-password" minLength="8" required disabled={loading} />
-              </label>
-              <label className="signin-field">
-                <span>Confirm password</span>
-                <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={updateField} autoComplete="new-password" minLength="8" required disabled={loading} />
+              <label className="signin-field" htmlFor="register-email">
+                <span>{t('common:fields.email')}</span>
+                <input
+                  id="register-email"
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={updateField}
+                  autoComplete="email"
+                  required
+                  disabled={loading}
+                />
               </label>
 
+              <div className="signin-field">
+                <label htmlFor="register-password">
+                  {t('common:fields.password')}
+                </label>
+                <div className="signin-password">
+                  <input
+                    id="register-password"
+                    type={showPassword.password ? 'text' : 'password'}
+                    name="password"
+                    value={form.password}
+                    onChange={updateField}
+                    autoComplete="new-password"
+                    minLength="8"
+                    aria-describedby="register-password-hint"
+                    required
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePassword('password')}
+                    aria-label={t(
+                      showPassword.password
+                        ? 'register.fields.hidePassword'
+                        : 'register.fields.showPassword',
+                    )}
+                    aria-pressed={showPassword.password}
+                    disabled={loading}
+                  >
+                    {t(
+                      showPassword.password
+                        ? 'register.fields.hidePassword'
+                        : 'register.fields.showPassword',
+                    )}
+                  </button>
+                </div>
+                <small className="signin-field__hint" id="register-password-hint">
+                  {t('register.fields.passwordHint')}
+                </small>
+              </div>
+
+              <div className="signin-field">
+                <label htmlFor="register-confirm-password">
+                  {t('register.fields.confirmPassword')}
+                </label>
+                <div className="signin-password">
+                  <input
+                    id="register-confirm-password"
+                    type={showPassword.confirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={form.confirmPassword}
+                    onChange={updateField}
+                    autoComplete="new-password"
+                    minLength="8"
+                    required
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => togglePassword('confirmPassword')}
+                    aria-label={t(
+                      showPassword.confirmPassword
+                        ? 'register.fields.hidePassword'
+                        : 'register.fields.showPassword',
+                    )}
+                    aria-pressed={showPassword.confirmPassword}
+                    disabled={loading}
+                  >
+                    {t(
+                      showPassword.confirmPassword
+                        ? 'register.fields.hidePassword'
+                        : 'register.fields.showPassword',
+                    )}
+                  </button>
+                </div>
+              </div>
+
               <button className="signin-submit" type="submit" disabled={loading}>
-                {loading ? 'Creating account...' : 'Create account'}
+                {loading && (
+                  <span className="signin-spinner" aria-hidden="true" />
+                )}
+                {t(loading ? 'register.submitting' : 'register.submit')}
               </button>
             </>
           )}
 
           <p className="signin-register">
-            Already have an account? <Link to="/signin">Sign in</Link>
+            {t('register.signInPrompt')}{' '}
+            <Link to="/signin">{t('register.signInAction')}</Link>
           </p>
         </form>
       </section>

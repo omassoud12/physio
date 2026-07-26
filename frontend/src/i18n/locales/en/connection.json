@@ -1,0 +1,25 @@
+{
+  "imageAlt": "Physiotherapy clinic care illustration",
+  "eyebrow": "System check",
+  "title": "Clinic connection",
+  "description": "Verify that the website, clinic service, and secure database can communicate correctly.",
+  "status": {
+    "loading": {
+      "title": "Checking connection",
+      "description": "Contacting the clinic service and database…"
+    },
+    "success": {
+      "title": "Everything is connected",
+      "description": "The clinic service and database are responding normally."
+    },
+    "error": {
+      "title": "Connection unavailable",
+      "description": "We could not reach the clinic service. Check that it is running, then try again."
+    }
+  },
+  "button": {
+    "checking": "Checking…",
+    "test": "Test connection"
+  },
+  "hint": "This check does not change or store any patient information."
+}

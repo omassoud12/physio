@@ -1,60 +1,342 @@
-#center {
+.connection-page {
+  --connection-ink: #103f36;
+  --connection-green: #147d69;
+  --connection-line: #d8e8e3;
+  min-width: 0;
+  min-height: 100svh;
+  padding: 1rem;
+  color: #5d7770;
+  background:
+    radial-gradient(circle at 8% 5%, rgba(174, 224, 208, 0.36), transparent 26rem),
+    radial-gradient(circle at 95% 90%, rgba(199, 232, 221, 0.45), transparent 24rem),
+    #f4f9f7;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+.connection-page *,
+.connection-page *::before,
+.connection-page *::after {
+  box-sizing: border-box;
+}
+
+.connection-header {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
-  place-content: center;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: min(100%, 66rem);
+  margin: 0 auto 1.5rem;
+}
+
+.connection-header > .brand {
+  max-width: calc(100% - 6rem);
+}
+
+.connection-card {
+  display: grid;
+  width: min(100%, 58rem);
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid rgba(205, 227, 220, 0.95);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1.5rem 4rem rgba(24, 71, 61, 0.1);
+}
+
+.connection-card__visual {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 14rem;
   place-items: center;
-  flex-grow: 1;
-  padding: 48px 20px;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgba(9, 89, 77, 0.94), rgba(21, 143, 119, 0.9)),
+    #0e6758;
+}
+
+.connection-card__visual::before,
+.connection-card__visual::after {
+  position: absolute;
+  z-index: -1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  content: "";
+}
+
+.connection-card__visual::before {
+  width: 18rem;
+  height: 18rem;
+}
+
+.connection-card__visual::after {
+  width: 25rem;
+  height: 25rem;
+}
+
+.connection-card__halo {
+  position: absolute;
+  z-index: -1;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  background: rgba(223, 247, 239, 0.16);
+  filter: blur(0.15rem);
 }
 
 .clinic-image {
-  width: 170px;
-  height: 179px;
+  display: block;
+  width: min(42vw, 9.5rem);
+  height: auto;
+  max-height: 10.5rem;
   object-fit: contain;
+  filter: drop-shadow(0 1rem 1.4rem rgba(0, 52, 44, 0.22));
+}
+
+.connection-card__content {
+  min-width: 0;
+  padding: 1.5rem 1.2rem;
+}
+
+.connection-eyebrow {
+  margin: 0 0 0.7rem;
+  color: var(--connection-green);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.connection-card h1 {
+  margin: 0 0 0.75rem;
+  color: var(--connection-ink);
+  font-size: clamp(1.9rem, 8vw, 2.8rem);
+  font-weight: 760;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+.connection-description {
+  margin: 0;
+  color: #607a73;
+  font-size: 0.9rem;
+  line-height: 1.7;
 }
 
 .connection {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--social-bg);
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 1.5rem 0 1rem;
+  padding: 0.8rem;
+  border: 1px solid var(--connection-line);
+  border-radius: 0.78rem;
+  color: #536e67;
+  background: #f6faf8;
 }
 
 .connection__indicator {
-  width: 10px;
-  height: 10px;
+  width: 0.65rem;
+  height: 0.65rem;
+  flex: 0 0 auto;
+  margin-top: 0.22rem;
   border-radius: 50%;
-  background: #d69e2e;
+  background: #d09c1d;
+  box-shadow: 0 0 0 0.22rem rgba(208, 156, 29, 0.12);
+}
+
+.connection > div {
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+}
+
+.connection strong {
+  color: #375b53;
+  font-size: 0.82rem;
+}
+
+.connection > div > span {
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.connection--loading .connection__indicator {
+  animation: connection-pulse 1.3s ease-in-out infinite;
+}
+
+.connection--success {
+  border-color: #bde3d7;
+  color: #407064;
+  background: #effaf6;
 }
 
 .connection--success .connection__indicator {
-  background: #22c55e;
+  background: #20a47f;
+  box-shadow: 0 0 0 0.22rem rgba(32, 164, 127, 0.12);
+}
+
+.connection--success strong {
+  color: #176b58;
+}
+
+.connection--error {
+  border-color: #f1c5c5;
+  color: #8e3a3a;
+  background: #fff3f3;
 }
 
 .connection--error .connection__indicator {
-  background: #ef4444;
+  background: #d84a4a;
+  box-shadow: 0 0 0 0.22rem rgba(216, 74, 74, 0.12);
+}
+
+.connection--error strong {
+  color: #922f2f;
 }
 
 .connection-button {
-  padding: 10px 18px;
-  border: 1px solid var(--accent-border);
-  border-radius: 6px;
-  color: var(--text-h);
-  background: var(--accent-bg);
+  display: inline-flex;
+  width: 100%;
+  min-height: 3.1rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 0.72rem;
+  color: #ffffff;
+  background: var(--connection-green);
+  box-shadow: 0 0.75rem 1.5rem rgba(20, 125, 105, 0.18);
   cursor: pointer;
   font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  transition:
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.connection-button:hover:not(:disabled) {
+  background: #0d6656;
+  box-shadow: 0 0.9rem 1.8rem rgba(20, 125, 105, 0.24);
+  transform: translateY(-1px);
 }
 
 .connection-button:disabled {
   cursor: wait;
-  opacity: 0.65;
+  opacity: 0.72;
 }
 
 .connection-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 3px solid rgba(20, 125, 105, 0.28);
+  outline-offset: 3px;
+}
+
+.connection-button__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 0.13rem solid rgba(255, 255, 255, 0.45);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: connection-spin 0.8s linear infinite;
+}
+
+.connection-hint {
+  margin: 0.8rem 0 0;
+  color: #7a918b;
+  font-size: 0.68rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+:lang(ar) .connection-eyebrow {
+  letter-spacing: 0;
+}
+
+@keyframes connection-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes connection-pulse {
+  50% {
+    opacity: 0.42;
+    transform: scale(0.8);
+  }
+}
+
+@media (min-width: 30.0625rem) {
+  .connection-page {
+    padding: 1.5rem;
+  }
+
+  .connection-card__visual {
+    min-height: 16rem;
+  }
+
+  .connection-card__content {
+    padding: 2rem;
+  }
+
+  .connection {
+    padding: 0.9rem;
+  }
+}
+
+@media (min-width: 48.0625rem) {
+  .connection-page {
+    display: flex;
+    flex-direction: column;
+    padding: 1.75rem;
+  }
+
+  .connection-header {
+    width: min(100%, 66rem);
+    margin-bottom: 2rem;
+  }
+
+  .connection-card {
+    grid-template-columns: minmax(17rem, 0.85fr) minmax(0, 1.15fr);
+    margin-block: auto;
+  }
+
+  .connection-card__visual {
+    min-height: 31rem;
+  }
+
+  .clinic-image {
+    width: min(15vw, 10.5rem);
+  }
+
+  .connection-card__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(2.25rem, 5vw, 3.5rem);
+  }
+}
+
+@media (min-width: 64.0625rem) {
+  .connection-page {
+    padding: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connection-page *,
+  .connection-page *::before,
+  .connection-page *::after {
+    transition-duration: 0.01ms !important;
+  }
+
+  .connection-button__spinner,
+  .connection--loading .connection__indicator {
+    animation: none;
+  }
 }

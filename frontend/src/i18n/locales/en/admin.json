@@ -1,0 +1,167 @@
+{
+  "page": {
+    "title": "Clinic operations",
+    "subtitle": "Manage your care team, patients, assignments, and appointment activity."
+  },
+  "tabs": {
+    "label": "Administrator dashboard sections",
+    "overview": "Overview",
+    "patients": "Patients",
+    "physiotherapists": "Physiotherapists",
+    "assignments": "Assignments"
+  },
+  "loading": {
+    "title": "Loading clinic data…",
+    "description": "We’re preparing the latest account and assignment information.",
+    "refreshing": "Refreshing clinic data…"
+  },
+  "shared": {
+    "personName": "{{firstName}} {{lastName}}",
+    "notAvailable": "Not available"
+  },
+  "overview": {
+    "stats": {
+      "label": "Clinic activity summary",
+      "patients": {
+        "title": "Patients",
+        "description": "Active accounts"
+      },
+      "physiotherapists": {
+        "title": "Physiotherapists",
+        "description": "Active clinicians"
+      },
+      "appointments": {
+        "title": "Appointments",
+        "description": "All time"
+      },
+      "pending": {
+        "title": "Pending",
+        "description": "Needs review"
+      }
+    },
+    "assignments": {
+      "title": "Current assignments",
+      "description": "Active patient-to-clinician care relationships.",
+      "manage": "Manage assignments"
+    }
+  },
+  "patients": {
+    "title": "Patients",
+    "description": "Search patient records and manage account access.",
+    "search": {
+      "label": "Search patients",
+      "placeholder": "Search by name, email, phone, or record number"
+    },
+    "tableCaption": "Patient accounts",
+    "columns": {
+      "patient": "Patient",
+      "gender": "Gender",
+      "contact": "Contact",
+      "record": "Record",
+      "status": "Status",
+      "actions": "Account actions"
+    },
+    "actions": {
+      "enableAccount": "Enable {{name}}’s account",
+      "disableAccount": "Disable {{name}}’s account"
+    },
+    "empty": {
+      "title": "No patients yet",
+      "description": "Patient accounts will appear here once they are created.",
+      "searchTitle": "No matching patients",
+      "searchDescription": "Try a different name, email, phone number, or record number."
+    }
+  },
+  "clinicians": {
+    "title": "Care team",
+    "accountCount_one": "{{formattedCount}} clinician account",
+    "accountCount_other": "{{formattedCount}} clinician accounts",
+    "professionalSummary": "{{title}} · {{specialization}}",
+    "licenseAndGender": "License {{license}} · {{gender}}",
+    "actions": {
+      "setGender": "Set gender for {{name}}",
+      "enableAccount": "Enable {{name}}’s account",
+      "disableAccount": "Disable {{name}}’s account"
+    },
+    "empty": {
+      "title": "No physiotherapists yet",
+      "description": "Create a clinician account to start building the care team."
+    }
+  },
+  "form": {
+    "title": "Add a physiotherapist",
+    "description": "Create a secure clinician account.",
+    "acceptingPatients": "Accepting new patients",
+    "submit": "Create physiotherapist",
+    "placeholders": {
+      "firstName": "e.g. Maya",
+      "lastName": "e.g. Haddad",
+      "email": "name@example.com",
+      "phone": "+961 1 234 567",
+      "password": "At least 8 characters",
+      "professionalTitle": "e.g. Senior Physiotherapist",
+      "licenseNumber": "e.g. PT-12345",
+      "specialization": "e.g. Sports rehabilitation",
+      "yearsOfExperience": "e.g. 5",
+      "consultationDuration": "e.g. 30 minutes",
+      "profileImage": "https://example.com/photo.jpg",
+      "biography": "Summarize the clinician’s experience and approach to care."
+    }
+  },
+  "assignments": {
+    "activeTitle": "Active assignments",
+    "activeDescription": "Ended care relationships remain available in the clinic history.",
+    "tableCaption": "Active patient-to-physiotherapist assignments",
+    "columns": {
+      "patient": "Patient",
+      "physiotherapist": "Physiotherapist",
+      "assigned": "Assigned",
+      "actions": "Assignment actions"
+    },
+    "actions": {
+      "end": "End the assignment for {{name}}"
+    },
+    "empty": {
+      "title": "No active assignments",
+      "description": "Assign a patient to a physiotherapist to create a care relationship."
+    },
+    "form": {
+      "title": "Assign a patient",
+      "patient": "Patient",
+      "physiotherapist": "Physiotherapist",
+      "selectPatient": "Select a patient",
+      "selectClinician": "Select a physiotherapist",
+      "submit": "Create assignment"
+    }
+  },
+  "actions": {
+    "updating": "Updating…",
+    "creatingClinician": "Creating account…",
+    "creatingAssignment": "Creating assignment…",
+    "endingAssignment": "Ending…"
+  },
+  "success": {
+    "clinicianCreated": "The physiotherapist account was created successfully.",
+    "accountDisabled": "The account was disabled successfully.",
+    "accountEnabled": "The account was enabled successfully.",
+    "genderUpdated": "{{name}}’s gender was updated successfully.",
+    "assignmentCreated": "The patient was assigned successfully.",
+    "assignmentEnded": "The assignment was ended successfully."
+  },
+  "errors": {
+    "loadDashboard": "We couldn’t load the clinic dashboard. Please try again.",
+    "createClinician": "We couldn’t create the physiotherapist account. Review the details and try again.",
+    "updateAccount": "We couldn’t update this account. Please try again.",
+    "updateGender": "We couldn’t update the clinician’s gender. Please try again.",
+    "assignPatient": "We couldn’t assign this patient. Please try again.",
+    "endAssignment": "We couldn’t end this assignment. Please try again.",
+    "invalidGender": "Select female or male.",
+    "patientNotFound": "This patient account could not be found.",
+    "physiotherapistNotFound": "This physiotherapist account could not be found.",
+    "passwordLength": "The password must contain at least 8 characters.",
+    "duplicateClinician": "An account with this email or license number already exists.",
+    "duplicateAssignment": "This patient already has an active assignment.",
+    "assignmentNotFound": "This active assignment could not be found.",
+    "requiredFields": "Complete all required fields before continuing."
+  }
+}

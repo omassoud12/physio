@@ -1,0 +1,12 @@
+{
+  "layout": {
+    "portal": "{{role}} portal",
+    "signedInAs": "Signed in as {{name}}",
+    "accountMenu": "Account information",
+    "headerLabel": "Portal navigation"
+  },
+  "notice": {
+    "success": "Success",
+    "error": "Error"
+  }
+}

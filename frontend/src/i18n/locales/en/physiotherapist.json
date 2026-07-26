@@ -1,0 +1,127 @@
+{
+  "layout": {
+    "role": "Physiotherapist",
+    "title": "Clinical workspace",
+    "subtitle": "Plan your week, review patients, and keep every appointment moving."
+  },
+  "tabs": {
+    "label": "Physiotherapist workspace sections",
+    "schedule": "Schedule",
+    "appointments": "Appointments",
+    "patients": "Patients",
+    "availability": "Availability",
+    "profile": "Profile"
+  },
+  "loading": {
+    "title": "Preparing your clinical workspace",
+    "description": "Loading appointments, patients, and availability…",
+    "failureTitle": "We could not open your workspace",
+    "failureDescription": "Check your connection and try loading the dashboard again."
+  },
+  "stats": {
+    "overviewTitle": "Schedule overview",
+    "today": "Today",
+    "upcoming": "Upcoming",
+    "patients": "Patients",
+    "appointments_one": "appointment",
+    "appointments_other": "appointments",
+    "activeBookings_one": "active booking",
+    "activeBookings_other": "active bookings",
+    "authorizedRecords_one": "authorized record",
+    "authorizedRecords_other": "authorized records"
+  },
+  "appointments": {
+    "todayTitle": "Today's schedule",
+    "nextTitle": "Next appointments",
+    "allTitle": "All appointments",
+    "description": "Only appointments booked with your account are shown.",
+    "empty": "No appointments to show.",
+    "unspecifiedTreatment": "Treatment not specified",
+    "statusLabel": "Status: {{status}}",
+    "updating": "Updating…",
+    "confirmLabel": "Confirm the appointment with {{name}}",
+    "rejectLabel": "Reject the appointment with {{name}}",
+    "completeLabel": "Mark the appointment with {{name}} as completed",
+    "noShowLabel": "Mark {{name}} as a no-show"
+  },
+  "patients": {
+    "title": "My patients",
+    "description": "Patients assigned to you or with a treatment appointment.",
+    "empty": "No authorized patients yet.",
+    "noPhone": "No phone",
+    "record": "Record {{number}}",
+    "recordNotSet": "Record not set",
+    "unnamedPatient": "Unnamed patient",
+    "patientLabel": "Patient record for {{name}}"
+  },
+  "availability": {
+    "weeklyTitle": "Weekly hours",
+    "weeklyDescription": "Set the recurring periods that generate patient booking slots.",
+    "clinicTime": "Clinic time · UTC",
+    "periodCount_one": "{{formattedCount}} period",
+    "periodCount_other": "{{formattedCount}} periods",
+    "periodLabel": "{{day}}, {{start}} to {{end}}",
+    "togglePeriodLabel": "Change the active status of {{period}}",
+    "slotMinutes": "Slot minutes",
+    "slotDuration": "Slot duration (minutes)",
+    "savePeriodLabel": "Save {{period}}",
+    "removePeriodLabel": "Remove {{period}}",
+    "savingPeriod": "Saving…",
+    "removingPeriod": "Removing…",
+    "addPeriodTitle": "Add working period",
+    "addPeriodDescription": "Times are entered in clinic time (UTC).",
+    "addPeriod": "Add period",
+    "addingPeriod": "Adding period…",
+    "addTimeOffTitle": "Add time off",
+    "addTimeOffDescription": "Block an exception without changing your recurring week. Times use UTC.",
+    "reasonOptional": "Reason (optional)",
+    "reasonPlaceholder": "Holiday, training, personal…",
+    "blockTime": "Block time",
+    "blockingTime": "Blocking time…",
+    "exceptionsTitle": "Time-off exceptions",
+    "exceptionsDescription": "These blocks are removed from otherwise available appointment times.",
+    "defaultReason": "Unavailable",
+    "emptyExceptions": "No time-off exceptions.",
+    "removeExceptionLabel": "Remove the time-off exception: {{reason}}",
+    "removingException": "Removing…"
+  },
+  "profile": {
+    "title": "Professional profile",
+    "description": "This information appears in the patient directory.",
+    "acceptingPatients": "Accepting new patients",
+    "save": "Save profile",
+    "saving": "Saving profile…",
+    "unavailableTitle": "Profile unavailable",
+    "unavailableDescription": "Your professional profile could not be displayed."
+  },
+  "time": {
+    "utcDateTime": "{{value}} UTC",
+    "range": "{{start}} – {{end}}",
+    "invalidDate": "Date unavailable"
+  },
+  "notices": {
+    "profileUpdated": "Profile updated.",
+    "availabilityAdded": "Availability added.",
+    "availabilityUpdated": "Availability updated.",
+    "workingPeriodEnabled": "Working period enabled.",
+    "workingPeriodPaused": "Working period paused.",
+    "availabilityRemoved": "Availability removed.",
+    "timeOffAdded": "Time off added.",
+    "timeOffRemoved": "Time off removed.",
+    "appointmentUpdated": "Appointment updated."
+  },
+  "errors": {
+    "loadDashboard": "Unable to load the clinical workspace. Please try again.",
+    "updateProfile": "Unable to update your profile. Please try again.",
+    "addAvailability": "Unable to add this working period. Please try again.",
+    "updateAvailability": "Unable to update this working period. Please try again.",
+    "removeAvailability": "Unable to remove this working period. Please try again.",
+    "addTimeOff": "Unable to add this time off. Please try again.",
+    "removeTimeOff": "Unable to remove this time off. Please try again.",
+    "updateAppointment": "Unable to update this appointment. Please try again.",
+    "hoursOrder": "End time must be later than start time.",
+    "minimumSlotDuration": "Slot duration must be at least {{formattedCount}} minutes.",
+    "overlappingHours": "This period overlaps another {{day}} period.",
+    "timeOffOrder": "Time off must end after it starts."
+  }
+}

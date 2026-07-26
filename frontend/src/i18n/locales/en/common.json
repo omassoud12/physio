@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "PhysioCare Clinic",
+    "description": "Personalized physiotherapy care, appointment booking, and secure patient support."
+  },
+  "brand": {
+    "name": "PhysioCare",
+    "fullName": "PhysioCare Clinic",
+    "homeLabel": "PhysioCare Clinic home"
+  },
+  "language": {
+    "label": "Choose language",
+    "en": "EN",
+    "ar": "AR",
+    "english": "English",
+    "arabic": "Arabic"
+  },
+  "navigation": {
+    "main": "Main navigation",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "skipToContent": "Skip to main content"
+  },
+  "actions": {
+    "retry": "Try again",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "end": "End",
+    "enable": "Enable",
+    "disable": "Disable",
+    "confirm": "Confirm",
+    "reject": "Reject",
+    "complete": "Complete",
+    "noShow": "No show",
+    "signOut": "Sign out",
+    "show": "Show",
+    "hide": "Hide",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "close": "Close"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email address",
+    "phone": "Phone",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "professionalTitle": "Professional title",
+    "licenseNumber": "License number",
+    "specialization": "Specialization",
+    "yearsOfExperience": "Years of experience",
+    "consultationDuration": "Consultation duration",
+    "profileImage": "Profile image",
+    "biography": "Biography",
+    "day": "Day",
+    "starts": "Starts",
+    "ends": "Ends"
+  },
+  "gender": {
+    "label": "Gender",
+    "select": "Select gender",
+    "set": "Set gender",
+    "female": "Female",
+    "male": "Male",
+    "notSet": "Not set"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "patient": "Patient",
+    "physiotherapist": "Physiotherapist"
+  },
+  "statuses": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "rejected": "Rejected",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "canceled": "Cancelled",
+    "no_show": "No show",
+    "active": "Active",
+    "disabled": "Disabled",
+    "paused": "Paused",
+    "unavailable": "Unavailable"
+  },
+  "weekdays": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "short": {
+      "sunday": "Sun",
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat"
+    }
+  },
+  "state": {
+    "loading": "Loading…",
+    "working": "Please wait…",
+    "empty": "Nothing to show yet."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "We could not reach the clinic service. Check your connection and try again.",
+    "session": "Your session has expired. Please sign in again."
+  }
+}

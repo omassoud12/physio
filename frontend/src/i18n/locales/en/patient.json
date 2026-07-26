@@ -1,0 +1,106 @@
+{
+  "page": {
+    "role": "Patient",
+    "title": "Your care, in one place",
+    "subtitle": "Find an available time and arrange an appointment around your schedule."
+  },
+  "booking": {
+    "eyebrow": "Book a visit",
+    "title": "Choose a date and time",
+    "description": "Pick a physiotherapist or let the clinic assign an available match.",
+    "timeZone": "Times shown in {{timeZone}}",
+    "loading": "Loading your booking calendar…",
+    "profileError": "Your profile could not be loaded. Refresh the page to try again."
+  },
+  "profile": {
+    "eyebrow": "One detail needed",
+    "title": "Complete your profile to see matching clinicians",
+    "description": "The clinic uses this information to apply its clinician-matching policy before showing availability.",
+    "save": "Save and view times",
+    "saving": "Saving…"
+  },
+  "filter": {
+    "label": "Physiotherapist",
+    "any": "Any available physiotherapist",
+    "optionWithSpecialty": "{{name}} — {{specialty}}",
+    "loading": "Loading clinicians…",
+    "selected": "Showing times for {{name}}.",
+    "automatic": "We will assign an eligible clinician who is free at your selected time."
+  },
+  "calendar": {
+    "previousMonth": "Show previous month",
+    "nextMonth": "Show next month",
+    "availableDays_one": "{{value}} available day",
+    "availableDays_other": "{{value}} available days",
+    "noAvailableDays": "No available days",
+    "ariaLabel": "{{month}} appointment calendar",
+    "caption": "Select a date with available appointment times",
+    "dayAvailable_one": "{{date}}. {{value}} available time",
+    "dayAvailable_other": "{{date}}. {{value}} available times",
+    "dayUnavailable": "{{date}}. No available times",
+    "timesEyebrow": "Available times",
+    "timeCount_one": "{{value}} time",
+    "timeCount_other": "{{value}} times",
+    "checking": "Checking availability…",
+    "tryAgain": "Try again",
+    "emptyMonthTitle": "No times available this month",
+    "emptyMonthDescription": "Try the next month or choose another physiotherapist.",
+    "emptyDateTitle": "No times on this date",
+    "emptyDateDescription": "Choose another marked date in the calendar.",
+    "timesOnDate": "Times available on {{date}}",
+    "doctorCount_one": "{{value}} clinician",
+    "doctorCount_other": "{{value}} clinicians"
+  },
+  "details": {
+    "dateTime": "Date and time",
+    "physiotherapist": "Physiotherapist",
+    "dateAtTime": "{{date}} at {{time}}",
+    "automaticallyAssigned": "Automatically assigned",
+    "treatmentType": "Treatment type",
+    "treatmentPlaceholder": "e.g. Initial assessment",
+    "notes": "Reason or notes",
+    "notesPlaceholder": "Tell your physiotherapist what brings you in",
+    "assignmentNote": "An eligible physiotherapist will be assigned when your request is submitted.",
+    "requesting": "Requesting appointment…",
+    "request": "Request appointment"
+  },
+  "appointments": {
+    "title": "Upcoming appointments",
+    "description": "Your pending and confirmed visits.",
+    "with": "with {{name}}",
+    "emptyTitle": "No upcoming appointments",
+    "emptyDescription": "Once you request a visit, it will appear here."
+  },
+  "clinicians": {
+    "eyebrow": "Our clinical team",
+    "title": "Choose your physiotherapist",
+    "description": "Select a clinician to filter the calendar, or keep it open to any available physiotherapist.",
+    "loading": "Loading clinicians…",
+    "empty": "No physiotherapists are currently accepting appointments.",
+    "portraitAlt": "Portrait of {{name}}",
+    "accepting": "Accepting appointments",
+    "defaultBiography": "Dedicated to helping patients move comfortably and confidently.",
+    "years_one": "{{value}} year",
+    "years_other": "{{value}} years",
+    "minutes_one": "{{value}} min",
+    "minutes_other": "{{value}} min",
+    "selected": "Selected in calendar",
+    "viewAvailability": "View availability"
+  },
+  "notice": {
+    "profileSaved": "Profile completed. Available clinicians are now matched to you.",
+    "appointmentRequested": "Appointment requested successfully.",
+    "appointmentRequestedWith": "Appointment requested successfully with {{name}}.",
+    "appointmentCancelled": "Appointment cancelled."
+  },
+  "errors": {
+    "loadDashboard": "Unable to load your dashboard. Please try again.",
+    "loadAvailability": "Unable to load available times. Please try again.",
+    "saveProfile": "Unable to save your profile. Please try again.",
+    "loadClinicians": "Your profile was saved, but clinicians could not be refreshed. Please try again.",
+    "bookAppointment": "Unable to request this appointment. Please choose another time or try again.",
+    "refreshAppointments": "Your appointment was saved, but the appointment list could not be refreshed.",
+    "cancelAppointment": "Unable to cancel this appointment. Please try again.",
+    "refreshAfterCancel": "The appointment was cancelled, but the list could not be refreshed."
+  }
+}

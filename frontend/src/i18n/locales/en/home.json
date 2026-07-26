@@ -1,0 +1,101 @@
+{
+  "navigation": {
+    "label": "Main navigation",
+    "services": "Services",
+    "approach": "Our approach",
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu"
+  },
+  "hero": {
+    "kicker": "Personal care. Real progress.",
+    "titleLine1": "Move with confidence.",
+    "titleLine2": "Live without limits.",
+    "description": "Expert physiotherapy built around your goals. From your first assessment to your strongest day, we are with you at every step.",
+    "primaryAction": "Start your recovery",
+    "secondaryAction": "Explore our services",
+    "highlightsLabel": "Clinic highlights",
+    "highlights": {
+      "care": {
+        "value": "1:1",
+        "label": "Personalized care"
+      },
+      "experience": {
+        "value": "10+",
+        "label": "Years of experience"
+      },
+      "satisfaction": {
+        "value": "95%",
+        "label": "Patient satisfaction"
+      }
+    },
+    "preview": {
+      "label": "Recovery plan preview",
+      "heading": "Your recovery",
+      "status": "On track",
+      "progress": "72%",
+      "complete": "complete",
+      "focusLabel": "Current focus",
+      "focus": "Mobility and strength",
+      "note": "You are making excellent progress.",
+      "weekDays": ["M", "T", "W", "T", "F"],
+      "completedDay": "{{day}}, completed",
+      "upcomingDay": "{{day}}, upcoming",
+      "appointmentLabel": "Next appointment",
+      "appointment": "Tuesday, 10:30 AM",
+      "rating": "4.9",
+      "starsLabel": "Five out of five stars",
+      "ratingLabel": "Patient rating"
+    }
+  },
+  "services": {
+    "kicker": "What we treat",
+    "title": "Care that gets you back to doing what you love.",
+    "description": "Every treatment starts with listening. We understand your body, lifestyle, and goals before building a plan that is entirely yours.",
+    "action": "Get started",
+    "actionLabel": "Get started with {{service}}",
+    "items": {
+      "pain": {
+        "title": "Pain management",
+        "description": "Targeted treatment plans that address the source of pain and help you move comfortably again."
+      },
+      "sports": {
+        "title": "Sports rehabilitation",
+        "description": "Progressive recovery programs designed to rebuild strength, confidence, and performance."
+      },
+      "surgery": {
+        "title": "Post-surgery recovery",
+        "description": "Guided rehabilitation that supports healing and safely restores your everyday movement."
+      }
+    }
+  },
+  "approach": {
+    "kicker": "Our approach",
+    "title": "Recovery is not just about getting better. It is about coming back stronger.",
+    "steps": {
+      "assessment": {
+        "title": "Tell us your story",
+        "description": "We begin with a complete assessment of your movement, symptoms, and goals."
+      },
+      "plan": {
+        "title": "Build your plan",
+        "description": "Your physiotherapist creates a clear treatment path made specifically for you."
+      },
+      "progress": {
+        "title": "Make real progress",
+        "description": "Track each milestone and adapt your plan as your strength and confidence grow."
+      }
+    }
+  },
+  "cta": {
+    "kicker": "Ready when you are",
+    "title": "Your next chapter starts with one small step.",
+    "description": "Create your patient account and take the first step toward moving better.",
+    "action": "Create your account"
+  },
+  "footer": {
+    "tagline": "Move better. Feel stronger. Live fully.",
+    "copyright": "© {{year}} PhysioCare Clinic"
+  }
+}

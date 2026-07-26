@@ -1,0 +1,65 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  color: var(--brand-color, #103f36);
+  font-size: 0.98rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: var(--brand-hover-color, #0d6e5c);
+  text-decoration: none;
+}
+
+.brand:focus-visible {
+  border-radius: 0.75rem;
+  outline: 3px solid var(--brand-focus, rgba(19, 121, 102, 0.24));
+  outline-offset: 4px;
+}
+
+.brand__mark {
+  position: relative;
+  display: inline-grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 0.72rem;
+  color: #ffffff;
+  background: var(--brand-mark, #147d69);
+  box-shadow: 0 0.45rem 1.1rem rgba(20, 125, 105, 0.2);
+}
+
+.brand__mark span {
+  position: absolute;
+  width: 1rem;
+  height: 0.18rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.brand__mark span:last-child {
+  transform: rotate(90deg);
+}
+
+.brand__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brand--inverse {
+  --brand-color: #ffffff;
+  --brand-hover-color: #ffffff;
+  --brand-focus: rgba(255, 255, 255, 0.38);
+  --brand-mark: rgba(255, 255, 255, 0.16);
+}
+
+.brand--inverse .brand__mark {
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  box-shadow: none;
+}

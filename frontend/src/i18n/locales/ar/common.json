@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "عيادة فيزيو كير",
+    "description": "رعاية علاج طبيعي مخصصة وحجز مواعيد ودعم آمن للمرضى."
+  },
+  "brand": {
+    "name": "فيزيو كير",
+    "fullName": "عيادة فيزيو كير",
+    "homeLabel": "الصفحة الرئيسية لعيادة فيزيو كير"
+  },
+  "language": {
+    "label": "اختر اللغة",
+    "en": "EN",
+    "ar": "AR",
+    "english": "الإنجليزية",
+    "arabic": "العربية"
+  },
+  "navigation": {
+    "main": "التنقل الرئيسي",
+    "openMenu": "فتح قائمة التنقل",
+    "closeMenu": "إغلاق قائمة التنقل",
+    "skipToContent": "الانتقال إلى المحتوى الرئيسي"
+  },
+  "actions": {
+    "retry": "المحاولة مجددًا",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "cancel": "إلغاء",
+    "remove": "إزالة",
+    "end": "إنهاء",
+    "enable": "تفعيل",
+    "disable": "تعطيل",
+    "confirm": "تأكيد",
+    "reject": "رفض",
+    "complete": "إكمال",
+    "noShow": "لم يحضر",
+    "signOut": "تسجيل الخروج",
+    "show": "إظهار",
+    "hide": "إخفاء",
+    "showPassword": "إظهار كلمة المرور",
+    "hidePassword": "إخفاء كلمة المرور",
+    "close": "إغلاق"
+  },
+  "fields": {
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور",
+    "professionalTitle": "المسمى المهني",
+    "licenseNumber": "رقم الترخيص",
+    "specialization": "التخصص",
+    "yearsOfExperience": "سنوات الخبرة",
+    "consultationDuration": "مدة الجلسة",
+    "profileImage": "صورة الملف الشخصي",
+    "biography": "النبذة المهنية",
+    "day": "اليوم",
+    "starts": "يبدأ",
+    "ends": "ينتهي"
+  },
+  "gender": {
+    "label": "الجنس",
+    "select": "اختر الجنس",
+    "set": "حدّد الجنس",
+    "female": "أنثى",
+    "male": "ذكر",
+    "notSet": "غير محدد"
+  },
+  "roles": {
+    "admin": "مسؤول النظام",
+    "patient": "مريض",
+    "physiotherapist": "أخصائي علاج طبيعي"
+  },
+  "statuses": {
+    "pending": "قيد الانتظار",
+    "confirmed": "مؤكد",
+    "rejected": "مرفوض",
+    "completed": "مكتمل",
+    "cancelled": "ملغى",
+    "canceled": "ملغى",
+    "no_show": "لم يحضر",
+    "active": "نشط",
+    "disabled": "معطّل",
+    "paused": "متوقف مؤقتًا",
+    "unavailable": "غير متاح"
+  },
+  "weekdays": {
+    "monday": "الاثنين",
+    "tuesday": "الثلاثاء",
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة",
+    "saturday": "السبت",
+    "sunday": "الأحد",
+    "short": {
+      "sunday": "أحد",
+      "monday": "اثن",
+      "tuesday": "ثلا",
+      "wednesday": "أرب",
+      "thursday": "خمي",
+      "friday": "جمع",
+      "saturday": "سبت"
+    }
+  },
+  "state": {
+    "loading": "جارٍ التحميل…",
+    "working": "يرجى الانتظار…",
+    "empty": "لا يوجد ما نعرضه بعد."
+  },
+  "errors": {
+    "generic": "حدث خطأ ما. يرجى المحاولة مجددًا.",
+    "network": "تعذّر الاتصال بخدمة العيادة. تحقق من اتصالك وحاول مجددًا.",
+    "session": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مجددًا."
+  }
+}
