@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import api from '../../services/api.js'
 import {
   formatNumber,
@@ -861,6 +862,23 @@ export default function PatientDashboard() {
           </>
         )}
       </section>
+
+      {appointments.some((appointment) =>
+        !['cancelled', 'rejected'].includes(appointment.status),
+      ) && (
+        <section className="panel patient-medical-cta" aria-labelledby="medical-profile-title">
+          <div>
+            <p className="eyebrow">Dossier patient / ملف المريض</p>
+            <h2 id="medical-profile-title">Compléter le dossier médical</h2>
+            <h3 dir="rtl" lang="ar">استكمال الملف الطبي</h3>
+            <p>Préparez votre première séance, enregistrez un brouillon et revenez le compléter à tout moment.</p>
+            <p dir="rtl" lang="ar">استعد لجلستك الأولى، واحفظ مسودة ثم عُد لإكمالها في أي وقت.</p>
+          </div>
+          <Link className="button" to="/patient/medical-profile">
+            Compléter / استكمال
+          </Link>
+        </section>
+      )}
 
       <section className="panel">
         <div className="panel-heading">

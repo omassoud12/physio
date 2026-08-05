@@ -13,7 +13,7 @@ export async function requireAuth(req, res, next) {
     const admin = createAdminClient();
     const { data: profile, error: profileError } = await admin
       .from('profiles')
-      .select('id, first_name, last_name, email, phone, gender, role, is_active')
+      .select('id, first_name, last_name, email, phone, gender, date_of_birth, role, is_active')
       .eq('id', user.id)
       .single();
     if (profileError || !profile) return res.status(401).json({ success: false, message: 'Account profile not found', errors: [] });

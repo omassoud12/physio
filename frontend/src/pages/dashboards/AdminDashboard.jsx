@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { localeFor } from '../../i18n/formatters.js'
 import api from '../../services/api.js'
 import DashboardLayout, { Notice } from './DashboardLayout.jsx'
@@ -549,6 +550,7 @@ export default function AdminDashboard() {
                             className="table-action-cell"
                             data-label={t('patients.columns.actions')}
                           >
+                            <Link className="text-button" to={`/medical-records/patient/${patient.id}`}>Dossier / الملف</Link>
                             <button
                               className="text-button"
                               type="button"

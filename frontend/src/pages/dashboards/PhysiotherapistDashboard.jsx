@@ -1,5 +1,6 @@
 import { useCallback, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import api from '../../services/api.js'
 import DashboardLayout, { Notice } from './DashboardLayout.jsx'
 import './PhysiotherapistDashboard.css'
@@ -577,6 +578,7 @@ function PatientsPanel({ patients }) {
                     </span>
                   </small>
                 </div>
+                <Link className="text-button" to={`/medical-records/patient/${patient.id}`}>Dossier médical / الملف الطبي</Link>
               </article>
             )
           })}

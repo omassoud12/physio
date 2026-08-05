@@ -524,6 +524,38 @@ html[dir="rtl"] .patient-calendar__arrow--next {
   color: var(--color-white);
 }
 
+.patient-medical-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(20px, 4vw, 30px);
+  border-color: #a9d8cf;
+  background: linear-gradient(135deg, #edf9f6, #fbfefd);
+}
+
+.patient-medical-cta h2,
+.patient-medical-cta h3 {
+  margin: 3px 0;
+}
+
+.patient-medical-cta h3 {
+  color: var(--clinic);
+  font-size: 1.05rem;
+  text-align: right;
+}
+
+.patient-medical-cta p:not(.eyebrow) {
+  max-width: 670px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.patient-medical-cta .button {
+  flex: 0 0 auto;
+}
+
 html[dir="rtl"] .patient-booking-summary span {
   letter-spacing: 0;
   text-transform: none;
@@ -600,5 +632,16 @@ html[dir="rtl"] .patient-booking-summary span {
 
   .patient-slots {
     min-height: 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .patient-medical-cta {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .patient-medical-cta .button {
+    text-align: center;
   }
 }

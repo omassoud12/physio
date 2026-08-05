@@ -10,6 +10,7 @@ React/Vite, Express, Supabase Auth, and Supabase PostgreSQL clinic platform with
    - `supabase/migrations/202607220002_replace_administrator.sql`
    - `supabase/migrations/202607220003_reconcile_physiotherapist_schema.sql`
    - `supabase/migrations/202607230001_gender_aware_booking.sql`
+   - `supabase/migrations/202608050001_patient_medical_records.sql`
    Existing profiles keep a null gender until completed. Patients are prompted
    on their dashboard; administrators can set legacy clinician genders in the
    Care Team screen.
@@ -52,12 +53,18 @@ Frontend routes:
 - `/patient/dashboard` — patient only
 - `/physiotherapist/dashboard` — physiotherapist only
 
+Additional protected frontend routes:
+
+- `/patient/medical-profile` — patient medical intake
+- `/medical-records/patient/:patientId` — authorized clinician/admin read-only view
+
 Backend endpoints:
 
 - Auth/profile: `POST /api/auth/signup`, `POST /api/auth/signin`, `GET|PATCH /api/profile/me`
 - Admin: `GET /api/admin/dashboard`, `GET|POST /api/admin/physiotherapists`, `PATCH|DELETE /api/admin/physiotherapists/:id`, `GET /api/admin/patients`, `GET|PATCH|DELETE /api/admin/patients/:id`, `GET|POST /api/admin/patient-assignments`, `PATCH|DELETE /api/admin/patient-assignments/:id`
 - Directory/booking: `GET /api/physiotherapists`, `GET /api/physiotherapists/:id`, `GET /api/physiotherapists/:id/available-slots`, `GET /api/appointments/availability`, `POST /api/appointments`, `GET /api/appointments/my`, `PATCH /api/appointments/:id/cancel`, `PATCH /api/appointments/:id/reschedule`
 - Physiotherapist: `GET|PATCH /api/physiotherapist/me`, `GET|POST /api/physiotherapist/availability`, `PATCH|DELETE /api/physiotherapist/availability/:id`, `GET|POST /api/physiotherapist/time-off`, `DELETE /api/physiotherapist/time-off/:id`, `GET /api/physiotherapist/appointments`, `PATCH /api/physiotherapist/appointments/:id/status`, `GET /api/physiotherapist/patients`, `GET /api/physiotherapist/patients/:id`
+- Medical records: `GET|PUT /api/medical-records/me`, `POST /api/medical-records/documents`, `DELETE /api/medical-records/documents/:id`, `GET /api/medical-records/documents/:id/url`, `GET /api/medical-records/patient/:patientId`
 
 Every protected endpoint verifies the bearer token, reloads the user's active profile, checks the database role/ownership, and uses the backend-only service client. RLS provides an additional isolation layer. Disabling accounts preserves clinical history.
 
@@ -71,6 +78,11 @@ Every protected endpoint verifies the bearer token, reloads the user's active pr
 6. **Physiotherapist appointment:** sign in as the booked clinician, confirm the appointment appears, then transition pending → confirmed → completed.
 7. **Authorized patient:** confirm the clinician can view the assigned/booked patient's limited treatment profile.
 8. **Isolation:** reuse patient tokens against `/api/admin/*` and `/api/physiotherapist/*` (expect `403`); use one patient against another patient's appointment (expect `404`); use one clinician against another clinician's appointment, patient, availability, or status endpoint (expect `404`); omit/alter the bearer token (expect `401`).
+
+9. **Medical intake:** after booking, open the dashboard CTA; check every step at mobile and desktop widths, verify each French label has an Arabic RTL label, and test age/BMI recalculation plus allergy, surgery, risk-factor, radiation, stiffness, and “Autres” conditional fields.
+10. **Draft/submission:** save a partial draft, reload it, wait for autosave, submit after completing required fields and all red-flag answers, then reopen and update the submitted record. Confirm the last-saved time and progress update.
+11. **Private documents:** upload PDF/JPG/PNG/WEBP files under and over 8 MB, preview through the signed link, and remove one. Confirm the storage bucket remains private and direct public URLs fail.
+12. **Medical isolation:** verify patient A cannot read patient B; verify only an assigned or previously booked physiotherapist can open the record; verify an unrelated physiotherapist receives `404`; verify an administrator can use the read-only view.
 
 ## Checks
 

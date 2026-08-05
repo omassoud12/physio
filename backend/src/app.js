@@ -4,6 +4,7 @@ import authRoutes from './routes/authRoutes.js';
 import testRoutes from './routes/testRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import physiotherapistRoutes from './routes/physiotherapistRoutes.js';
+import medicalRecordRoutes from './routes/medicalRecordRoutes.js';
 import { appointmentRoutes, physiotherapistDirectory, profileRoutes } from './routes/clinicRoutes.js';
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/physiotherapists', physiotherapistDirectory);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/physiotherapist', physiotherapistRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/medical-records', medicalRecordRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
