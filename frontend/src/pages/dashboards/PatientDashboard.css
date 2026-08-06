@@ -257,11 +257,26 @@ html[dir="rtl"] .patient-calendar__arrow--next {
 }
 
 .patient-calendar__day--available {
-  color: var(--ink);
-  border-color: #d5e7e3;
-  background: #f7fbfa;
+  color: var(--clinic-dark);
+  border-color: #8fc9be;
+  background: #edf9f6;
   cursor: pointer;
   font-weight: 800;
+}
+
+.patient-calendar__day--unavailable {
+  color: #a52d2d;
+  border-color: #efc3c3;
+  background: #fff1f1;
+  cursor: not-allowed;
+  font-weight: 750;
+}
+
+.patient-calendar__day--unavailable:hover,
+.patient-calendar__day--unavailable:focus-visible {
+  border-color: #cf5454;
+  background: #ffe5e5;
+  outline: 3px solid rgba(197, 55, 55, 0.13);
 }
 
 .patient-calendar__day--available:hover {
@@ -302,6 +317,51 @@ html[dir="rtl"] .patient-calendar__arrow--next {
 
 .patient-calendar__day--selected .patient-calendar__marker {
   background: var(--color-white);
+}
+
+.patient-calendar__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 18px;
+  padding-block-start: 14px;
+  margin-block-start: 12px;
+  border-block-start: 1px solid var(--color-neutral-100);
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+
+.patient-calendar__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.patient-calendar__legend i {
+  width: 12px;
+  height: 12px;
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+.patient-calendar__legend .is-available {
+  border-color: #6eb5a8;
+  background: #dff4ef;
+}
+
+.patient-calendar__legend .is-unavailable {
+  border-color: #d66b6b;
+  background: #ffe2e2;
+}
+
+.patient-calendar__unavailable-message {
+  padding: 9px 11px;
+  margin: 10px 0 0;
+  border-radius: 8px;
+  color: #982d2d;
+  background: #fff0f0;
+  font-size: 0.76rem;
+  font-weight: 750;
+  line-height: 1.5;
 }
 
 .patient-slots {
@@ -496,6 +556,48 @@ html[dir="rtl"] .patient-calendar__arrow--next {
   line-height: 1.5;
 }
 
+.patient-profile-required {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(20px, 4vw, 28px);
+  border-color: #e6c36e;
+  background: linear-gradient(135deg, #fffaf0, #fff);
+}
+
+.patient-profile-required h2 {
+  margin: 4px 0 6px;
+  font-size: clamp(1.15rem, 3vw, 1.45rem);
+}
+
+.patient-profile-required p:last-child {
+  margin: 0;
+  color: var(--muted);
+}
+
+.patient-profile-required .button {
+  flex: 0 0 auto;
+}
+
+.patient-booking-profile-lock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e5c36e;
+  border-radius: 10px;
+  color: #755717;
+  background: #fff9e9;
+  font-size: 0.82rem;
+}
+
+.patient-booking-profile-lock a {
+  color: var(--clinic-dark);
+  font-weight: 850;
+}
+
 .patient-clinician-card {
   transition:
     transform 170ms ease,
@@ -636,12 +738,19 @@ html[dir="rtl"] .patient-booking-summary span {
 }
 
 @media (max-width: 620px) {
+  .patient-profile-required,
   .patient-medical-cta {
     align-items: stretch;
     flex-direction: column;
   }
 
+  .patient-profile-required .button,
   .patient-medical-cta .button {
     text-align: center;
+  }
+
+  .patient-booking-profile-lock {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }

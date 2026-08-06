@@ -68,6 +68,15 @@ export async function calendarAvailability(req, res) {
 export async function bookAppointment(req, res) {
   try {
     required(req.body, ['treatment_type','starts_at']);
+    const medicalProfile = await req.db
+      .from('patient_medical_profiles')
+      .select('completion_status,completion_percent')
+      .eq('patient_id', req.auth.user.id)
+      .maybeSingle();
+    if (medicalProfile.error) throw medicalProfile.error;
+    if (medicalProfile.data?.completion_status !== 'submitted' || medicalProfile.data?.completion_percent !== 100) {
+      throw apiError('يجب تعبئة ملف المريض قبل حجز الموعد.', 409);
+    }
     if (typeof req.body.treatment_type !== 'string') {
       throw apiError('Treatment type must be text', 400);
     }
@@ -94,7 +103,7 @@ export async function bookAppointment(req, res) {
 
     const openSlots = await clinicianSlots(req.db, doctors, date, date);
     const matchingSlots = openSlots.filter((slot) => slot.starts_at === start.toISOString());
-    if (!matchingSlots.length) throw apiError('Selected time is no longer available', 409);
+    if (!matchingSlots.length) throw apiError('عذراً، هذا الموعد لم يعد متاحاً. يرجى اختيار موعد آخر.', 409);
 
     const doctorById = new Map(doctors.map((doctor) => [doctor.profile_id, doctor]));
     const candidates = requestedId ? matchingSlots : shuffled(matchingSlots);
@@ -139,8 +148,8 @@ export async function bookAppointment(req, res) {
 
     throw apiError(
       bookingConflict
-        ? 'That time was just booked. Please choose another available time.'
-        : 'Selected time is no longer available',
+        ? 'عذراً، هذا الموعد لم يعد متاحاً. يرجى اختيار موعد آخر.'
+        : 'عذراً، هذا الموعد لم يعد متاحاً. يرجى اختيار موعد آخر.',
       409,
     );
   } catch (error) { return sendError(res, error, 'Unable to book appointment'); }

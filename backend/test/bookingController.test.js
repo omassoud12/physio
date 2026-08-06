@@ -27,7 +27,7 @@ function responseRecorder() {
   };
 }
 
-function bookingDb(doctors, insertedAppointments) {
+function bookingDb(doctors, insertedAppointments, medicalProfileComplete = true) {
   return {
     from(table) {
       const state = { operation: 'select', inserted: null };
@@ -46,12 +46,21 @@ function bookingDb(doctors, insertedAppointments) {
         single() {
           return Promise.resolve(resolveResult());
         },
+        maybeSingle() {
+          return Promise.resolve(resolveResult());
+        },
         then(resolve, reject) {
           return Promise.resolve(resolveResult()).then(resolve, reject);
         },
       };
 
       function resolveResult() {
+        if (table === 'patient_medical_profiles') return {
+          data: medicalProfileComplete
+            ? { completion_status: 'submitted', completion_percent: 100 }
+            : { completion_status: 'draft', completion_percent: 75 },
+          error: null,
+        };
         if (table === 'physiotherapists') return { data: doctors, error: null };
         if (table === 'physiotherapist_working_hours') {
           return {
@@ -181,4 +190,45 @@ test('any-doctor booking retries another random eligible clinician after a race'
     insertedAppointments[1].physiotherapist_id,
   );
   assert.equal(insertedAppointments[1].patient_notes, 'Knee pain');
+});
+
+test('booking is rejected until the patient medical profile is fully submitted', async () => {
+  const startsAt = nextMondayAtNine().toISOString();
+  const req = {
+    auth: { user: { id: 'patient-1' }, profile: { role: 'patient', gender: 'female' } },
+    body: { treatment_type: 'Initial assessment', starts_at: startsAt },
+    db: bookingDb([], [], false),
+  };
+  const res = responseRecorder();
+
+  await bookAppointment(req, res);
+
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.message, 'يجب تعبئة ملف المريض قبل حجز الموعد.');
+});
+
+test('a slot lost to a concurrent booking returns the clear Arabic conflict message', async () => {
+  const startsAt = nextMondayAtNine().toISOString();
+  const doctors = [{
+    profile_id: 'doctor-a',
+    professional_title: 'Physiotherapist',
+    specialization: 'Sports',
+    biography: '',
+    years_of_experience: 4,
+    consultation_duration: 30,
+    profile_image: null,
+    is_accepting_patients: true,
+    profiles: { first_name: 'Ava', last_name: 'One', gender: 'female', is_active: true },
+  }];
+  const req = {
+    auth: { user: { id: 'patient-1' }, profile: { role: 'patient', gender: 'female' } },
+    body: { treatment_type: 'Initial assessment', starts_at: startsAt },
+    db: bookingDb(doctors, []),
+  };
+  const res = responseRecorder();
+
+  await bookAppointment(req, res);
+
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.message, 'عذراً، هذا الموعد لم يعد متاحاً. يرجى اختيار موعد آخر.');
 });

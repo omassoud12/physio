@@ -8,6 +8,7 @@ import {
   formatUtcDateKey,
 } from '../../i18n/formatters.js'
 import DashboardLayout, { Notice } from './DashboardLayout.jsx'
+import BookingInstructions from '../../components/BookingInstructions.jsx'
 import './PatientDashboard.css'
 
 const WEEKDAYS = [
@@ -161,6 +162,8 @@ export default function PatientDashboard() {
   const [submitting, setSubmitting] = useState(false)
   const [cancellingId, setCancellingId] = useState('')
   const [notice, setNotice] = useState(null)
+  const [medicalProfileComplete, setMedicalProfileComplete] = useState(null)
+  const [unavailableHint, setUnavailableHint] = useState('')
 
   const range = monthRange(month)
   const weeks = monthWeeks(month)
@@ -203,9 +206,10 @@ export default function PatientDashboard() {
       setInitialLoading(true)
       setNotice(null)
       try {
-        const [profileResponse, appointmentResponse] = await Promise.all([
+        const [profileResponse, appointmentResponse, medicalResponse] = await Promise.all([
           api.get('/profile/me'),
           api.get('/appointments/my'),
+          api.get('/medical-records/me').catch(() => ({ data: { data: { record: null } } })),
         ])
         if (!active) return
 
@@ -213,6 +217,11 @@ export default function PatientDashboard() {
         setProfile(loadedProfile)
         setGenderDraft(loadedProfile?.gender || '')
         setAppointments(appointmentResponse.data.data || [])
+        const medicalRecord = medicalResponse.data.data?.record
+        setMedicalProfileComplete(
+          medicalRecord?.completion_status === 'submitted' &&
+            medicalRecord?.completion_percent === 100,
+        )
 
         if (hasGender(loadedProfile)) {
           setDirectoryLoading(true)
@@ -375,6 +384,10 @@ export default function PatientDashboard() {
   async function submit(event) {
     event.preventDefault()
     if (!recordedGender || !selectedSlot) return
+    if (!medicalProfileComplete) {
+      setNotice({ text: 'يجب تعبئة ملف المريض قبل حجز الموعد.', error: true })
+      return
+    }
 
     setSubmitting(true)
     setNotice(null)
@@ -407,7 +420,16 @@ export default function PatientDashboard() {
         setNotice({ key: 'errors.refreshAppointments', error: true })
       }
     } catch (requestError) {
-      setNotice({ key: 'errors.bookAppointment', error: true })
+      const serverMessage = requestError.response?.data?.message
+      setNotice({
+        text: serverMessage === 'يجب تعبئة ملف المريض قبل حجز الموعد.'
+          ? serverMessage
+          : requestError.response?.status === 409
+            ? 'عذراً، هذا الموعد لم يعد متاحاً. يرجى اختيار موعد آخر.'
+            : undefined,
+        key: 'errors.bookAppointment',
+        error: true,
+      })
       if (requestError.response?.status === 409) {
         setSelectedSlot('')
         setAvailabilityRefresh((value) => value + 1)
@@ -453,9 +475,18 @@ export default function PatientDashboard() {
       subtitle={t('page.subtitle')}
     >
       <Notice
-        value={notice ? t(notice.key, notice.values) : ''}
+        value={notice ? notice.text || t(notice.key, notice.values) : ''}
         error={notice?.error}
       />
+
+      <BookingInstructions className="patient-booking-instructions" />
+
+      {!initialLoading && medicalProfileComplete === false && (
+        <section className="panel patient-profile-required" dir="rtl" lang="ar" role="alert">
+          <div><p className="eyebrow">خطوة إلزامية قبل الحجز</p><h2>يجب تعبئة ملف المريض قبل حجز الموعد.</h2><p>أكمل الملف الطبي واحفظه ثم أرسله لتتمكن من تأكيد الموعد.</p></div>
+          <Link className="button" to="/patient/medical-profile">تعبئة ملف المريض</Link>
+        </section>
+      )}
 
       <section
         className="panel patient-booking"
@@ -653,7 +684,7 @@ export default function PatientDashboard() {
                                   'patient-calendar__day',
                                   isAvailable
                                     ? 'patient-calendar__day--available'
-                                    : '',
+                                    : 'patient-calendar__day--unavailable',
                                   isSelected
                                     ? 'patient-calendar__day--selected'
                                     : '',
@@ -661,12 +692,24 @@ export default function PatientDashboard() {
                                 ]
                                   .filter(Boolean)
                                   .join(' ')}
-                                disabled={!isAvailable || availabilityLoading}
+                                disabled={availabilityLoading}
+                                aria-disabled={!isAvailable}
                                 aria-label={label}
                                 aria-pressed={isSelected}
+                                title={!isAvailable ? 'هذا التاريخ غير متاح للحجز، يرجى اختيار تاريخ آخر.' : undefined}
+                                onMouseEnter={() => !isAvailable && setUnavailableHint('هذا التاريخ غير متاح للحجز، يرجى اختيار تاريخ آخر.')}
+                                onMouseLeave={() => setUnavailableHint('')}
+                                onFocus={() => !isAvailable && setUnavailableHint('هذا التاريخ غير متاح للحجز، يرجى اختيار تاريخ آخر.')}
                                 onClick={() => {
+                                  if (!isAvailable) {
+                                    setSelectedDate('')
+                                    setSelectedSlot('')
+                                    setNotice({ text: 'هذا التاريخ غير متاح للحجز، يرجى اختيار تاريخ آخر.', error: true })
+                                    return
+                                  }
                                   setSelectedDate(key)
                                   setSelectedSlot('')
+                                  setUnavailableHint('')
                                 }}
                               >
                                 <span>{number(Number(key.slice(-2)))}</span>
@@ -684,6 +727,8 @@ export default function PatientDashboard() {
                     ))}
                   </tbody>
                 </table>
+                <div className="patient-calendar__legend" dir="rtl" lang="ar" aria-label="دليل ألوان التقويم"><span><i className="is-available" aria-hidden="true"/>متاح للحجز</span><span><i className="is-unavailable" aria-hidden="true"/>غير متاح / مكتمل الحجز</span></div>
+                {unavailableHint && <p className="patient-calendar__unavailable-message" dir="rtl" lang="ar" role="status">{unavailableHint}</p>}
               </div>
 
               <div className="patient-slots" aria-live="polite">
@@ -854,8 +899,9 @@ export default function PatientDashboard() {
                   </p>
                 )}
 
-                <button className="button" type="submit" disabled={submitting}>
-                  {submitting ? t('details.requesting') : t('details.request')}
+                {!medicalProfileComplete && <div className="patient-booking-profile-lock" dir="rtl" lang="ar"><strong>يجب تعبئة ملف المريض قبل حجز الموعد.</strong><Link to="/patient/medical-profile">تعبئة ملف المريض</Link></div>}
+                <button className="button" type="submit" disabled={submitting || !medicalProfileComplete}>
+                  {submitting ? t('details.requesting') : language === 'ar' ? 'تأكيد الحجز' : t('details.request')}
                 </button>
               </form>
             )}

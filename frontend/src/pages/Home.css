@@ -28,6 +28,11 @@
   font: inherit;
 }
 
+.home-booking-instructions {
+  width: min(1180px, calc(100% - 2rem));
+  margin: clamp(2rem, 6vw, 5rem) auto;
+}
+
 .home-header {
   position: sticky;
   z-index: 50;

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import Brand from '../components/Brand.jsx'
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx'
+import BookingInstructions from '../components/BookingInstructions.jsx'
 import './Home.css'
 
 const serviceKeys = ['pain', 'sports', 'surgery']
@@ -187,6 +188,8 @@ function Home() {
           </div>
         </div>
       </section>
+
+      <BookingInstructions className="home-booking-instructions" />
 
       <section className="home-services" id="services">
         <div className="home-section-heading">
