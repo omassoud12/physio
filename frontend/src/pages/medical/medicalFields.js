@@ -1,78 +1,77 @@
 export const steps = [
-  ['Informations personnelles', 'المعلومات الشخصية'],
-  ['Antécédents', 'التاريخ الطبي'],
-  ['Facteurs de risque', 'عوامل الخطورة'],
+  ['Personal information', 'المعلومات الشخصية'],
+  ['Medical history', 'التاريخ الطبي'],
+  ['Risk factors', 'عوامل الخطورة'],
   ['Documents', 'المستندات'],
-  ['Dépistage', 'الفحص الأولي'],
-  ['Bilan subjectif', 'التقييم الذاتي'],
-  ['Révision et confirmation', 'المراجعة والتأكيد'],
+  ['Screening', 'الفحص الأولي'],
+  ['Subjective assessment', 'التقييم الذاتي'],
+  ['Review and confirmation', 'المراجعة والتأكيد'],
 ]
 
 export const medicalConditions = [
-  ['diabetes','Diabète','السكري'], ['hypertension','HTA — hypertension artérielle','ارتفاع ضغط الدم'],
-  ['heart','Cardiopathie','أمراض القلب'], ['stroke','AVC','السكتة الدماغية'], ['arthritis','Arthrite','التهاب المفاصل'],
-  ['osteoporosis','Ostéoporose','هشاشة العظام'], ['neurological','Maladie neurologique','أمراض عصبية'],
-  ['respiratory','Maladie respiratoire','أمراض تنفسية'], ['renal','Maladie rénale','أمراض الكلى'],
-  ['cancer','Cancer','السرطان'], ['other','Autres','أخرى'],
+  ['diabetes','Diabetes','السكري'], ['hypertension','High blood pressure — hypertension','ارتفاع ضغط الدم'],
+  ['heart','Heart disease','أمراض القلب'], ['stroke','Stroke','السكتة الدماغية'], ['arthritis','Arthritis','التهاب المفاصل'],
+  ['osteoporosis','Osteoporosis','هشاشة العظام'], ['neurological','Neurological condition','أمراض عصبية'],
+  ['respiratory','Respiratory condition','أمراض تنفسية'], ['renal','Kidney disease','أمراض الكلى'],
+  ['cancer','Cancer','السرطان'], ['other','Other','أخرى'],
 ]
 
 export const familyConditions = [
-  ['osteoarthritis','Arthrose','الفصال العظمي'], ['rheumatoid','Polyarthrite rhumatoïde','التهاب المفاصل الروماتويدي'],
-  ['diabetes','Diabète','السكري'], ['cancer','Cancer','السرطان'], ['other','Autres','أخرى'],
+  ['osteoarthritis','Osteoarthritis','الفصال العظمي'], ['rheumatoid','Rheumatoid arthritis','التهاب المفاصل الروماتويدي'],
+  ['diabetes','Diabetes','السكري'], ['cancer','Cancer','السرطان'], ['other','Other','أخرى'],
 ]
 
 export const redFlags = [
-  ['fever','Fièvre ?','هل توجد حمى؟'], ['unexplained_weight_loss','Perte de poids inexpliquée ?','فقدان وزن غير مبرر؟'],
-  ['known_cancer','Cancer connu ?','سرطان معروف؟'], ['constant_night_pain','Douleur nocturne constante ?','ألم ليلي مستمر؟'],
-  ['major_trauma','Traumatisme important ?','إصابة شديدة؟'], ['incontinence','Incontinence urinaire ou fécale ?','فقدان السيطرة على البول أو البراز؟'],
-  ['saddle_anesthesia','Anesthésie en selle ?','خدر في منطقة العجان؟'], ['progressive_weakness','Faiblesse progressive ?','ضعف متزايد؟'],
-  ['chest_pain','Douleur thoracique ?','ألم صدري؟'], ['recent_infection','Infection récente ?','عدوى حديثة؟'],
-  ['known_fracture','Fracture connue ?','كسر معروف؟'],
+  ['fever','Fever?','هل توجد حمى؟'], ['unexplained_weight_loss','Unexplained weight loss?','فقدان وزن غير مبرر؟'],
+  ['known_cancer','Known cancer?','سرطان معروف؟'], ['constant_night_pain','Constant night pain?','ألم ليلي مستمر؟'],
+  ['major_trauma','Major trauma?','إصابة شديدة؟'], ['incontinence','Urinary or fecal incontinence?','فقدان السيطرة على البول أو البراز؟'],
+  ['saddle_anesthesia','Saddle anesthesia?','خدر في منطقة العجان؟'], ['progressive_weakness','Progressive weakness?','ضعف متزايد؟'],
+  ['chest_pain','Chest pain?','ألم صدري؟'], ['recent_infection','Recent infection?','عدوى حديثة؟'],
+  ['known_fracture','Known fracture?','كسر معروف؟'],
 ]
 
 export const painTypes = [
-  ['burning','Brûlure','حارق'], ['stabbing','Coup de couteau','طاعن'], ['throbbing','Pulsatile','نابض'],
-  ['electric','Électrique','كهربائي'], ['dull','Sourde','ألم خفيف مستمر'], ['pulling','Tiraillement','شد'],
-  ['tingling','Fourmillements','وخز'], ['numbness','Engourdissement','خدر'],
+  ['burning','Burning','حارق'], ['stabbing','Stabbing','طاعن'], ['throbbing','Throbbing','نابض'],
+  ['electric','Electric','كهربائي'], ['dull','Dull','ألم خفيف مستمر'], ['pulling','Pulling','شد'],
+  ['tingling','Tingling','وخز'], ['numbness','Numbness','خدر'],
 ]
 
 export const aggravating = [
-  ['walking','Marche','المشي'], ['running','Course','الركض'], ['stairs','Escaliers','صعود أو نزول الدرج'],
-  ['sitting','Assis','الجلوس'], ['standing','Debout','الوقوف'], ['lifting','Soulever','حمل الأوزان'],
-  ['sleeping','Dormir','النوم'], ['rotation','Rotation','الدوران'], ['flexion','Flexion','الانحناء'],
-  ['extension','Extension','المد'], ['other','Autres','أخرى'],
+  ['walking','Walking','المشي'], ['running','Running','الركض'], ['stairs','Stairs','صعود أو نزول الدرج'],
+  ['sitting','Sitting','الجلوس'], ['standing','Standing','الوقوف'], ['lifting','Lifting','حمل الأوزان'],
+  ['sleeping','Sleeping','النوم'], ['rotation','Rotation','الدوران'], ['flexion','Flexion','الانحناء'],
+  ['extension','Extension','المد'], ['other','Other','أخرى'],
 ]
 
 export const relieving = [
-  ['rest','Repos','الراحة'], ['ice','Glace','الثلج'], ['heat','Chaleur','الحرارة'],
-  ['medication','Médicaments','الأدوية'], ['position','Changement de position','تغيير الوضعية'],
-  ['massage','Massage','التدليك'], ['other','Autres','أخرى'],
+  ['rest','Rest','الراحة'], ['ice','Ice','الثلج'], ['heat','Heat','الحرارة'],
+  ['medication','Medication','الأدوية'], ['position','Changing position','تغيير الوضعية'],
+  ['massage','Massage','التدليك'], ['other','Other','أخرى'],
 ]
 
 export const symptoms = [
-  ['weakness','Faiblesse','ضعف'], ['numbness','Engourdissement','خدر'], ['dizziness','Vertiges','دوخة'],
-  ['headaches','Céphalées','صداع'], ['swelling','Gonflement','تورم'], ['locking','Blocage','انغلاق المفصل'],
-  ['clicking','Craquement','طقطقة'], ['instability','Instabilité','عدم ثبات'], ['other','Autres','أخرى'],
+  ['weakness','Weakness','ضعف'], ['numbness','Numbness','خدر'], ['dizziness','Dizziness','دوخة'],
+  ['headaches','Headaches','صداع'], ['swelling','Swelling','تورم'], ['locking','Locking','انغلاق المفصل'],
+  ['clicking','Clicking','طقطقة'], ['instability','Instability','عدم ثبات'], ['other','Other','أخرى'],
 ]
 
 export const goals = [
-  ['sport','Reprendre le sport','العودة إلى الرياضة'], ['work','Reprendre le travail','العودة إلى العمل'],
-  ['pain','Diminuer la douleur','تخفيف الألم'], ['walking','Marcher normalement','المشي بشكل طبيعي'],
-  ['sleep','Améliorer le sommeil','تحسين النوم'], ['daily','Reprendre les activités quotidiennes','ممارسة الأنشطة اليومية'],
-  ['other','Autres','أخرى'],
+  ['sport','Return to sports','العودة إلى الرياضة'], ['work','Return to work','العودة إلى العمل'],
+  ['pain','Reduce pain','تخفيف الألم'], ['walking','Walk normally','المشي بشكل طبيعي'],
+  ['sleep','Improve sleep','تحسين النوم'], ['daily','Resume daily activities','ممارسة الأنشطة اليومية'],
+  ['other','Other','أخرى'],
 ]
 
 export const documentCategories = [
-  ['mri','IRM','تصوير بالرنين المغناطيسي'], ['ct','Scanner — CT Scan','التصوير الطبقي المحوري'],
-  ['xray','Radiographie','الأشعة السينية'], ['ultrasound','Échographie','التصوير بالأمواج فوق الصوتية'],
-  ['emg','EMG','تخطيط كهربائية العضلات والأعصاب'], ['blood_test','Bilan sanguin','تحليل الدم'],
-  ['medical_report','Rapport médical','التقرير الطبي'], ['prescription','Prescription médicale','الوصفة الطبية'],
+  ['mri','MRI','تصوير بالرنين المغناطيسي'], ['ct','CT scan','التصوير الطبقي المحوري'],
+  ['xray','X-ray','الأشعة السينية'], ['ultrasound','Ultrasound','التصوير بالأمواج فوق الصوتية'],
+  ['emg','EMG','تخطيط كهربائية العضلات والأعصاب'], ['blood_test','Blood test','تحليل الدم'],
+  ['medical_report','Medical report','التقرير الطبي'], ['prescription','Medical prescription','الوصفة الطبية'],
 ]
 
 export const bodyRegions = [
-  ['head','Tête','الرأس'], ['neck','Cou','الرقبة'], ['shoulder','Épaule','الكتف'], ['upper_back','Haut du dos','أعلى الظهر'],
-  ['chest','Thorax','الصدر'], ['arm','Bras','الذراع'], ['elbow','Coude','المرفق'], ['wrist_hand','Poignet / main','المعصم / اليد'],
-  ['lower_back','Bas du dos','أسفل الظهر'], ['hip','Hanche','الورك'], ['thigh','Cuisse','الفخذ'], ['knee','Genou','الركبة'],
-  ['leg','Jambe','الساق'], ['ankle_foot','Cheville / pied','الكاحل / القدم'],
+  ['head','Head','الرأس'], ['neck','Neck','الرقبة'], ['shoulder','Shoulder','الكتف'], ['upper_back','Upper back','أعلى الظهر'],
+  ['chest','Chest','الصدر'], ['arm','Arm','الذراع'], ['elbow','Elbow','المرفق'], ['wrist_hand','Wrist / hand','المعصم / اليد'],
+  ['lower_back','Lower back','أسفل الظهر'], ['hip','Hip','الورك'], ['thigh','Thigh','الفخذ'], ['knee','Knee','الركبة'],
+  ['leg','Leg','الساق'], ['ankle_foot','Ankle / foot','الكاحل / القدم'],
 ]
-

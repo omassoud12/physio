@@ -20,18 +20,18 @@ export function validatePayload(body, submitting = false) {
   for (const key of SECTION_KEYS) if (body[key] !== undefined && !isObject(body[key])) throw apiError(`${key} must be an object`, 400);
   if (!numberInRange(body.completion_percent, 0, 100)) throw apiError('Invalid completion percentage', 400);
   const personal = body.personal_data || {};
-  if (personal.date_of_birth && new Date(`${personal.date_of_birth}T00:00:00Z`) > new Date()) throw apiError('La date de naissance ne peut pas être future / لا يمكن أن يكون تاريخ الميلاد في المستقبل', 400);
-  if (!numberInRange(personal.height_cm, 80, 250)) throw apiError('Taille invalide / الطول غير صالح', 400);
-  if (!numberInRange(personal.weight_kg, 20, 350)) throw apiError('Poids invalide / الوزن غير صالح', 400);
+  if (personal.date_of_birth && new Date(`${personal.date_of_birth}T00:00:00Z`) > new Date()) throw apiError('Date of birth cannot be in the future / لا يمكن أن يكون تاريخ الميلاد في المستقبل', 400);
+  if (!numberInRange(personal.height_cm, 80, 250)) throw apiError('Invalid height / الطول غير صالح', 400);
+  if (!numberInRange(personal.weight_kg, 20, 350)) throw apiError('Invalid weight / الوزن غير صالح', 400);
   const pain = body.subjective_assessment?.pain_scores || {};
-  for (const score of Object.values(pain)) if (!numberInRange(score, 0, 10)) throw apiError('Les scores de douleur doivent être compris entre 0 et 10 / يجب أن تتراوح درجات الألم بين 0 و10', 400);
+  for (const score of Object.values(pain)) if (!numberInRange(score, 0, 10)) throw apiError('Pain scores must be between 0 and 10 / يجب أن تتراوح درجات الألم بين 0 و10', 400);
   if (submitting && (!personal.first_name?.trim() || !personal.last_name?.trim() || !personal.date_of_birth || !personal.sex)) {
-    throw apiError('Complétez les informations personnelles obligatoires / يرجى إكمال المعلومات الشخصية المطلوبة', 400);
+    throw apiError('Complete the required personal information / يرجى إكمال المعلومات الشخصية المطلوبة', 400);
   }
-  if (submitting && body.medical_history?.allergies && !body.medical_history.allergy_details?.trim()) throw apiError('Précisez le type d’allergie / يرجى تحديد نوع الحساسية', 400);
-  if (submitting && body.subjective_assessment?.radiation && !body.subjective_assessment.radiation_location?.trim()) throw apiError('Précisez la région d’irradiation / يرجى تحديد منطقة انتشار الألم', 400);
-  if (submitting && body.subjective_assessment?.morning_stiffness && !body.subjective_assessment.stiffness_duration?.trim()) throw apiError('Précisez la durée de la raideur / يرجى تحديد مدة التيبس', 400);
-  if (submitting && RED_FLAG_KEYS.some((key) => typeof body.screening?.[key] !== 'boolean')) throw apiError('Répondez à toutes les questions de dépistage / يرجى الإجابة عن جميع أسئلة الفحص', 400);
+  if (submitting && body.medical_history?.allergies && !body.medical_history.allergy_details?.trim()) throw apiError('Specify the type of allergy / يرجى تحديد نوع الحساسية', 400);
+  if (submitting && body.subjective_assessment?.radiation && !body.subjective_assessment.radiation_location?.trim()) throw apiError('Specify the region of radiation / يرجى تحديد منطقة انتشار الألم', 400);
+  if (submitting && body.subjective_assessment?.morning_stiffness && !body.subjective_assessment.stiffness_duration?.trim()) throw apiError('Specify the duration of stiffness / يرجى تحديد مدة التيبس', 400);
+  if (submitting && RED_FLAG_KEYS.some((key) => typeof body.screening?.[key] !== 'boolean')) throw apiError('Answer all screening questions / يرجى الإجابة عن جميع أسئلة الفحص', 400);
 }
 
 export function calculatedPersonal(personal = {}) {
@@ -134,8 +134,8 @@ export async function saveRecord(req, res) {
 
 export async function uploadDocument(req, res) {
   try {
-    if (!req.file) throw apiError('Sélectionnez un fichier / يرجى اختيار ملف', 400);
-    if (!MIME_TYPES.has(req.file.mimetype) || req.file.size > MAX_FILE_SIZE) throw apiError('Format ou taille de fichier invalide (8 Mo max.) / نوع الملف أو حجمه غير صالح (الحد الأقصى 8 ميغابايت)', 400);
+    if (!req.file) throw apiError('Select a file / يرجى اختيار ملف', 400);
+    if (!MIME_TYPES.has(req.file.mimetype) || req.file.size > MAX_FILE_SIZE) throw apiError('Invalid file format or size (8 MB max.) / نوع الملف أو حجمه غير صالح (الحد الأقصى 8 ميغابايت)', 400);
     if (!CATEGORIES.has(req.body.category)) throw apiError('Document category is required', 400);
     let record = await loadRecord(req.db, req.auth.user.id);
     if (!record) {

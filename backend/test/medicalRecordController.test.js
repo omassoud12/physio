@@ -17,11 +17,11 @@ test('calculates age from date of birth instead of trusting patient input', () =
 test('rejects future birth dates and out-of-range pain scores', () => {
   assert.throws(
     () => validatePayload({ personal_data: { date_of_birth: '2999-01-01' } }),
-    /naissance/,
+    /Date of birth/,
   );
   assert.throws(
     () => validatePayload({ subjective_assessment: { pain_scores: { current: 11 } } }),
-    /0 et 10/,
+    /0 and 10/,
   );
 });
 
@@ -31,6 +31,6 @@ test('requires every red-flag answer on final submission', () => {
       personal_data: { first_name: 'A', last_name: 'B', date_of_birth: '1990-01-01', sex: 'female' },
       screening: {},
     }, true),
-    /dépistage/,
+    /screening/,
   );
 });

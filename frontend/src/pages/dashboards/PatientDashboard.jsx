@@ -914,14 +914,14 @@ export default function PatientDashboard() {
       ) && (
         <section className="panel patient-medical-cta" aria-labelledby="medical-profile-title">
           <div>
-            <p className="eyebrow">Dossier patient / ملف المريض</p>
-            <h2 id="medical-profile-title">Compléter le dossier médical</h2>
+            <p className="eyebrow">Patient record / ملف المريض</p>
+            <h2 id="medical-profile-title">Complete the medical record</h2>
             <h3 dir="rtl" lang="ar">استكمال الملف الطبي</h3>
-            <p>Préparez votre première séance, enregistrez un brouillon et revenez le compléter à tout moment.</p>
+            <p>Prepare for your first session, save a draft, and return to complete it at any time.</p>
             <p dir="rtl" lang="ar">استعد لجلستك الأولى، واحفظ مسودة ثم عُد لإكمالها في أي وقت.</p>
           </div>
           <Link className="button" to="/patient/medical-profile">
-            Compléter / استكمال
+            Complete / استكمال
           </Link>
         </section>
       )}

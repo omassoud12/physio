@@ -11,8 +11,8 @@ const uploadOne = (req, res, next) => upload.single('file')(req, res, (error) =>
   return res.status(error.code === 'LIMIT_FILE_SIZE' ? 413 : 400).json({
     success: false,
     message: error.code === 'LIMIT_FILE_SIZE'
-      ? 'Fichier trop volumineux (8 Mo max.) / حجم الملف كبير جداً (الحد الأقصى 8 ميغابايت)'
-      : 'Téléversement invalide / عملية الرفع غير صالحة',
+      ? 'File too large (8 MB max.) / حجم الملف كبير جداً (الحد الأقصى 8 ميغابايت)'
+      : 'Invalid upload / عملية الرفع غير صالحة',
     errors: [],
   });
 });
