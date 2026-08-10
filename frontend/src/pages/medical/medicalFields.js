@@ -31,28 +31,97 @@ export const redFlags = [
 ]
 
 export const painTypes = [
-  ['burning','Burning','حارق'], ['stabbing','Stabbing','طاعن'], ['throbbing','Throbbing','نابض'],
-  ['electric','Electric','كهربائي'], ['dull','Dull','ألم خفيف مستمر'], ['pulling','Pulling','شد'],
-  ['tingling','Tingling','وخز'], ['numbness','Numbness','خدر'],
+  ['aching','Aching','موجع'], ['sharp','Sharp','حاد'], ['burning','Burning','حارق'],
+  ['stabbing','Stabbing','طاعن'], ['throbbing','Throbbing','نابض'], ['shooting','Shooting','ممتد كالسهم'],
+  ['electric','Electric shock-like','كهربائي'], ['dull','Dull','مبهم'], ['pulling','Pulling / tight','شد'],
+  ['cramping','Cramping','تشنج'], ['pressure','Pressure / heaviness','ضغط / ثقل'],
+  ['tingling','Pins and needles','وخز'], ['numbness','Numbness','خدر'],
+]
+
+export const painCauses = [
+  ['no_clear_cause','No clear cause','لا يوجد سبب واضح'], ['trauma','Injury / trauma','إصابة'],
+  ['fall','Fall','سقوط'], ['accident','Accident','حادث'], ['work','Work-related','مرتبط بالعمل'],
+  ['sport','Sports-related','مرتبط بالرياضة'], ['lifting','Lifting / sudden effort','حمل أوزان / مجهود مفاجئ'],
+  ['repetitive','Repetitive movement / overuse','حركة متكررة / فرط استخدام'],
+  ['post_surgery','After surgery','بعد عملية جراحية'], ['other','Other','أخرى'],
+]
+
+export const painScoreFields = [
+  ['current','Pain right now','الألم الآن'], ['today','Pain today overall','شدة الألم خلال اليوم'],
+  ['best','Least pain','أقل شدة للألم'],
+  ['average','Average pain','متوسط شدة الألم'], ['worst','Worst pain','أشد ألم'],
+  ['rest','Pain at rest','الألم أثناء الراحة'], ['activity','Pain during activity','الألم أثناء النشاط'],
+  ['night','Pain at night','الألم ليلاً'],
+]
+
+export const painPatterns = [
+  ['constant','Constant','مستمر'], ['intermittent','Intermittent','متقطع'],
+  ['occasional','Occasional','عرضي'],
+]
+
+export const irritabilityLevels = [
+  ['low','Low — settles quickly','منخفضة — يهدأ بسرعة'],
+  ['moderate','Moderate — takes some time to settle','متوسطة — يحتاج بعض الوقت ليهدأ'],
+  ['high','High — easily triggered and slow to settle','مرتفعة — يُستثار بسهولة ويهدأ ببطء'],
+]
+
+export const painEvolution = [
+  ['worse','Worsening','يزداد سوءاً'], ['stable','Unchanged / stable','ثابت'],
+  ['better','Improving','يتحسن'], ['fluctuating','Fluctuating','متقلب'],
 ]
 
 export const aggravating = [
   ['walking','Walking','المشي'], ['running','Running','الركض'], ['stairs','Stairs','صعود أو نزول الدرج'],
   ['sitting','Sitting','الجلوس'], ['standing','Standing','الوقوف'], ['lifting','Lifting','حمل الأوزان'],
-  ['sleeping','Sleeping','النوم'], ['rotation','Rotation','الدوران'], ['flexion','Flexion','الانحناء'],
-  ['extension','Extension','المد'], ['other','Other','أخرى'],
+  ['sleeping','Sleeping / lying down','النوم / الاستلقاء'], ['position','Prolonged position','الثبات في وضعية لفترة طويلة'],
+  ['rotation','Twisting / rotation','الالتفاف / الدوران'], ['flexion','Bending forward','الانحناء للأمام'],
+  ['extension','Bending backward','الانحناء للخلف'], ['reaching','Reaching overhead','مدّ الذراع للأعلى'],
+  ['gripping','Gripping / hand use','القبض / استخدام اليد'], ['sit_to_stand','Getting up from sitting','النهوض من الجلوس'],
+  ['coughing','Coughing / sneezing','السعال / العطاس'], ['other','Other','أخرى'],
 ]
 
 export const relieving = [
   ['rest','Rest','الراحة'], ['ice','Ice','الثلج'], ['heat','Heat','الحرارة'],
   ['medication','Medication','الأدوية'], ['position','Changing position','تغيير الوضعية'],
-  ['massage','Massage','التدليك'], ['other','Other','أخرى'],
+  ['movement','Gentle movement','الحركة الخفيفة'], ['stretching','Stretching','التمدد'],
+  ['massage','Massage','التدليك'], ['support','Brace / support','المشد / الدعامة'], ['other','Other','أخرى'],
+]
+
+export const painSchedules = [
+  ['morning','Morning','صباحاً'], ['midday','Midday','ظهراً'], ['evening','Evening','مساءً'],
+  ['night','Night','ليلاً'], ['after_activity','After activity','بعد النشاط'],
+  ['unpredictable','No clear pattern','دون نمط واضح'],
 ]
 
 export const symptoms = [
   ['weakness','Weakness','ضعف'], ['numbness','Numbness','خدر'], ['dizziness','Dizziness','دوخة'],
   ['headaches','Headaches','صداع'], ['swelling','Swelling','تورم'], ['locking','Locking','انغلاق المفصل'],
-  ['clicking','Clicking','طقطقة'], ['instability','Instability','عدم ثبات'], ['other','Other','أخرى'],
+  ['clicking','Clicking','طقطقة'], ['instability','Instability / giving way','عدم ثبات / خيانة المفصل'],
+  ['stiffness','Stiffness','تيبس'], ['spasm','Muscle spasm','تشنج عضلي'],
+  ['reduced_motion','Reduced movement','نقص في مدى الحركة'], ['balance','Balance difficulty','صعوبة في التوازن'],
+  ['other','Other','أخرى'],
+]
+
+export const functionalLimitations = [
+  ['walking','Walking','المشي'], ['stairs','Stairs','الدرج'], ['sitting','Sitting','الجلوس'],
+  ['standing','Standing','الوقوف'], ['sleep','Sleep','النوم'], ['self_care','Self-care / dressing','العناية الذاتية / ارتداء الملابس'],
+  ['housework','Housework','الأعمال المنزلية'], ['driving','Driving','القيادة'],
+  ['work','Work / study','العمل / الدراسة'], ['exercise','Exercise / sport','التمارين / الرياضة'],
+  ['none','No current limitation','لا يوجد تقييد حالياً'], ['other','Other','أخرى'],
+]
+
+export const painImpactFields = [
+  ['daily_activities','Daily activities','الأنشطة اليومية'], ['sleep','Sleep','النوم'],
+  ['walking','Walking / mobility','المشي / الحركة'], ['work','Work / study','العمل / الدراسة'],
+  ['mood','Mood','المزاج'],
+]
+
+export const treatmentsTried = [
+  ['none','None yet','لا شيء حتى الآن'], ['pain_medication','Pain medication','مسكنات الألم'],
+  ['physiotherapy','Physiotherapy','علاج فيزيائي'], ['injection','Injection','حقن'],
+  ['surgery','Surgery','عملية جراحية'], ['massage','Massage / manual therapy','تدليك / علاج يدوي'],
+  ['exercise','Exercises','تمارين'], ['ice_heat','Ice / heat','ثلج / حرارة'],
+  ['brace','Brace / support','مشد / دعامة'], ['other','Other','أخرى'],
 ]
 
 export const goals = [

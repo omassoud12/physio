@@ -23,6 +23,10 @@ test('rejects future birth dates and out-of-range pain scores', () => {
     () => validatePayload({ subjective_assessment: { pain_scores: { current: 11 } } }),
     /0 and 10/,
   );
+  assert.throws(
+    () => validatePayload({ subjective_assessment: { pain_impact: { sleep: -1 } } }),
+    /impact scores/,
+  );
 });
 
 test('requires every red-flag answer on final submission', () => {

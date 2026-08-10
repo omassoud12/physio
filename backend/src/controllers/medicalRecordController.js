@@ -25,6 +25,8 @@ export function validatePayload(body, submitting = false) {
   if (!numberInRange(personal.weight_kg, 20, 350)) throw apiError('Invalid weight / الوزن غير صالح', 400);
   const pain = body.subjective_assessment?.pain_scores || {};
   for (const score of Object.values(pain)) if (!numberInRange(score, 0, 10)) throw apiError('Pain scores must be between 0 and 10 / يجب أن تتراوح درجات الألم بين 0 و10', 400);
+  const painImpact = body.subjective_assessment?.pain_impact || {};
+  for (const score of Object.values(painImpact)) if (!numberInRange(score, 0, 10)) throw apiError('Pain impact scores must be between 0 and 10 / يجب أن تتراوح درجات تأثير الألم بين 0 و10', 400);
   if (submitting && (!personal.first_name?.trim() || !personal.last_name?.trim() || !personal.date_of_birth || !personal.sex)) {
     throw apiError('Complete the required personal information / يرجى إكمال المعلومات الشخصية المطلوبة', 400);
   }
