@@ -73,6 +73,7 @@ const painGroups = [
   ['Associated symptoms and daily impact','الأعراض المرافقة والتأثير اليومي',[
     ['symptoms','Associated symptoms / الأعراض المرافقة'],
     ['symptoms_other','Other symptoms / أعراض أخرى'],
+    ['activities_limited','Activities limited by pain / هل يحدّ الألم من الأنشطة؟'],
     ['functional_limitations','Limited activities / الأنشطة المحدودة'],
     ['functional_limitations_other','Other limited activities / أنشطة محدودة أخرى'],
     ...painImpactFields.map(([key,fr,ar])=>[`pain_impact.${key}`,`Impact on ${fr.toLowerCase()} / تأثير الألم في ${ar}`]),

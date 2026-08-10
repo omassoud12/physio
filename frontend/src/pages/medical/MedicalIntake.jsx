@@ -22,7 +22,7 @@ const emptySubjective = {
   pain_types:[], irritability:'', irritability_level:'', episode_duration:'', evolution:'',
   aggravating:[], aggravating_other:'', relieving:[], relieving_other:'', schedule:[],
   morning_stiffness:false, stiffness_duration:'', night_pain:null, wakes_from_pain:null,
-  radiation:false, radiation_location:'', symptoms:[], symptoms_other:'', functional_limitations:[],
+  radiation:false, radiation_location:'', symptoms:[], symptoms_other:'', activities_limited:null, functional_limitations:[],
   functional_limitations_other:'', pain_impact:{ daily_activities:0, sleep:0, walking:0, work:0, mood:0 },
   treatments_tried:[], treatment_response:'', goals:[], personal_goal:'', notes:'',
 }
@@ -125,6 +125,17 @@ export default function MedicalIntake() {
   const updateHistory=(key,value)=>updateSection('medical_history',key,value)
   const updateRisk=(key,value)=>updateSection('risk_factors',key,value)
   const updateSubjective=(key,value)=>updateSection('subjective_assessment',key,value)
+  const updateActivitiesLimited=(value)=>{
+    setForm((current)=>({
+      ...current,
+      subjective_assessment:{
+        ...current.subjective_assessment,
+        activities_limited:value,
+        ...(value ? {} : { functional_limitations:[], functional_limitations_other:'' }),
+      },
+    }))
+    setDirty(true); setInteracted(true)
+  }
 
   useEffect(()=>{
     let active=true
@@ -133,7 +144,9 @@ export default function MedicalIntake() {
       const payload=data.data; const record=payload.record
       const latest=payload.appointments?.find((a)=>!['cancelled','rejected'].includes(a.status))
       if (record) {
-        setForm({ booking_id:record.booking_id || latest?.id || '', personal_data:{...emptyPersonal,...record.personal_data}, medical_history:{...emptyHistory,...record.medical_history,trauma:{...emptyHistory.trauma,...record.medical_history?.trauma}}, risk_factors:{...emptyRisk,...record.risk_factors}, screening:record.screening || {}, subjective_assessment:{...emptySubjective,...record.subjective_assessment,episode_duration:normalizePainDuration(record.subjective_assessment?.episode_duration),pain_locations:normalizePainLocations(record.subjective_assessment?.pain_locations),pain_scores:{...emptySubjective.pain_scores,...record.subjective_assessment?.pain_scores},pain_impact:{...emptySubjective.pain_impact,...record.subjective_assessment?.pain_impact}}, surgeries:record.surgeries || [], medications:record.medications || [] })
+        const savedSubjective=record.subjective_assessment || {}
+        const activitiesLimited=typeof savedSubjective.activities_limited==='boolean' ? savedSubjective.activities_limited : savedSubjective.functional_limitations?.length ? true : null
+        setForm({ booking_id:record.booking_id || latest?.id || '', personal_data:{...emptyPersonal,...record.personal_data}, medical_history:{...emptyHistory,...record.medical_history,trauma:{...emptyHistory.trauma,...record.medical_history?.trauma}}, risk_factors:{...emptyRisk,...record.risk_factors}, screening:record.screening || {}, subjective_assessment:{...emptySubjective,...savedSubjective,activities_limited:activitiesLimited,episode_duration:normalizePainDuration(savedSubjective.episode_duration),pain_locations:normalizePainLocations(savedSubjective.pain_locations),pain_scores:{...emptySubjective.pain_scores,...savedSubjective.pain_scores},pain_impact:{...emptySubjective.pain_impact,...savedSubjective.pain_impact}}, surgeries:record.surgeries || [], medications:record.medications || [] })
         setDocuments(record.documents || []); setStatus(record.completion_status); setLastSaved(record.updated_at)
       } else {
         setForm((current)=>({ ...current, booking_id:latest?.id || '', personal_data:{...current.personal_data,first_name:payload.profile?.first_name || '',last_name:payload.profile?.last_name || '',phone:payload.profile?.phone || '',sex:payload.profile?.gender || '',date_of_birth:payload.profile?.date_of_birth || ''} }))
@@ -253,7 +266,7 @@ export default function MedicalIntake() {
 
           <PainSubheading fr="5. Associated symptoms and daily impact" ar="٥. الأعراض المرافقة والتأثير اليومي"/>
           <CheckGroup label="Which symptoms occur with the pain?" ar="ما الأعراض التي ترافق الألم؟" values={subjective.symptoms} onChange={(v)=>updateSubjective('symptoms',v)} options={symptoms}/>{subjective.symptoms.includes('other')&&<Field label="Other symptoms" ar="أعراض أخرى"><textarea value={subjective.symptoms_other} onChange={(e)=>updateSubjective('symptoms_other',e.target.value)}/></Field>}
-          <CheckGroup label="Which activities are limited by the pain?" ar="ما الأنشطة التي يحدّ منها الألم؟" values={subjective.functional_limitations} onChange={(v)=>updateSubjective('functional_limitations',v)} options={functionalLimitations} exclusiveKeys={['none']}/>{subjective.functional_limitations.includes('other')&&<Field label="Other limited activities" ar="أنشطة محدودة أخرى"><textarea value={subjective.functional_limitations_other} onChange={(e)=>updateSubjective('functional_limitations_other',e.target.value)}/></Field>}
+          <YesNo label="Does pain limit any of your activities?" ar="هل يحدّ الألم من أي من أنشطتك؟" value={subjective.activities_limited} onChange={updateActivitiesLimited}/>{subjective.activities_limited&&<CheckGroup label="Which activities are limited by the pain?" ar="ما الأنشطة التي يحدّ منها الألم؟" values={subjective.functional_limitations} onChange={(v)=>updateSubjective('functional_limitations',v)} options={functionalLimitations}/>} {subjective.activities_limited&&subjective.functional_limitations.includes('other')&&<Field label="Other limited activities" ar="أنشطة محدودة أخرى"><textarea value={subjective.functional_limitations_other} onChange={(e)=>updateSubjective('functional_limitations_other',e.target.value)}/></Field>}
           <div className="pain-panel medical-field--wide"><div className="pain-scale-note">0 = no interference / لا تأثير <span>10 = completely prevents it / يمنعه تماماً</span></div>{painImpactFields.map(([key,fr,ar])=><PainScore key={key} label={`Impact on ${fr.toLowerCase()}`} ar={`تأثير الألم في ${ar}`} value={subjective.pain_impact[key] ?? 0} onChange={(v)=>updateSubjective('pain_impact',{...subjective.pain_impact,[key]:v})}/>)}</div>
 
           <PainSubheading fr="6. Previous care and goals" ar="٦. العلاجات السابقة والأهداف"/>

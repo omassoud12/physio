@@ -121,7 +121,7 @@ export const functionalLimitations = [
   ['standing','Standing','الوقوف'], ['sleep','Sleep','النوم'], ['self_care','Self-care / dressing','العناية الذاتية / ارتداء الملابس'],
   ['housework','Housework','الأعمال المنزلية'], ['driving','Driving','القيادة'],
   ['work','Work / study','العمل / الدراسة'], ['exercise','Exercise / sport','التمارين / الرياضة'],
-  ['none','No current limitation','لا يوجد تقييد حالياً'], ['other','Other','أخرى'],
+  ['other','Other','أخرى'],
 ]
 
 export const painImpactFields = [
