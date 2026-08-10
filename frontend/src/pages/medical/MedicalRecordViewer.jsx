@@ -5,7 +5,7 @@ import DashboardLayout from '../dashboards/DashboardLayout.jsx'
 import { bodyChartViews, normalizePainLocations } from './bodyChartRegions.js'
 import {
   aggravating, documentCategories, functionalLimitations, goals, irritabilityLevels,
-  painCauses, painEvolution, painImpactFields, painPatterns, painSchedules, painScoreFields,
+  painCauses, painDurationOptions, painEvolution, painImpactFields, painPatterns, painSchedules, painScoreFields,
   painTypes, redFlags, relieving, steps, symptoms, treatmentsTried,
 } from './medicalFields.js'
 import './MedicalIntake.css'
@@ -35,7 +35,7 @@ const depthOptions = [['superficial','Superficial','سطحي'],['deep','Deep','�
 const painFieldOptions = {
   onset_type:onsetOptions, causes:painCauses, pain_side:sideOptions, pain_depth:depthOptions,
   pain_types:painTypes, irritability:painPatterns, irritability_level:irritabilityLevels,
-  evolution:painEvolution, aggravating, relieving, schedule:painSchedules, symptoms,
+  episode_duration:painDurationOptions, evolution:painEvolution, aggravating, relieving, schedule:painSchedules, symptoms,
   functional_limitations:functionalLimitations, treatments_tried:treatmentsTried, goals,
 }
 
@@ -113,6 +113,15 @@ function displayPainValue(field, value) {
   if (field === 'pain_locations') {
     const locations = normalizePainLocations(value)
     return locations.length ? locations.map((item)=>bodyLocationLabels.get(item) || item).join(' · ') : '—'
+  }
+  if (field === 'episode_duration' && value !== '' && Number.isFinite(Number(value))) {
+    const minutes = Number(value)
+    if (minutes <= 0) return 'Not set / غير محدد'
+    if (minutes >= 1440) return '24+ hours / ٢٤+ ساعة'
+    if (minutes < 60) return `${minutes} min / ${minutes} دقيقة`
+    const hours = Math.floor(minutes / 60)
+    const remaining = minutes % 60
+    return remaining ? `${hours} h ${remaining} min / ${hours} س ${remaining} د` : `${hours} h / ${hours} ساعة`
   }
   if (Array.isArray(value)) return value.length ? value.map((item)=>optionLabel(painFieldOptions[field],item)).join(' · ') : '—'
   if (painFieldOptions[field] && value) return optionLabel(painFieldOptions[field],value)

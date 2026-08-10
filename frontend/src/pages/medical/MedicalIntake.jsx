@@ -7,7 +7,7 @@ import { normalizePainLocations } from './bodyChartRegions.js'
 import {
   aggravating, documentCategories, familyConditions, goals,
   functionalLimitations, irritabilityLevels, medicalConditions, painCauses,
-  painEvolution, painImpactFields, painPatterns, painSchedules, painScoreFields,
+  normalizePainDuration, painDurationOptions, painEvolution, painImpactFields, painPatterns, painSchedules, painScoreFields,
   painTypes, redFlags, relieving, steps, symptoms, treatmentsTried,
 } from './medicalFields.js'
 import './MedicalIntake.css'
@@ -133,7 +133,7 @@ export default function MedicalIntake() {
       const payload=data.data; const record=payload.record
       const latest=payload.appointments?.find((a)=>!['cancelled','rejected'].includes(a.status))
       if (record) {
-        setForm({ booking_id:record.booking_id || latest?.id || '', personal_data:{...emptyPersonal,...record.personal_data}, medical_history:{...emptyHistory,...record.medical_history,trauma:{...emptyHistory.trauma,...record.medical_history?.trauma}}, risk_factors:{...emptyRisk,...record.risk_factors}, screening:record.screening || {}, subjective_assessment:{...emptySubjective,...record.subjective_assessment,pain_locations:normalizePainLocations(record.subjective_assessment?.pain_locations),pain_scores:{...emptySubjective.pain_scores,...record.subjective_assessment?.pain_scores},pain_impact:{...emptySubjective.pain_impact,...record.subjective_assessment?.pain_impact}}, surgeries:record.surgeries || [], medications:record.medications || [] })
+        setForm({ booking_id:record.booking_id || latest?.id || '', personal_data:{...emptyPersonal,...record.personal_data}, medical_history:{...emptyHistory,...record.medical_history,trauma:{...emptyHistory.trauma,...record.medical_history?.trauma}}, risk_factors:{...emptyRisk,...record.risk_factors}, screening:record.screening || {}, subjective_assessment:{...emptySubjective,...record.subjective_assessment,episode_duration:normalizePainDuration(record.subjective_assessment?.episode_duration),pain_locations:normalizePainLocations(record.subjective_assessment?.pain_locations),pain_scores:{...emptySubjective.pain_scores,...record.subjective_assessment?.pain_scores},pain_impact:{...emptySubjective.pain_impact,...record.subjective_assessment?.pain_impact}}, surgeries:record.surgeries || [], medications:record.medications || [] })
         setDocuments(record.documents || []); setStatus(record.completion_status); setLastSaved(record.updated_at)
       } else {
         setForm((current)=>({ ...current, booking_id:latest?.id || '', personal_data:{...current.personal_data,first_name:payload.profile?.first_name || '',last_name:payload.profile?.last_name || '',phone:payload.profile?.phone || '',sex:payload.profile?.gender || '',date_of_birth:payload.profile?.date_of_birth || ''} }))
@@ -185,6 +185,7 @@ export default function MedicalIntake() {
   function validateSubmit(){
     if(!personal.first_name.trim()||!personal.last_name.trim()||!personal.date_of_birth||!personal.sex){setStep(0);setMessage({error:true,text:'Complete the required personal fields / يرجى إكمال الحقول الشخصية المطلوبة'});return false}
     if(new Date(`${personal.date_of_birth}T00:00:00`)>new Date()||!bmiFrom(personal.height_cm,personal.weight_kg)){setStep(0);setMessage({error:true,text:'Check the date of birth, height, and weight / يرجى التحقق من تاريخ الميلاد والطول والوزن'});return false}
+    if(!subjective.episode_duration){setStep(5);setMessage({error:true,text:'Choose how long the pain usually lasts / يرجى اختيار مدة الألم المعتادة'});return false}
     return true
   }
   async function submitFinal(){if(!validateSubmit()||!window.confirm('Confirm submission of the medical record? You can still update it later.\n\nهل تؤكد إرسال الملف الطبي؟ سيبقى بإمكانك تحديثه.'))return;await save(true)}
@@ -242,7 +243,7 @@ export default function MedicalIntake() {
 
           <PainSubheading fr="4. Pattern and behaviour" ar="٤. نمط الألم وسلوكه"/>
           <RadioGroup label="How often is the pain present?" ar="كم مرة يكون الألم موجوداً؟" value={subjective.irritability} onChange={(v)=>updateSubjective('irritability',v)} options={painPatterns}/><RadioGroup label="How easily is the pain triggered and how quickly does it settle?" ar="ما مدى سهولة استثارة الألم وسرعة هدوئه؟" value={subjective.irritability_level} onChange={(v)=>updateSubjective('irritability_level',v)} options={irritabilityLevels}/>
-          <TextInput label="When pain starts, how long does it usually last?" ar="عندما يبدأ الألم، كم يستمر عادةً؟" value={subjective.episode_duration} onChange={(v)=>updateSubjective('episode_duration',v)}/><RadioGroup label="How has the condition changed since it began?" ar="كيف تغيرت الحالة منذ بدايتها؟" value={subjective.evolution} onChange={(v)=>updateSubjective('evolution',v)} options={painEvolution}/>
+          <Field label="When pain starts, how long does it usually last?" ar="عندما يبدأ الألم، كم يستمر عادةً؟" required className="medical-field--wide"><select required value={subjective.episode_duration} onChange={(e)=>updateSubjective('episode_duration',e.target.value)}><option value="">Select a duration / اختر المدة</option>{painDurationOptions.map(([key,fr,ar])=><option key={key} value={key}>{fr} / {ar}</option>)}</select></Field><RadioGroup label="How has the condition changed since it began?" ar="كيف تغيرت الحالة منذ بدايتها؟" value={subjective.evolution} onChange={(v)=>updateSubjective('evolution',v)} options={painEvolution}/>
           <CheckGroup label="What makes the pain worse?" ar="ما الذي يزيد الألم؟" values={subjective.aggravating} onChange={(v)=>updateSubjective('aggravating',v)} options={aggravating}/>{subjective.aggravating.includes('other')&&<Field label="Other aggravating factors" ar="عوامل أخرى تزيد الألم"><textarea value={subjective.aggravating_other} onChange={(e)=>updateSubjective('aggravating_other',e.target.value)}/></Field>}
           <CheckGroup label="What reduces the pain?" ar="ما الذي يخفف الألم؟" values={subjective.relieving} onChange={(v)=>updateSubjective('relieving',v)} options={relieving}/>{subjective.relieving.includes('other')&&<Field label="Other relieving factors" ar="عوامل أخرى تخفف الألم"><textarea value={subjective.relieving_other} onChange={(e)=>updateSubjective('relieving_other',e.target.value)}/></Field>}
           <CheckGroup label="When is the pain usually present?" ar="متى يظهر الألم عادةً؟" values={subjective.schedule} onChange={(v)=>updateSubjective('schedule',v)} options={painSchedules}/>

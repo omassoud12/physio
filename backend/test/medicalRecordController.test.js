@@ -33,8 +33,19 @@ test('requires every red-flag answer on final submission', () => {
   assert.throws(
     () => validatePayload({
       personal_data: { first_name: 'A', last_name: 'B', date_of_birth: '1990-01-01', sex: 'female' },
+      subjective_assessment: { episode_duration: 'one_hour' },
       screening: {},
     }, true),
     /screening/,
+  );
+});
+
+test('requires one of the supported pain-duration choices on final submission', () => {
+  assert.throws(
+    () => validatePayload({
+      personal_data: { first_name: 'A', last_name: 'B', date_of_birth: '1990-01-01', sex: 'female' },
+      subjective_assessment: { episode_duration: 'three_hours' },
+    }, true),
+    /how long the pain/,
   );
 });

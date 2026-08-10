@@ -59,6 +59,20 @@ export const painPatterns = [
   ['occasional','Occasional','عرضي'],
 ]
 
+export const painDurationOptions = [
+  ['one_hour','One hour','ساعة واحدة'], ['two_hours','Two hours','ساعتان'],
+  ['more_than_two_hours','More than two hours','أكثر من ساعتين'],
+]
+
+export function normalizePainDuration(value) {
+  if (painDurationOptions.some(([key])=>key===value)) return value
+  const minutes = Number(value)
+  if (!Number.isFinite(minutes) || minutes <= 0) return ''
+  if (minutes <= 60) return 'one_hour'
+  if (minutes <= 120) return 'two_hours'
+  return 'more_than_two_hours'
+}
+
 export const irritabilityLevels = [
   ['low','Low — settles quickly','منخفضة — يهدأ بسرعة'],
   ['moderate','Moderate — takes some time to settle','متوسطة — يحتاج بعض الوقت ليهدأ'],

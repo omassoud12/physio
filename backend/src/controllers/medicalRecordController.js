@@ -7,6 +7,7 @@ const CATEGORIES = new Set(['mri','ct','xray','ultrasound','emg','blood_test','m
 const MAX_FILE_SIZE = 8 * 1024 * 1024;
 const SECTION_KEYS = ['personal_data','medical_history','risk_factors','screening','subjective_assessment'];
 const RED_FLAG_KEYS = ['fever','unexplained_weight_loss','known_cancer','constant_night_pain','major_trauma','incontinence','saddle_anesthesia','progressive_weakness','chest_pain','recent_infection','known_fracture'];
+const PAIN_DURATION_VALUES = new Set(['one_hour','two_hours','more_than_two_hours']);
 
 function isObject(value) {
   return value && typeof value === 'object' && !Array.isArray(value);
@@ -31,6 +32,7 @@ export function validatePayload(body, submitting = false) {
     throw apiError('Complete the required personal information / يرجى إكمال المعلومات الشخصية المطلوبة', 400);
   }
   if (submitting && body.medical_history?.allergies && !body.medical_history.allergy_details?.trim()) throw apiError('Specify the type of allergy / يرجى تحديد نوع الحساسية', 400);
+  if (submitting && !PAIN_DURATION_VALUES.has(body.subjective_assessment?.episode_duration)) throw apiError('Choose how long the pain usually lasts / يرجى اختيار مدة الألم المعتادة', 400);
   if (submitting && body.subjective_assessment?.radiation && !body.subjective_assessment.radiation_location?.trim()) throw apiError('Specify the region of radiation / يرجى تحديد منطقة انتشار الألم', 400);
   if (submitting && body.subjective_assessment?.morning_stiffness && !body.subjective_assessment.stiffness_duration?.trim()) throw apiError('Specify the duration of stiffness / يرجى تحديد مدة التيبس', 400);
   if (submitting && RED_FLAG_KEYS.some((key) => typeof body.screening?.[key] !== 'boolean')) throw apiError('Answer all screening questions / يرجى الإجابة عن جميع أسئلة الفحص', 400);
