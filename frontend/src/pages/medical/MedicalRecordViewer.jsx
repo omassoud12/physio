@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import DashboardLayout from '../dashboards/DashboardLayout.jsx'
 import { bodyChartViews, normalizePainLocations } from './bodyChartRegions.js'
+import { primaryPainAreaOptions } from './painAreaOptions.js'
 import {
   aggravating, documentCategories, functionalLimitations, goals, irritabilityLevels,
   painCauses, painDurationOptions, painEvolution, painImpactFields, painPatterns, painSchedules, painScoreFields,
@@ -33,7 +34,7 @@ const sideOptions = [['left','Left','يسار'],['right','Right','يمين'],['b
 const depthOptions = [['superficial','Superficial','سطحي'],['deep','Deep','عميق'],['both','Both','كلاهما'],['unsure','Not sure','غير متأكد']]
 
 const painFieldOptions = {
-  onset_type:onsetOptions, causes:painCauses, pain_side:sideOptions, pain_depth:depthOptions,
+  onset_type:onsetOptions, causes:painCauses, primary_pain_location:primaryPainAreaOptions, pain_side:sideOptions, pain_depth:depthOptions,
   pain_types:painTypes, irritability:painPatterns, irritability_level:irritabilityLevels,
   episode_duration:painDurationOptions, evolution:painEvolution, aggravating, relieving, schedule:painSchedules, symptoms,
   functional_limitations:functionalLimitations, treatments_tried:treatmentsTried, goals,
@@ -71,6 +72,7 @@ const painGroups = [
     ['wakes_from_pain','Wakes from sleep / الاستيقاظ بسبب الألم'],
   ]],
   ['Associated symptoms and daily impact','الأعراض المرافقة والتأثير اليومي',[
+    ['associated_symptoms','Symptoms accompanying the pain / هل ترافق الألم أعراض أخرى؟'],
     ['symptoms','Associated symptoms / الأعراض المرافقة'],
     ['symptoms_other','Other symptoms / أعراض أخرى'],
     ['activities_limited','Activities limited by pain / هل يحدّ الألم من الأنشطة؟'],
@@ -79,6 +81,7 @@ const painGroups = [
     ...painImpactFields.map(([key,fr,ar])=>[`pain_impact.${key}`,`Impact on ${fr.toLowerCase()} / تأثير الألم في ${ar}`]),
   ]],
   ['Previous care and goals','العلاجات السابقة والأهداف',[
+    ['treatments_attempted','Previous pain treatment attempted / هل جُرّب علاج سابق للألم؟'],
     ['treatments_tried','Treatments tried / العلاجات المجرّبة'],
     ['treatment_response','Treatment response / الاستجابة للعلاج'],
     ['goals','Treatment goals / أهداف العلاج'], ['personal_goal','Most important goal / الهدف الشخصي الأهم'],
@@ -134,6 +137,16 @@ function SectionHeading({fr,ar}) {
 }
 
 function PainSection({ pain = {} }) {
+  const associatedSymptoms = typeof pain.associated_symptoms==='boolean' ? pain.associated_symptoms : pain.symptoms?.length || pain.symptoms_other?.trim() ? true : null
+  const activitiesLimited = typeof pain.activities_limited==='boolean' ? pain.activities_limited : pain.functional_limitations?.length ? true : null
+  const treatmentsAttempted = typeof pain.treatments_attempted==='boolean' ? pain.treatments_attempted : pain.treatments_tried?.filter((item)=>item!=='none').length || pain.treatment_response?.trim() ? true : pain.treatments_tried?.includes('none') ? false : null
+  const displayedPain = { ...pain, associated_symptoms:associatedSymptoms, activities_limited:activitiesLimited, treatments_attempted:treatmentsAttempted }
+  const showField=(field)=>{
+    if (['symptoms','symptoms_other'].includes(field)) return associatedSymptoms===true
+    if (['functional_limitations','functional_limitations_other'].includes(field)) return activitiesLimited===true
+    if (['treatments_tried','treatment_response'].includes(field)) return treatmentsAttempted===true
+    return true
+  }
   const knownTopLevelFields = new Set(painGroups.flatMap(([, , fields])=>fields.map(([key])=>key.split('.')[0])))
   const additionalFields = Object.entries(pain).filter(([key])=>!knownTopLevelFields.has(key))
   return <section className="panel medical-form-card pain-record-section">
@@ -141,7 +154,7 @@ function PainSection({ pain = {} }) {
     <dl className="medical-record-list">
       {painGroups.flatMap(([fr,ar,fields])=>[
         <div className="pain-record-group" key={`group-${fr}`}><span>{fr}</span><span dir="rtl" lang="ar">{ar}</span></div>,
-        ...fields.map(([field,label])=><div key={field}><dt>{label}</dt><dd>{displayPainValue(field,getPainValue(pain,field))}</dd></div>),
+        ...fields.filter(([field])=>showField(field)).map(([field,label])=><div key={field}><dt>{label}</dt><dd>{displayPainValue(field,getPainValue(displayedPain,field))}</dd></div>),
       ])}
       {additionalFields.length>0&&<div className="pain-record-group"><span>Additional stored answers</span><span dir="rtl" lang="ar">إجابات إضافية محفوظة</span></div>}
       {additionalFields.map(([field,value])=><div key={field}><dt>{field.replaceAll('_',' ')}</dt><dd>{display(value)}</dd></div>)}

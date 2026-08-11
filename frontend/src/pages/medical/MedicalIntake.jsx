@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import DashboardLayout from '../dashboards/DashboardLayout.jsx'
 import BodyChart from './BodyChart.jsx'
+import PainAreaPicker from './PainAreaPicker.jsx'
 import { normalizePainLocations } from './bodyChartRegions.js'
 import {
   aggravating, documentCategories, familyConditions, goals,
@@ -22,9 +23,9 @@ const emptySubjective = {
   pain_types:[], irritability:'', irritability_level:'', episode_duration:'', evolution:'',
   aggravating:[], aggravating_other:'', relieving:[], relieving_other:'', schedule:[],
   morning_stiffness:false, stiffness_duration:'', night_pain:null, wakes_from_pain:null,
-  radiation:false, radiation_location:'', symptoms:[], symptoms_other:'', activities_limited:null, functional_limitations:[],
+  radiation:false, radiation_location:'', associated_symptoms:null, symptoms:[], symptoms_other:'', activities_limited:null, functional_limitations:[],
   functional_limitations_other:'', pain_impact:{ daily_activities:0, sleep:0, walking:0, work:0, mood:0 },
-  treatments_tried:[], treatment_response:'', goals:[], personal_goal:'', notes:'',
+  treatments_attempted:null, treatments_tried:[], treatment_response:'', goals:[], personal_goal:'', notes:'',
 }
 const emptyForm = { booking_id:'', personal_data:emptyPersonal, medical_history:emptyHistory, risk_factors:emptyRisk, screening:{}, subjective_assessment:emptySubjective, surgeries:[], medications:[] }
 
@@ -136,6 +137,28 @@ export default function MedicalIntake() {
     }))
     setDirty(true); setInteracted(true)
   }
+  const updateAssociatedSymptoms=(value)=>{
+    setForm((current)=>({
+      ...current,
+      subjective_assessment:{
+        ...current.subjective_assessment,
+        associated_symptoms:value,
+        ...(value ? {} : { symptoms:[], symptoms_other:'' }),
+      },
+    }))
+    setDirty(true); setInteracted(true)
+  }
+  const updateTreatmentsAttempted=(value)=>{
+    setForm((current)=>({
+      ...current,
+      subjective_assessment:{
+        ...current.subjective_assessment,
+        treatments_attempted:value,
+        ...(value ? {} : { treatments_tried:[], treatment_response:'' }),
+      },
+    }))
+    setDirty(true); setInteracted(true)
+  }
 
   useEffect(()=>{
     let active=true
@@ -145,8 +168,10 @@ export default function MedicalIntake() {
       const latest=payload.appointments?.find((a)=>!['cancelled','rejected'].includes(a.status))
       if (record) {
         const savedSubjective=record.subjective_assessment || {}
+        const associatedSymptoms=typeof savedSubjective.associated_symptoms==='boolean' ? savedSubjective.associated_symptoms : savedSubjective.symptoms?.length || savedSubjective.symptoms_other?.trim() ? true : null
         const activitiesLimited=typeof savedSubjective.activities_limited==='boolean' ? savedSubjective.activities_limited : savedSubjective.functional_limitations?.length ? true : null
-        setForm({ booking_id:record.booking_id || latest?.id || '', personal_data:{...emptyPersonal,...record.personal_data}, medical_history:{...emptyHistory,...record.medical_history,trauma:{...emptyHistory.trauma,...record.medical_history?.trauma}}, risk_factors:{...emptyRisk,...record.risk_factors}, screening:record.screening || {}, subjective_assessment:{...emptySubjective,...savedSubjective,activities_limited:activitiesLimited,episode_duration:normalizePainDuration(savedSubjective.episode_duration),pain_locations:normalizePainLocations(savedSubjective.pain_locations),pain_scores:{...emptySubjective.pain_scores,...savedSubjective.pain_scores},pain_impact:{...emptySubjective.pain_impact,...savedSubjective.pain_impact}}, surgeries:record.surgeries || [], medications:record.medications || [] })
+        const treatmentsAttempted=typeof savedSubjective.treatments_attempted==='boolean' ? savedSubjective.treatments_attempted : savedSubjective.treatments_tried?.filter((item)=>item!=='none').length || savedSubjective.treatment_response?.trim() ? true : savedSubjective.treatments_tried?.includes('none') ? false : null
+        setForm({ booking_id:record.booking_id || latest?.id || '', personal_data:{...emptyPersonal,...record.personal_data}, medical_history:{...emptyHistory,...record.medical_history,trauma:{...emptyHistory.trauma,...record.medical_history?.trauma}}, risk_factors:{...emptyRisk,...record.risk_factors}, screening:record.screening || {}, subjective_assessment:{...emptySubjective,...savedSubjective,associated_symptoms:associatedSymptoms,activities_limited:activitiesLimited,treatments_attempted:treatmentsAttempted,treatments_tried:savedSubjective.treatments_tried?.filter((item)=>item!=='none') || [],episode_duration:normalizePainDuration(savedSubjective.episode_duration),pain_locations:normalizePainLocations(savedSubjective.pain_locations),pain_scores:{...emptySubjective.pain_scores,...savedSubjective.pain_scores},pain_impact:{...emptySubjective.pain_impact,...savedSubjective.pain_impact}}, surgeries:record.surgeries || [], medications:record.medications || [] })
         setDocuments(record.documents || []); setStatus(record.completion_status); setLastSaved(record.updated_at)
       } else {
         setForm((current)=>({ ...current, booking_id:latest?.id || '', personal_data:{...current.personal_data,first_name:payload.profile?.first_name || '',last_name:payload.profile?.last_name || '',phone:payload.profile?.phone || '',sex:payload.profile?.gender || '',date_of_birth:payload.profile?.date_of_birth || ''} }))
@@ -246,7 +271,7 @@ export default function MedicalIntake() {
           <Field label="Describe the main complaint in your own words" ar="صف الشكوى الرئيسية بكلماتك"><textarea value={subjective.complaint_details} onChange={(e)=>updateSubjective('complaint_details',e.target.value)}/></Field>
 
           <PainSubheading fr="2. Location and sensation" ar="٢. مكان الألم وطبيعته"/>
-          <TextInput label="Main painful area" ar="منطقة الألم الرئيسية" value={subjective.primary_pain_location} onChange={(v)=>updateSubjective('primary_pain_location',v)}/><RadioGroup label="Painful side" ar="جهة الألم" value={subjective.pain_side} onChange={(v)=>updateSubjective('pain_side',v)} options={[["left","Left","يسار"],["right","Right","يمين"],["bilateral","Both sides","الجهتان"],["varies","Varies","تتغير"]]}/>
+          <PainAreaPicker value={subjective.primary_pain_location} onChange={(v)=>updateSubjective('primary_pain_location',v)}/><RadioGroup label="Painful side" ar="جهة الألم" value={subjective.pain_side} onChange={(v)=>updateSubjective('pain_side',v)} options={[["left","Left","يسار"],["right","Right","يمين"],["bilateral","Both sides","الجهتان"],["varies","Varies","تتغير"]]}/>
           <RadioGroup label="Does the pain feel superficial or deep?" ar="هل يبدو الألم سطحياً أم عميقاً؟" value={subjective.pain_depth} onChange={(v)=>updateSubjective('pain_depth',v)} options={[["superficial","Superficial","سطحي"],["deep","Deep","عميق"],["both","Both","كلاهما"],["unsure","Not sure","غير متأكد"]]}/><BodyChart label="Mark every painful area on the body chart" ar="حدّد جميع مناطق الألم على مخطط الجسم" values={subjective.pain_locations} onChange={(v)=>updateSubjective('pain_locations',v)}/>
           <CheckGroup label="How would you describe the pain?" ar="كيف تصف طبيعة الألم؟" values={subjective.pain_types} onChange={(v)=>updateSubjective('pain_types',v)} options={painTypes}/>
           <YesNo label="Does the pain spread to another area?" ar="هل ينتشر الألم إلى منطقة أخرى؟" value={subjective.radiation} onChange={(v)=>updateSubjective('radiation',v)}/>{subjective.radiation&&<Field label="Where does it spread?" ar="إلى أين ينتشر الألم؟"><textarea required value={subjective.radiation_location} onChange={(e)=>updateSubjective('radiation_location',e.target.value)}/></Field>}
@@ -265,12 +290,12 @@ export default function MedicalIntake() {
           {subjective.night_pain&&<YesNo label="Does the pain wake you from sleep?" ar="هل يوقظك الألم من النوم؟" value={subjective.wakes_from_pain} onChange={(v)=>updateSubjective('wakes_from_pain',v)}/>}
 
           <PainSubheading fr="5. Associated symptoms and daily impact" ar="٥. الأعراض المرافقة والتأثير اليومي"/>
-          <CheckGroup label="Which symptoms occur with the pain?" ar="ما الأعراض التي ترافق الألم؟" values={subjective.symptoms} onChange={(v)=>updateSubjective('symptoms',v)} options={symptoms}/>{subjective.symptoms.includes('other')&&<Field label="Other symptoms" ar="أعراض أخرى"><textarea value={subjective.symptoms_other} onChange={(e)=>updateSubjective('symptoms_other',e.target.value)}/></Field>}
+          <YesNo label="Do any other symptoms occur with the pain?" ar="هل ترافق الألم أي أعراض أخرى؟" value={subjective.associated_symptoms} onChange={updateAssociatedSymptoms}/>{subjective.associated_symptoms&&<CheckGroup label="Which symptoms occur with the pain?" ar="ما الأعراض التي ترافق الألم؟" values={subjective.symptoms} onChange={(v)=>updateSubjective('symptoms',v)} options={symptoms}/>} {subjective.associated_symptoms&&subjective.symptoms.includes('other')&&<Field label="Other symptoms" ar="أعراض أخرى"><textarea value={subjective.symptoms_other} onChange={(e)=>updateSubjective('symptoms_other',e.target.value)}/></Field>}
           <YesNo label="Does pain limit any of your activities?" ar="هل يحدّ الألم من أي من أنشطتك؟" value={subjective.activities_limited} onChange={updateActivitiesLimited}/>{subjective.activities_limited&&<CheckGroup label="Which activities are limited by the pain?" ar="ما الأنشطة التي يحدّ منها الألم؟" values={subjective.functional_limitations} onChange={(v)=>updateSubjective('functional_limitations',v)} options={functionalLimitations}/>} {subjective.activities_limited&&subjective.functional_limitations.includes('other')&&<Field label="Other limited activities" ar="أنشطة محدودة أخرى"><textarea value={subjective.functional_limitations_other} onChange={(e)=>updateSubjective('functional_limitations_other',e.target.value)}/></Field>}
           <div className="pain-panel medical-field--wide"><div className="pain-scale-note">0 = no interference / لا تأثير <span>10 = completely prevents it / يمنعه تماماً</span></div>{painImpactFields.map(([key,fr,ar])=><PainScore key={key} label={`Impact on ${fr.toLowerCase()}`} ar={`تأثير الألم في ${ar}`} value={subjective.pain_impact[key] ?? 0} onChange={(v)=>updateSubjective('pain_impact',{...subjective.pain_impact,[key]:v})}/>)}</div>
 
           <PainSubheading fr="6. Previous care and goals" ar="٦. العلاجات السابقة والأهداف"/>
-          <CheckGroup label="What have you tried for this pain?" ar="ما العلاجات التي جرّبتها لهذا الألم؟" values={subjective.treatments_tried} onChange={(v)=>updateSubjective('treatments_tried',v)} options={treatmentsTried} exclusiveKeys={['none']}/><Field label="What helped, and by how much?" ar="ما الذي ساعدك، وما مقدار التحسن؟"><textarea value={subjective.treatment_response} onChange={(e)=>updateSubjective('treatment_response',e.target.value)}/></Field>
+          <YesNo label="Have you tried anything for this pain?" ar="هل جرّبت أي علاج لهذا الألم؟" value={subjective.treatments_attempted} onChange={updateTreatmentsAttempted}/>{subjective.treatments_attempted&&<CheckGroup label="What have you tried for this pain?" ar="ما العلاجات التي جرّبتها لهذا الألم؟" values={subjective.treatments_tried} onChange={(v)=>updateSubjective('treatments_tried',v)} options={treatmentsTried}/>} {subjective.treatments_attempted&&<Field label="What helped, and by how much?" ar="ما الذي ساعدك، وما مقدار التحسن؟"><textarea value={subjective.treatment_response} onChange={(e)=>updateSubjective('treatment_response',e.target.value)}/></Field>}
           <CheckGroup label="What would you like treatment to help you achieve?" ar="ما الذي ترغب في تحقيقه من العلاج؟" values={subjective.goals} onChange={(v)=>updateSubjective('goals',v)} options={goals}/><Field label="Your most important personal goal" ar="هدفك الشخصي الأهم"><textarea value={subjective.personal_goal} onChange={(e)=>updateSubjective('personal_goal',e.target.value)}/></Field><Field label="Anything else we should know about your pain?" ar="هل هناك أي معلومات أخرى ينبغي أن نعرفها عن ألمك؟"><textarea value={subjective.notes} onChange={(e)=>updateSubjective('notes',e.target.value)}/></Field>
         </div></section>}
         {step===6&&<section><SectionTitle fr="Review and confirmation" ar="المراجعة والتأكيد" note="Review each section before submitting. You can update your record later. / راجع الأقسام قبل الإرسال. يمكنك تحديث ملفك لاحقاً."/><div className="review-grid"><ReviewBlock title={steps[0][0]} ar={steps[0][1]} data={personal}/><ReviewBlock title={steps[1][0]} ar={steps[1][1]} data={history}/><ReviewBlock title={steps[2][0]} ar={steps[2][1]} data={risk}/><ReviewBlock title={steps[3][0]} ar={steps[3][1]} data={{documents}}/><ReviewBlock title={steps[4][0]} ar={steps[4][1]} data={form.screening}/><ReviewBlock title={steps[5][0]} ar={steps[5][1]} data={subjective}/></div>{positiveFlags.length>0&&<div className="medical-emergency"><strong>{positiveFlags.length} positive warning sign(s) / {positiveFlags.length} علامة/علامات تحذيرية إيجابية</strong></div>}<label className="medical-confirm"><input type="checkbox" required/><span><span dir="ltr">I confirm that this information is accurate to the best of my knowledge.</span><span dir="rtl" lang="ar">أؤكد أن هذه المعلومات صحيحة حسب معرفتي.</span></span></label><button className="button medical-submit" type="button" disabled={saving} onClick={submitFinal}>{saving?'Submitting… / جارٍ الإرسال…':'Submit record / إرسال الملف'}</button></section>}

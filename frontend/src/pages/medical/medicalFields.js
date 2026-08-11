@@ -131,8 +131,8 @@ export const painImpactFields = [
 ]
 
 export const treatmentsTried = [
-  ['none','None yet','لا شيء حتى الآن'], ['pain_medication','Pain medication','مسكنات الألم'],
-  ['physiotherapy','Physiotherapy','علاج فيزيائي'], ['injection','Injection','حقن'],
+  ['pain_medication','Pain medication','مسكنات الألم'], ['physiotherapy','Physiotherapy','علاج فيزيائي'],
+  ['injection','Injection','حقن'],
   ['surgery','Surgery','عملية جراحية'], ['massage','Massage / manual therapy','تدليك / علاج يدوي'],
   ['exercise','Exercises','تمارين'], ['ice_heat','Ice / heat','ثلج / حرارة'],
   ['brace','Brace / support','مشد / دعامة'], ['other','Other','أخرى'],
