@@ -71,6 +71,31 @@
     "emptyTitle": "No upcoming appointments",
     "emptyDescription": "Once you request a visit, it will appear here."
   },
+  "recovery": {
+    "loading": "Loading your recovery progress",
+    "eyebrow": "Recovery journey",
+    "title": "Your latest progress",
+    "disclaimer": "These clinician-recorded measures are a guide to your recovery and do not replace medical advice.",
+    "error": "Your recovery progress could not be loaded. Please refresh the page to try again.",
+    "status": {
+      "first": "Starting point",
+      "improving": "Improving",
+      "review": "Needs review",
+      "stable": "Stable"
+    },
+    "progressLabel": "Compared with your previous session",
+    "recordedBy": "Recorded by {{name}}",
+    "performance": "Session performance",
+    "pain": "Pain improvement",
+    "remaining": "Estimated sessions remaining",
+    "progress": "Overall progress",
+    "note": "Clinician note",
+    "emptyTitle": "Your recovery journey starts after your first completed session",
+    "emptyDescription": "Your clinician's evaluation will appear here once your session is complete.",
+    "nextAppointment": "Next appointment",
+    "noNext": "No upcoming appointment",
+    "withDoctor": "with {{name}}"
+  },
   "clinicians": {
     "eyebrow": "Our clinical team",
     "title": "Choose your physiotherapist",

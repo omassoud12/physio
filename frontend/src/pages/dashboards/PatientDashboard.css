@@ -663,6 +663,280 @@ html[dir="rtl"] .patient-booking-summary span {
   text-transform: none;
 }
 
+.recovery-journey {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(20px, 3vw, 32px);
+  background:
+    radial-gradient(circle at 100% 0, rgba(24, 149, 120, 0.12), transparent 34%),
+    var(--surface);
+}
+
+.recovery-journey::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--clinic), #79c9ac);
+  content: '';
+}
+
+html[dir="rtl"] .recovery-journey::before {
+  inset: 0 0 0 auto;
+}
+
+.recovery-journey__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.recovery-journey__header h2,
+.recovery-journey--error h2 {
+  margin: 3px 0 7px;
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+}
+
+.recovery-journey__header p:not(.eyebrow),
+.recovery-journey--error p:not(.eyebrow) {
+  max-width: 720px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.recovery-status {
+  flex: 0 0 auto;
+  padding: 7px 12px;
+  border: 1px solid rgba(24, 149, 120, 0.24);
+  border-radius: 999px;
+  background: rgba(24, 149, 120, 0.1);
+  color: var(--clinic-dark, #116c58);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.recovery-status--review {
+  border-color: rgba(192, 111, 24, 0.25);
+  background: rgba(242, 166, 79, 0.13);
+  color: #8b4c12;
+}
+
+.recovery-status--stable,
+.recovery-status--first {
+  border-color: rgba(88, 105, 120, 0.2);
+  background: rgba(88, 105, 120, 0.09);
+  color: #52606d;
+}
+
+.recovery-journey__content {
+  display: grid;
+  gap: 22px;
+  margin-top: 26px;
+}
+
+.recovery-progress {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.recovery-progress > div:last-child {
+  display: grid;
+  gap: 4px;
+}
+
+.recovery-progress > div:last-child > strong {
+  font-size: 1.05rem;
+}
+
+.recovery-progress > div:last-child > span,
+.recovery-progress small {
+  color: var(--muted);
+}
+
+.recovery-ring {
+  position: relative;
+  display: grid;
+  flex: 0 0 128px;
+  width: 128px;
+  height: 128px;
+  place-items: center;
+}
+
+.recovery-ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.recovery-ring circle {
+  fill: none;
+  stroke: rgba(24, 149, 120, 0.12);
+  stroke-width: 9;
+}
+
+.recovery-ring__value {
+  stroke: var(--clinic) !important;
+  stroke-dasharray: var(--progress) calc(100 - var(--progress));
+  stroke-linecap: round;
+}
+
+.recovery-ring--review circle {
+  stroke: rgba(192, 111, 24, 0.12);
+}
+
+.recovery-ring--review .recovery-ring__value {
+  stroke: #c06f18 !important;
+}
+
+.recovery-ring--stable .recovery-ring__value,
+.recovery-ring--first .recovery-ring__value {
+  stroke: #82909c !important;
+}
+
+.recovery-ring > div {
+  z-index: 1;
+  display: grid;
+  text-align: center;
+}
+
+.recovery-ring strong {
+  color: var(--ink);
+  font-size: 1.45rem;
+  line-height: 1.1;
+}
+
+.recovery-ring span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.recovery-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.recovery-metric {
+  display: grid;
+  align-content: space-between;
+  gap: 10px;
+  min-height: 104px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.recovery-metric span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.recovery-metric strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+}
+
+.recovery-note {
+  margin: 0;
+  padding: 17px 19px;
+  border-inline-start: 3px solid rgba(24, 149, 120, 0.5);
+  border-radius: 0 12px 12px 0;
+  background: rgba(24, 149, 120, 0.06);
+}
+
+html[dir="rtl"] .recovery-note {
+  border-radius: 12px 0 0 12px;
+}
+
+.recovery-note span {
+  color: var(--clinic-dark, #116c58);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.recovery-note p {
+  margin: 6px 0 0;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+.recovery-empty {
+  display: grid;
+  gap: 7px;
+  margin: 24px 0;
+  padding: 22px;
+  border: 1px dashed rgba(24, 149, 120, 0.3);
+  border-radius: 16px;
+  background: rgba(24, 149, 120, 0.04);
+}
+
+.recovery-empty span {
+  color: var(--muted);
+}
+
+.recovery-next {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.recovery-next > div {
+  display: grid;
+  gap: 3px;
+}
+
+.recovery-next span,
+.recovery-next small {
+  color: var(--muted);
+}
+
+.recovery-next span {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.recovery-next strong {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.recovery-journey--loading {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(3, 0.6fr);
+  gap: 12px;
+  min-height: 190px;
+}
+
+.recovery-journey--loading span {
+  min-height: 110px;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #eef3f1 20%, #f8fbfa 50%, #eef3f1 80%);
+  background-size: 200% 100%;
+  animation: recovery-skeleton 1.4s ease-in-out infinite;
+}
+
+.recovery-journey--error {
+  border-color: rgba(178, 70, 70, 0.22);
+}
+
+@keyframes recovery-skeleton {
+  to { background-position: -200% 0; }
+}
+
 @media (min-width: 480px) {
   .patient-calendar,
   .patient-slots {
@@ -709,6 +983,15 @@ html[dir="rtl"] .patient-booking-summary span {
 }
 
 @media (min-width: 760px) {
+  .recovery-journey__content {
+    grid-template-columns: minmax(250px, 0.72fr) minmax(0, 1.28fr);
+    align-items: center;
+  }
+
+  .recovery-note {
+    grid-column: 1 / -1;
+  }
+
   .patient-profile-completion {
     grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
     gap: 28px;
@@ -727,6 +1010,10 @@ html[dir="rtl"] .patient-booking-summary span {
 }
 
 @media (min-width: 960px) {
+  .recovery-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
   .patient-booking__workspace {
     grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
     gap: 20px;
@@ -738,6 +1025,24 @@ html[dir="rtl"] .patient-booking-summary span {
 }
 
 @media (max-width: 620px) {
+  .recovery-journey__header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .recovery-progress {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .recovery-ring {
+    align-self: center;
+  }
+
+  .recovery-journey--loading {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .patient-profile-required,
   .patient-medical-cta {
     align-items: stretch;

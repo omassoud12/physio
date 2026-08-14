@@ -9,6 +9,7 @@ import {
 } from '../../i18n/formatters.js'
 import DashboardLayout, { Notice } from './DashboardLayout.jsx'
 import BookingInstructions from '../../components/BookingInstructions.jsx'
+import RecoveryJourney from './RecoveryJourney.jsx'
 import './PatientDashboard.css'
 
 const WEEKDAYS = [
@@ -146,6 +147,9 @@ export default function PatientDashboard() {
   const [genderDraft, setGenderDraft] = useState('')
   const [clinicians, setClinicians] = useState([])
   const [appointments, setAppointments] = useState([])
+  const [recovery, setRecovery] = useState(null)
+  const [recoveryLoading, setRecoveryLoading] = useState(true)
+  const [recoveryError, setRecoveryError] = useState(false)
   const [month, setMonth] = useState(currentMonth)
   const [selectedDoctorId, setSelectedDoctorId] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
@@ -185,8 +189,17 @@ export default function PatientDashboard() {
   }
 
   async function refreshAppointments() {
-    const response = await api.get('/appointments/my')
-    setAppointments(response.data.data || [])
+    const [appointmentResponse, recoveryResponse] = await Promise.all([
+      api.get('/appointments/my'),
+      api.get('/appointments/recovery').catch(() => null),
+    ])
+    setAppointments(appointmentResponse.data.data || [])
+    if (recoveryResponse) {
+      setRecovery(recoveryResponse.data.data || null)
+      setRecoveryError(false)
+    } else {
+      setRecoveryError(true)
+    }
   }
 
   async function refreshClinicians() {
@@ -206,10 +219,11 @@ export default function PatientDashboard() {
       setInitialLoading(true)
       setNotice(null)
       try {
-        const [profileResponse, appointmentResponse, medicalResponse] = await Promise.all([
+        const [profileResponse, appointmentResponse, medicalResponse, recoveryResponse] = await Promise.all([
           api.get('/profile/me'),
           api.get('/appointments/my'),
           api.get('/medical-records/me').catch(() => ({ data: { data: { record: null } } })),
+          api.get('/appointments/recovery').catch(() => null),
         ])
         if (!active) return
 
@@ -217,6 +231,8 @@ export default function PatientDashboard() {
         setProfile(loadedProfile)
         setGenderDraft(loadedProfile?.gender || '')
         setAppointments(appointmentResponse.data.data || [])
+        setRecovery(recoveryResponse?.data.data || null)
+        setRecoveryError(!recoveryResponse)
         const medicalRecord = medicalResponse.data.data?.record
         setMedicalProfileComplete(
           medicalRecord?.completion_status === 'submitted' &&
@@ -239,7 +255,10 @@ export default function PatientDashboard() {
       } catch {
         // The booking panel renders its localized profile-load error.
       } finally {
-        if (active) setInitialLoading(false)
+        if (active) {
+          setInitialLoading(false)
+          setRecoveryLoading(false)
+        }
       }
     }
 
@@ -480,6 +499,13 @@ export default function PatientDashboard() {
       />
 
       <BookingInstructions className="patient-booking-instructions" />
+
+      <RecoveryJourney
+        data={recovery}
+        error={recoveryError}
+        language={language}
+        loading={recoveryLoading}
+      />
 
       {!initialLoading && medicalProfileComplete === false && (
         <section className="panel patient-profile-required" dir="rtl" lang="ar" role="alert">

@@ -11,6 +11,8 @@ router.route('/availability/:id').patch(clinician.updateAvailability).delete(cli
 router.route('/time-off').get(clinician.timeOff).post(clinician.timeOff);
 router.delete('/time-off/:id', clinician.deleteTimeOff);
 router.get('/appointments', clinician.appointments);
+router.get('/appointments/:id/evaluation-context', clinician.evaluationContext);
+router.post('/appointments/:id/complete', clinician.completeAppointment);
 router.patch('/appointments/:id/status', clinician.updateAppointmentStatus);
 router.get('/patients', clinician.patients);
 router.get('/patients/:id', clinician.patients);

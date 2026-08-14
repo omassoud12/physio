@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import api from '../../services/api.js'
 import DashboardLayout, { Notice } from './DashboardLayout.jsx'
+import SessionEvaluationModal from './SessionEvaluationModal.jsx'
 import './PhysiotherapistDashboard.css'
 
 const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
@@ -124,6 +125,7 @@ export default function PhysiotherapistDashboard() {
   const [addingTimeOff, setAddingTimeOff] = useState(false)
   const [removingTimeOffId, setRemovingTimeOffId] = useState('')
   const [updatingAppointmentId, setUpdatingAppointmentId] = useState('')
+  const [evaluationAppointment, setEvaluationAppointment] = useState(null)
 
   const load = useCallback(async ({ initial = false } = {}) => {
     if (initial) {
@@ -344,6 +346,12 @@ export default function PhysiotherapistDashboard() {
     }
   }
 
+  async function evaluationCompleted() {
+    setEvaluationAppointment(null)
+    setNotice({ key: 'notices.sessionCompleted', type: 'success' })
+    await load()
+  }
+
   function handleTabKeyDown(event, currentTab) {
     const currentIndex = dashboardTabs.indexOf(currentTab)
     const direction = i18n.dir()
@@ -442,6 +450,7 @@ export default function PhysiotherapistDashboard() {
                   <AppointmentPanel
                     rows={todayVisits.length ? todayVisits : upcoming.slice(0, 5)}
                     onStatus={updateAppointmentStatus}
+                    onEvaluate={setEvaluationAppointment}
                     titleKey={todayVisits.length ? 'appointments.todayTitle' : 'appointments.nextTitle'}
                     panelId="schedule-appointments-heading"
                     updatingAppointmentId={updatingAppointmentId}
@@ -453,6 +462,7 @@ export default function PhysiotherapistDashboard() {
                 <AppointmentPanel
                   rows={appointments}
                   onStatus={updateAppointmentStatus}
+                  onEvaluate={setEvaluationAppointment}
                   titleKey="appointments.allTitle"
                   panelId="all-appointments-heading"
                   updatingAppointmentId={updatingAppointmentId}
@@ -505,6 +515,7 @@ export default function PhysiotherapistDashboard() {
           )}
         </div>
       </div>
+      {evaluationAppointment&&<SessionEvaluationModal appointment={evaluationAppointment} onClose={()=>setEvaluationAppointment(null)} onCompleted={evaluationCompleted}/>}
     </DashboardLayout>
   )
 }
@@ -977,7 +988,7 @@ function AvailabilityTab({
   )
 }
 
-function AppointmentPanel({ rows, onStatus, titleKey, panelId, updatingAppointmentId }) {
+function AppointmentPanel({ rows, onStatus, onEvaluate, titleKey, panelId, updatingAppointmentId }) {
   const { t, i18n } = useTranslation(['physiotherapist', 'common'])
   const locale = localeFor(i18n.resolvedLanguage)
 
@@ -1053,7 +1064,7 @@ function AppointmentPanel({ rows, onStatus, titleKey, panelId, updatingAppointme
                           type="button"
                           disabled={Boolean(updatingAppointmentId)}
                           aria-label={t('appointments.completeLabel', { name })}
-                          onClick={() => onStatus(appointment.id, 'completed')}
+                          onClick={() => onEvaluate(appointment)}
                         >
                           {t('actions.complete', { ns: 'common' })}
                         </button>

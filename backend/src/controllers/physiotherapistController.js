@@ -123,11 +123,103 @@ export async function appointments(req, res) {
   } catch (error) { return sendError(res, error, 'Unable to load appointments'); }
 }
 
+function boundedNumber(value, minimum, maximum, field, integer = false) {
+  if (value === '' || value === null || value === undefined) {
+    throw apiError(`${field} is required`, 400, [{ field, message: 'Required' }]);
+  }
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < minimum || number > maximum || (integer && !Number.isInteger(number))) {
+    throw apiError(`${field} is invalid`, 400, [{ field, message: `Must be between ${minimum} and ${maximum}` }]);
+  }
+  return number;
+}
+
+export function validateSessionEvaluation(body, isFirstSession) {
+  const evaluation = {
+    session_performance_score: boundedNumber(body.session_performance_score, 1, 10, 'session_performance_score', true),
+    estimated_sessions_remaining: boundedNumber(body.estimated_sessions_remaining, 0, 2147483647, 'estimated_sessions_remaining', true),
+    pain_improvement_percent: boundedNumber(body.pain_improvement_percent, 0, 100, 'pain_improvement_percent'),
+    progress_vs_previous_percent: null,
+    progress_note: typeof body.progress_note === 'string' ? body.progress_note.trim() : '',
+  };
+  if (!isFirstSession) {
+    evaluation.progress_vs_previous_percent = boundedNumber(body.progress_vs_previous_percent, -100, 100, 'progress_vs_previous_percent');
+  }
+  if (evaluation.progress_note.length > 2000) throw apiError('Progress note is too long', 400);
+  return evaluation;
+}
+
+export async function evaluationContext(req, res) {
+  try {
+    const { data: appointment, error } = await req.db.from('appointments')
+      .select('id,patient_id,physiotherapist_id,treatment_type,starts_at,ends_at,status,profiles!appointments_patient_id_fkey(first_name,last_name,medical_record_number)')
+      .eq('id', req.params.id).eq('physiotherapist_id', req.auth.user.id).single();
+    if (error || !appointment) throw apiError('Appointment not found', 404);
+    if (appointment.status !== 'confirmed') throw apiError('Only confirmed appointments can be evaluated', 409);
+
+    const [previousResult, countResult] = await Promise.all([
+      req.db.from('session_evaluations')
+        .select('id,session_performance_score,estimated_sessions_remaining,pain_improvement_percent,progress_vs_previous_percent,progress_note,created_at,appointments!inner(starts_at)')
+        .eq('patient_id', appointment.patient_id)
+        .neq('appointment_id', appointment.id)
+        .lt('appointments.starts_at', appointment.starts_at)
+        .eq('appointments.status', 'completed')
+        .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      req.db.from('appointments').select('id', { count: 'exact', head: true })
+        .eq('patient_id', appointment.patient_id)
+        .eq('physiotherapist_id', req.auth.user.id)
+        .in('status', ['confirmed', 'completed'])
+        .lte('starts_at', appointment.starts_at),
+    ]);
+    if (previousResult.error) throw previousResult.error;
+    if (countResult.error) throw countResult.error;
+
+    return ok(res, {
+      appointment,
+      previous_evaluation: previousResult.data || null,
+      is_first_evaluated_session: !previousResult.data,
+      session_number: countResult.count || 1,
+    });
+  } catch (error) { return sendError(res, error, 'Unable to load session evaluation'); }
+}
+
+export async function completeAppointment(req, res) {
+  try {
+    const { data: current, error: currentError } = await req.db.from('appointments')
+      .select('id,status,patient_id,physiotherapist_id,starts_at')
+      .eq('id', req.params.id).eq('physiotherapist_id', req.auth.user.id).single();
+    if (currentError || !current) throw apiError('Appointment not found', 404);
+    if (current.status !== 'confirmed') throw apiError('Only confirmed appointments can be completed', 409);
+
+    const { data: previous, error: previousError } = await req.db.from('session_evaluations')
+      .select('id,appointments!inner(starts_at)').eq('patient_id', current.patient_id).neq('appointment_id', current.id)
+      .lt('appointments.starts_at', current.starts_at)
+      .eq('appointments.status', 'completed')
+      .order('created_at', { ascending: false }).limit(1).maybeSingle();
+    if (previousError) throw previousError;
+    const evaluation = validateSessionEvaluation(req.body, !previous);
+
+    const { data, error } = await req.db.rpc('complete_appointment_with_evaluation', {
+      p_appointment_id: current.id,
+      p_doctor_id: req.auth.user.id,
+      p_session_performance_score: evaluation.session_performance_score,
+      p_estimated_sessions_remaining: evaluation.estimated_sessions_remaining,
+      p_pain_improvement_percent: evaluation.pain_improvement_percent,
+      p_progress_vs_previous_percent: evaluation.progress_vs_previous_percent,
+      p_progress_note: evaluation.progress_note || null,
+    });
+    if (error?.code === '23505') throw apiError('This session already has an evaluation', 409);
+    if (error) throw error;
+    return ok(res, data, 'Session completed successfully', 201);
+  } catch (error) { return sendError(res, error, 'Unable to save the evaluation and complete the session'); }
+}
+
 export async function updateAppointmentStatus(req, res) {
   try {
     required(req.body, ['status']);
     if (!appointmentStatuses.includes(req.body.status)) throw apiError('Invalid appointment status', 400);
-    const allowed = { pending: ['confirmed','rejected','cancelled'], confirmed: ['completed','cancelled','no_show'], rejected: [], completed: [], cancelled: [], no_show: [] };
+    if (req.body.status === 'completed') throw apiError('Complete the session through the required evaluation form', 409);
+    const allowed = { pending: ['confirmed','rejected','cancelled'], confirmed: ['cancelled','no_show'], rejected: [], completed: [], cancelled: [], no_show: [] };
     const { data: current } = await req.db.from('appointments').select('id,status').eq('id', req.params.id).eq('physiotherapist_id', req.auth.user.id).single();
     if (!current) throw apiError('Appointment not found', 404);
     if (!allowed[current.status].includes(req.body.status)) throw apiError(`Cannot change ${current.status} to ${req.body.status}`, 409);

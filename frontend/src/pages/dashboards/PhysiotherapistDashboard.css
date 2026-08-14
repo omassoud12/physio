@@ -541,6 +541,41 @@
   background: #fff0cf;
 }
 
+.session-evaluation-modal{width:min(760px,100%);gap:22px;padding:clamp(22px,4vw,34px)}
+.evaluation-header{display:grid;gap:7px;padding-inline-end:42px}
+.evaluation-header .eyebrow,.evaluation-header h2{margin:0}
+.evaluation-session-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-block-start:10px}
+.evaluation-session-meta span{display:grid;gap:3px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;background:#f8fbfa}
+.evaluation-session-meta small{color:var(--muted);font-size:.72rem;font-weight:750}
+.evaluation-session-meta strong{font-size:.86rem;overflow-wrap:anywhere}
+.evaluation-loading{min-height:220px;display:flex;align-items:center;justify-content:center;gap:12px;color:var(--muted);font-weight:700}
+.evaluation-form{display:grid;gap:24px}
+.evaluation-fieldset{display:grid;gap:12px;padding:0;border:0}
+.evaluation-fieldset legend,.evaluation-field>span{color:var(--ink);font-size:1rem;font-weight:800}
+.evaluation-score-options{display:grid;grid-template-columns:repeat(10,minmax(38px,1fr));gap:6px}
+.evaluation-score-options button{min-height:44px;padding:6px;border:1px solid var(--line);border-radius:9px;color:var(--clinic-dark);background:#fff;font:inherit;font-weight:800;cursor:pointer}
+.evaluation-score-options button:hover,.evaluation-score-options button.is-selected{color:#fff;border-color:var(--clinic);background:var(--clinic)}
+.evaluation-fieldset output{color:var(--clinic);font-weight:850}
+.evaluation-field{display:grid;gap:7px;color:var(--muted)}
+.evaluation-field>small{font-size:.78rem;line-height:1.45}
+.evaluation-field input[type=number],.evaluation-field textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;color:var(--ink);background:#fff;font:inherit}
+.evaluation-field textarea{min-height:94px;resize:vertical}
+.evaluation-range-field{grid-template-columns:1fr auto}
+.evaluation-range-field input{grid-column:1/-1;width:100%;accent-color:var(--clinic)}
+.evaluation-range-field output{color:var(--clinic);font-size:1.1rem;font-weight:850}
+.evaluation-range-field>small{grid-column:1/-1;display:flex;justify-content:space-between;gap:14px}
+.evaluation-percent-input{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px}
+.evaluation-percent-input>span{font-weight:850}
+.previous-evaluation{display:grid;gap:10px;padding:15px 17px;border-inline-start:4px solid var(--clinic);border-radius:10px;background:var(--clinic-soft)}
+.previous-evaluation>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.previous-evaluation span{display:grid;gap:3px;color:var(--muted);font-size:.78rem}
+.previous-evaluation b{color:var(--clinic-dark);font-size:.9rem}
+.previous-evaluation--empty{color:var(--clinic-dark);font-weight:750}
+.evaluation-error{padding:11px 13px;border:1px solid #efb6b6;border-radius:9px;color:var(--color-danger-700);background:#fff4f4;font-size:.84rem;font-weight:700}
+.evaluation-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;padding-block-start:18px;border-block-start:1px solid var(--line)}
+
+@media(max-width:620px){.evaluation-session-meta{grid-template-columns:1fr}.evaluation-score-options{grid-template-columns:repeat(5,minmax(38px,1fr))}.previous-evaluation>div{grid-template-columns:1fr}.evaluation-actions{display:grid;grid-template-columns:1fr}.evaluation-actions .button{width:100%}}
+
 @keyframes physiotherapist-spin {
   to {
     transform: rotate(360deg);

@@ -163,6 +163,30 @@ export async function myAppointments(req, res) {
   } catch (error) { return sendError(res, error, 'Unable to load appointments'); }
 }
 
+export async function patientRecovery(req, res) {
+  try {
+    const now = new Date().toISOString();
+    const [evaluationResult, nextAppointmentResult] = await Promise.all([
+      req.db.from('session_evaluations')
+        .select('id,appointment_id,session_performance_score,estimated_sessions_remaining,pain_improvement_percent,progress_vs_previous_percent,progress_note,created_at,appointments!inner(starts_at,treatment_type,status,profiles!appointments_physiotherapist_id_fkey(first_name,last_name))')
+        .eq('patient_id', req.auth.user.id)
+        .eq('appointments.status', 'completed')
+        .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      req.db.from('appointments')
+        .select('id,treatment_type,starts_at,ends_at,status,profiles!appointments_physiotherapist_id_fkey(first_name,last_name)')
+        .eq('patient_id', req.auth.user.id)
+        .in('status', ['pending', 'confirmed'])
+        .gt('starts_at', now).order('starts_at').limit(1).maybeSingle(),
+    ]);
+    if (evaluationResult.error) throw evaluationResult.error;
+    if (nextAppointmentResult.error) throw nextAppointmentResult.error;
+    return ok(res, {
+      latest_evaluation: evaluationResult.data || null,
+      next_appointment: nextAppointmentResult.data || null,
+    });
+  } catch (error) { return sendError(res, error, 'Unable to load recovery progress'); }
+}
+
 export async function cancelAppointment(req, res) {
   try {
     const { data, error } = await req.db.from('appointments').update({ status: 'cancelled', cancelled_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq('id', req.params.id).eq('patient_id', req.auth.user.id).in('status', ['pending','confirmed']).select('id,status').single();

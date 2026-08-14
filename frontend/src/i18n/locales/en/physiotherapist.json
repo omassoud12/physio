@@ -44,6 +44,36 @@
     "completeLabel": "Mark the appointment with {{name}} as completed",
     "noShowLabel": "Mark {{name}} as a no-show"
   },
+  "evaluation": {
+    "eyebrow": "Post-session clinical record",
+    "title": "Session Evaluation",
+    "patient": "Patient",
+    "date": "Session date",
+    "sessionNumber": "Session",
+    "loading": "Loading session context…",
+    "performance": "Session Performance",
+    "selectScore": "Select a score",
+    "remaining": "Estimated Remaining Sessions",
+    "remainingHint": "Clinical estimate entered by you, not a guarantee.",
+    "painImprovement": "Pain Improvement",
+    "noImprovement": "No improvement",
+    "majorImprovement": "Major improvement",
+    "progress": "Progress Since Previous Session",
+    "progressHint": "Use a positive value for improvement, zero for stable, or a negative value for regression.",
+    "previousTitle": "Previous Session",
+    "firstSession": "First evaluated session — no previous session comparison.",
+    "note": "Progress Note",
+    "notePlaceholder": "Optional concise clinical note…",
+    "save": "Save & Complete Session",
+    "saving": "Saving evaluation…",
+    "errors": {
+      "load": "Unable to load the session evaluation.",
+      "required": "Complete all required evaluation fields.",
+      "progressRequired": "Enter progress compared with the previous session.",
+      "conflict": "This session was already completed or evaluated.",
+      "save": "The evaluation could not be saved. The session was not completed."
+    }
+  },
   "patients": {
     "title": "My patients",
     "description": "Patients assigned to you or with a treatment appointment.",
@@ -108,7 +138,8 @@
     "availabilityRemoved": "Availability removed.",
     "timeOffAdded": "Time off added.",
     "timeOffRemoved": "Time off removed.",
-    "appointmentUpdated": "Appointment updated."
+    "appointmentUpdated": "Appointment updated.",
+    "sessionCompleted": "Session completed and evaluation saved successfully."
   },
   "errors": {
     "loadDashboard": "Unable to load the clinical workspace. Please try again.",

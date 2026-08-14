@@ -14,6 +14,7 @@ appointmentRoutes.use(requireAuth, requireRole('patient'));
 appointmentRoutes.post('/', clinic.bookAppointment);
 appointmentRoutes.get('/availability', clinic.calendarAvailability);
 appointmentRoutes.get('/my', clinic.myAppointments);
+appointmentRoutes.get('/recovery', clinic.patientRecovery);
 appointmentRoutes.patch('/:id/cancel', clinic.cancelAppointment);
 appointmentRoutes.patch('/:id/reschedule', clinic.rescheduleAppointment);
 
