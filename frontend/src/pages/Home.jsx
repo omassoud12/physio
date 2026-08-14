@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Brand from '../components/Brand.jsx'
 import LanguageSwitcher from '../components/LanguageSwitcher.jsx'
 import BookingInstructions from '../components/BookingInstructions.jsx'
+import { dashboardForRole } from '../auth/routes.js'
+import useAuth from '../auth/useAuth.js'
 import './Home.css'
 
 const serviceKeys = ['pain', 'sports', 'surgery']
@@ -12,7 +14,11 @@ const approachKeys = ['assessment', 'plan', 'progress']
 
 function Home() {
   const { i18n, t } = useTranslation('home')
+  const navigate = useNavigate()
+  const { isAuthenticated, loading: authLoading, profile, signOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const dashboardPath = dashboardForRole(profile?.role)
+  const accountDestination = isAuthenticated ? dashboardPath : '/register'
   const weekDays = t('hero.preview.weekDays', { returnObjects: true })
   const numberFormatter = new Intl.NumberFormat(i18n.resolvedLanguage, {
     minimumIntegerDigits: 2,
@@ -37,6 +43,12 @@ function Home() {
     setMenuOpen(false)
   }
 
+  async function handleSignOut() {
+    closeMenu()
+    await signOut()
+    navigate('/', { replace: true })
+  }
+
   return (
     <main className="home-page">
       <a className="skip-link" href="#home-content">
@@ -56,16 +68,36 @@ function Home() {
           <a href="#approach" onClick={closeMenu}>
             {t('navigation.approach')}
           </a>
-          <Link to="/signin" onClick={closeMenu}>
-            {t('navigation.signIn')}
-          </Link>
-          <Link
-            className="home-button home-button--small"
-            to="/register"
-            onClick={closeMenu}
-          >
-            {t('navigation.getStarted')}
-          </Link>
+          <div className="home-nav__account">
+            {authLoading ? (
+              <span className="home-auth-loading" role="status" aria-label={t('common:state.loading')}>
+                <i aria-hidden="true" />
+                <i aria-hidden="true" />
+              </span>
+            ) : isAuthenticated ? (
+              <>
+                <Link className="home-button home-button--small" to={dashboardPath} onClick={closeMenu}>
+                  {t('navigation.dashboard')}
+                </Link>
+                <button className="home-nav__action" type="button" onClick={handleSignOut}>
+                  {t('common:actions.signOut')}
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/signin" onClick={closeMenu}>
+                  {t('navigation.signIn')}
+                </Link>
+                <Link
+                  className="home-button home-button--small"
+                  to="/register"
+                  onClick={closeMenu}
+                >
+                  {t('navigation.getStarted')}
+                </Link>
+              </>
+            )}
+          </div>
         </nav>
 
         <div className="home-header__controls">
@@ -104,7 +136,7 @@ function Home() {
           </h1>
           <p className="home-hero__description">{t('hero.description')}</p>
           <div className="home-hero__actions">
-            <Link className="home-button" to="/register">
+            <Link className="home-button" to={accountDestination}>
               {t('hero.primaryAction')}
               <span className="home-arrow" aria-hidden="true">
                 →
@@ -209,7 +241,7 @@ function Home() {
               <h3>{t(`services.items.${service}.title`)}</h3>
               <p>{t(`services.items.${service}.description`)}</p>
               <Link
-                to="/register"
+                to={accountDestination}
                 aria-label={t('services.actionLabel', {
                   service: t(`services.items.${service}.title`),
                 })}
@@ -252,8 +284,8 @@ function Home() {
         </p>
         <h2 id="home-cta-title">{t('cta.title')}</h2>
         <p>{t('cta.description')}</p>
-        <Link className="home-button" to="/register">
-          {t('cta.action')}
+        <Link className="home-button" to={accountDestination}>
+          {t(isAuthenticated ? 'cta.dashboardAction' : 'cta.action')}
           <span className="home-arrow" aria-hidden="true">
             →
           </span>

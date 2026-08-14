@@ -77,20 +77,67 @@
   display: grid;
 }
 
-.home-nav > a {
+.home-nav > :is(a, button),
+.home-nav__account > :is(a, button) {
   display: flex;
   align-items: center;
   min-height: 2.85rem;
   padding: 0.65rem 0.8rem;
+  border: 0;
   border-radius: 0.7rem;
   color: #365b53;
+  background: transparent;
   font-size: 0.88rem;
   font-weight: 750;
+  cursor: pointer;
 }
 
-.home-nav > a:hover:not(.home-button) {
+.home-nav > :is(a, button):hover:not(.home-button),
+.home-nav__account > :is(a, button):hover:not(.home-button) {
   color: var(--home-ink);
   background: #f0f8f5;
+}
+
+.home-nav__account {
+  display: grid;
+  gap: 0.25rem;
+  margin-block-start: 0.35rem;
+  padding-block-start: 0.55rem;
+  border-block-start: 1px solid var(--home-line);
+}
+
+.home-nav__account > :is(a, button) {
+  width: 100%;
+  justify-content: center;
+}
+
+.home-nav__account > .home-button {
+  color: #ffffff !important;
+  background: var(--home-green);
+}
+
+.home-nav__account > .home-button:hover {
+  color: #ffffff !important;
+  background: var(--home-green-dark);
+}
+
+.home-nav__action {
+  white-space: nowrap;
+}
+
+.home-auth-loading {
+  min-width: 10.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.25rem;
+}
+
+.home-auth-loading i {
+  width: 4.75rem;
+  height: 2rem;
+  border-radius: 0.65rem;
+  background: #edf4f2;
 }
 
 .home-menu-button {
@@ -156,7 +203,8 @@
 }
 
 .home-button:focus-visible,
-.home-nav > a:focus-visible,
+.home-nav > :is(a, button):focus-visible,
+.home-nav__account > :is(a, button):focus-visible,
 .home-text-link:focus-visible,
 .home-service-card a:focus-visible,
 .home-menu-button:focus-visible {
@@ -823,7 +871,24 @@
     box-shadow: none;
   }
 
-  .home-nav > a {
+  .home-nav__account {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-block-start: 0;
+    margin-inline-start: 0.4rem;
+    padding-block-start: 0;
+    padding-inline-start: 0.65rem;
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--home-line);
+  }
+
+  .home-nav__account > :is(a, button) {
+    width: auto;
+  }
+
+  .home-nav > :is(a, button),
+  .home-nav__account > :is(a, button) {
     min-height: 2.65rem;
     padding-inline: 0.65rem;
     white-space: nowrap;
@@ -881,7 +946,8 @@
     gap: 0.65rem;
   }
 
-  .home-nav > a {
+  .home-nav > :is(a, button),
+  .home-nav__account > :is(a, button) {
     padding-inline: 0.85rem;
   }
 

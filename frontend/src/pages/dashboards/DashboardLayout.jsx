@@ -2,14 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import Brand from '../../components/Brand.jsx'
 import LanguageSwitcher from '../../components/LanguageSwitcher.jsx'
-
-function readProfile() {
-  try {
-    return JSON.parse(localStorage.getItem('user_profile') || '{}')
-  } catch {
-    return {}
-  }
-}
+import useAuth from '../../auth/useAuth.js'
 
 function SignOutIcon() {
   return (
@@ -28,17 +21,20 @@ function SignOutIcon() {
 export default function DashboardLayout({ title, subtitle, role, children }) {
   const { t } = useTranslation(['dashboard', 'common'])
   const navigate = useNavigate()
-  const profile = readProfile()
+  const { profile: authProfile, signOut, user } = useAuth()
+  const profile = authProfile || {}
   const firstName = profile.first_name || ''
   const lastName = profile.last_name || ''
   const fullName = [firstName, lastName].filter(Boolean).join(' ')
   const initials =
     `${firstName.charAt(0)}${lastName.charAt(0)}`.toLocaleUpperCase() || 'PC'
 
-  function signOut() {
-    localStorage.removeItem('supabase_session')
-    localStorage.removeItem('user_profile')
-    navigate('/signin', { replace: true })
+  async function handleSignOut() {
+    try {
+      await signOut()
+    } finally {
+      navigate('/', { replace: true })
+    }
   }
 
   return (
@@ -64,13 +60,13 @@ export default function DashboardLayout({ title, subtitle, role, children }) {
                 {initials}
               </div>
               <div className="dashboard-user__identity">
-                <strong>{fullName || profile.email}</strong>
-                <small className="ltr-value">{profile.email}</small>
+                <strong>{fullName || profile.email || user?.email}</strong>
+                <small className="ltr-value">{profile.email || user?.email}</small>
               </div>
               <button
                 className="button button--quiet dashboard-signout"
                 type="button"
-                onClick={signOut}
+                onClick={handleSignOut}
                 aria-label={t('common:actions.signOut')}
               >
                 <SignOutIcon />

@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Brand from '../../components/Brand.jsx'
 import LanguageSwitcher from '../../components/LanguageSwitcher.jsx'
 import api from '../../services/api.js'
+import useAuth from '../../auth/useAuth.js'
 import './SignIn.css'
 import './Register.css'
 
@@ -32,6 +33,7 @@ function getRegisterErrorKey(error) {
 function Register() {
   const navigate = useNavigate()
   const { t } = useTranslation('auth')
+  const { establishSession } = useAuth()
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -89,8 +91,7 @@ function Register() {
         return
       }
 
-      localStorage.setItem('supabase_session', JSON.stringify(session))
-      localStorage.setItem('user_profile', JSON.stringify(profile))
+      await establishSession(session, profile)
       navigate('/patient/dashboard', { replace: true })
     } catch (requestError) {
       setErrorKey(getRegisterErrorKey(requestError))

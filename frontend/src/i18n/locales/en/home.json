@@ -3,6 +3,7 @@
     "label": "Main navigation",
     "services": "Services",
     "approach": "Our approach",
+    "dashboard": "Dashboard",
     "signIn": "Sign in",
     "getStarted": "Get started",
     "openMenu": "Open navigation menu",
@@ -92,7 +93,8 @@
     "kicker": "Ready when you are",
     "title": "Your next chapter starts with one small step.",
     "description": "Create your patient account and take the first step toward moving better.",
-    "action": "Create your account"
+    "action": "Create your account",
+    "dashboardAction": "Go to dashboard"
   },
   "footer": {
     "tagline": "Move better. Feel stronger. Live fully.",

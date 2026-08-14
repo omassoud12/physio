@@ -23,6 +23,13 @@ export function createSupabaseClient() {
   });
 }
 
+export function getSupabasePublicConfig() {
+  return {
+    url: supabaseUrl,
+    publishableKey: supabaseKey,
+  };
+}
+
 export function createAdminClient() {
   if (!serviceRoleKey) {
     throw new Error(

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getAuthAccessToken, getSupabaseClient } from './supabase.js'
 
 const configuredUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const normalizedUrl = configuredUrl.replace(/\/$/, '')
@@ -14,12 +15,8 @@ const api = axios.create({
 })
 
 api.interceptors.request.use((config) => {
-  try {
-    const session = JSON.parse(localStorage.getItem('supabase_session'))
-    if (session?.access_token) config.headers.Authorization = `Bearer ${session.access_token}`
-  } catch {
-    localStorage.removeItem('supabase_session')
-  }
+  const accessToken = getAuthAccessToken()
+  if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`
   return config
 })
 
@@ -27,9 +24,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/')) {
-      localStorage.removeItem('supabase_session')
       localStorage.removeItem('user_profile')
-      window.location.assign('/signin')
+      void getSupabaseClient().then((client) => client.auth.signOut())
     }
     return Promise.reject(error)
   },

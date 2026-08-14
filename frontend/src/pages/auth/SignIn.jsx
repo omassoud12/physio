@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Brand from '../../components/Brand.jsx'
 import LanguageSwitcher from '../../components/LanguageSwitcher.jsx'
 import api, { testBackendConnection } from '../../services/api.js'
+import useAuth from '../../auth/useAuth.js'
 import './SignIn.css'
 
 const dashboardByRole = {
@@ -35,6 +36,7 @@ function getSignInErrorKey(error) {
 function SignIn() {
   const navigate = useNavigate()
   const { t } = useTranslation('auth')
+  const { establishSession } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -78,8 +80,7 @@ function SignIn() {
         return
       }
 
-      localStorage.setItem('supabase_session', JSON.stringify(session))
-      localStorage.setItem('user_profile', JSON.stringify(profile))
+      await establishSession(session, profile)
       navigate(dashboard, { replace: true })
     } catch (requestError) {
       setErrorKey(getSignInErrorKey(requestError))

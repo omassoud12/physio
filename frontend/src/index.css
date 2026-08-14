@@ -81,6 +81,16 @@ body {
   background: var(--page-bg);
 }
 
+.auth-route-loading {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  color: var(--muted);
+  background: var(--page);
+  font-weight: 700;
+}
+
 #root {
   min-height: 100vh;
   min-height: 100dvh;

@@ -1,4 +1,12 @@
 import { signInUser, signUpUser } from '../services/authService.js';
+import { getSupabasePublicConfig } from '../config/supabase.js';
+
+export function authConfig(req, res) {
+  return res.status(200).json({
+    success: true,
+    data: getSupabasePublicConfig(),
+  });
+}
 
 export async function signUp(req, res) {
   try {
