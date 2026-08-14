@@ -19,22 +19,22 @@
 .medical-related-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 .medical-field{gap:14px}
 .medical-control{display:block;width:100%}
-.medical-label{gap:6px;line-height:1.35}
-.medical-label>span:first-child{font-weight:800}
-.medical-label>span:last-child{color:var(--muted);font-size:.84rem;font-weight:600;text-align:right}
+.medical-label{gap:6px;line-height:1.3}
+.medical-form-card :is(.medical-field>.medical-label,.medical-fieldset>legend .medical-label,.pain-score>.medical-label,.pain-area-picker__other>.medical-label)>span:first-child{color:var(--ink);font-size:24px;font-weight:700}
+.medical-form-card :is(.medical-field>.medical-label,.medical-fieldset>legend .medical-label,.pain-score>.medical-label,.pain-area-picker__other>.medical-label)>span:last-child{color:var(--muted);font-size:18px;font-weight:500;line-height:1.35;text-align:right}
 .medical-fieldset{gap:0}
 .medical-fieldset legend{margin-block-end:14px}
 .medical-options,.medical-options--grid{display:flex;flex-wrap:wrap;align-items:stretch;gap:12px}
 .medical-options .medical-choice{min-width:min(140px,100%);flex:1 1 140px}
 .medical-options--grid .medical-choice{flex-basis:180px}
-.medical-choice{min-height:60px;padding:10px 13px;border-radius:10px;transition:border-color .16s ease,background .16s ease,box-shadow .16s ease,transform .16s ease}
+.medical-form-card .medical-choice{min-height:90px;display:flex;align-items:center;gap:12px;padding:18px 20px;border-radius:10px;transition:border-color .16s ease,background .16s ease,box-shadow .16s ease,transform .16s ease}
 .medical-choice:hover{border-color:#77bdb0;background:#f7fcfb;transform:translateY(-1px)}
 .medical-choice:has(input:focus-visible){outline:3px solid rgba(16,114,103,.2);outline-offset:2px}
 .medical-choice:has(input:checked){border-color:var(--clinic);background:var(--clinic-soft);box-shadow:0 0 0 1px rgba(16,114,103,.1)}
 .medical-choice input{width:19px;height:19px}
-.medical-choice>span{gap:4px;line-height:1.25}
-.medical-choice>span>span:first-child{font-weight:750}
-.medical-choice>span>span:last-child{color:var(--muted);font-size:.8rem}
+.medical-form-card .medical-choice>span{display:grid;gap:4px;font-size:16px;line-height:1.25}
+.medical-form-card .medical-choice>span>span:first-child{color:var(--ink);font-size:16px;font-weight:600}
+.medical-form-card .medical-choice>span>span:last-child{color:var(--muted);font-size:14px;font-weight:500}
 .medical-field--invalid :where(input,select,textarea){border-color:var(--color-danger-700)!important}
 .medical-error{margin-block-start:-3px;font-size:.8rem;font-weight:650}
 .red-flag-grid{grid-template-columns:minmax(0,1fr);gap:24px}
