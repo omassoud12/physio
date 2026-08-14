@@ -4,6 +4,7 @@ import {
   bodyChartRegionValues,
   bodyChartViews,
   normalizePainLocations,
+  primaryPainAreaRegionValues,
   togglePainLocation,
 } from '../src/pages/medical/bodyChartRegions.js'
 
@@ -14,8 +15,11 @@ test('uses unique stable English database values for every anatomical path', () 
   assert.ok(bodyChartRegionValues.has('front_left_shoulder'))
   assert.ok(bodyChartRegionValues.has('back_upper_back'))
   assert.ok(bodyChartRegionValues.has('back_lower_back'))
+  assert.ok(bodyChartRegionValues.has('left_shoulder'))
+  assert.ok(bodyChartRegionValues.has('right_ankle_foot'))
+  assert.deepEqual(bodyChartViews.map(({ key })=>key), ['front', 'back', 'left', 'right'])
   for (const region of regions) {
-    assert.match(region.value, /^(front|back)_[a-z_]+$/)
+    assert.match(region.value, /^(front|back|left|right)_[a-z_]+$/)
     assert.ok(region.label)
     assert.match(region.ar, /[\u0600-\u06ff]/)
     assert.ok(region.d)
@@ -31,6 +35,10 @@ test('distinguishes every applicable left and right region on front and back vie
       assert.ok(bodyChartRegionValues.has(`${view}_left_${region}`))
       assert.ok(bodyChartRegionValues.has(`${view}_right_${region}`))
     }
+  }
+  for (const region of lateralRegions) {
+    assert.ok(bodyChartRegionValues.has(`left_${region}`))
+    assert.ok(bodyChartRegionValues.has(`right_${region}`))
   }
 })
 
@@ -79,4 +87,24 @@ test('restores legacy body-chart values using the new stable regions', () => {
     'front_left_shoulder',
     'front_right_shoulder',
   ])
+  assert.deepEqual(normalizePainLocations(['left:shoulder']), ['left_shoulder'])
+})
+
+test('maps each primary icon to highlighted regions on the rotatable model', () => {
+  assert.deepEqual(primaryPainAreaRegionValues('lumbar_spine'), [
+    'back_lower_back',
+    'left_lower_back',
+    'right_lower_back',
+  ])
+  assert.deepEqual(primaryPainAreaRegionValues('shoulder', 'left'), [
+    'front_left_shoulder',
+    'back_left_shoulder',
+    'left_shoulder',
+  ])
+  assert.deepEqual(primaryPainAreaRegionValues('knee', 'right'), [
+    'front_right_knee',
+    'back_right_knee',
+    'right_knee',
+  ])
+  assert.equal(primaryPainAreaRegionValues('unknown').length, 0)
 })

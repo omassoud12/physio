@@ -3,19 +3,19 @@ const lateralRegions = new Set([
 ])
 
 const centralRegionViews = {
-  head: ['front', 'back'],
-  neck: ['front', 'back'],
-  chest: ['front'],
-  upper_back: ['back'],
-  lower_back: ['back'],
+  head: ['front', 'back', 'left', 'right'],
+  neck: ['front', 'back', 'left', 'right'],
+  chest: ['front', 'left', 'right'],
+  upper_back: ['back', 'left', 'right'],
+  lower_back: ['back', 'left', 'right'],
 }
 
 const region = (value, label, ar, d) => ({ value, label, ar, d })
 
-export const bodyChartViews = [
+const frontBackBodyChartViews = [
   {
     key: 'front',
-    label: 'Front view',
+    label: 'Front',
     ar: 'الأمام',
     regions: [
       region('front_head', 'Head', 'الرأس', 'M92 20 C98 8 142 8 148 20 L146 58 C142 75 132 84 120 84 C108 84 98 75 94 58 Z'),
@@ -43,7 +43,7 @@ export const bodyChartViews = [
   },
   {
     key: 'back',
-    label: 'Back view',
+    label: 'Back',
     ar: 'الخلف',
     regions: [
       region('back_head', 'Head', 'الرأس', 'M92 20 C98 8 142 8 148 20 L146 58 C142 75 132 84 120 84 C108 84 98 75 94 58 Z'),
@@ -72,6 +72,39 @@ export const bodyChartViews = [
   },
 ]
 
+const sideRegionPaths = [
+  ['head', 'Head', 'الرأس', 'M91 21 C97 9 124 7 135 21 C141 29 138 37 148 42 L137 49 C136 64 130 75 122 81 C111 87 99 81 94 72 C89 64 87 54 89 50 L84 43 L91 40 C87 33 87 27 91 21 Z'],
+  ['neck', 'Neck', 'الرقبة', 'M98 80 C104 86 116 87 122 81 L125 104 C118 112 101 112 94 103 Z'],
+  ['shoulder', 'Shoulder', 'الكتف', 'M94 101 C107 99 121 101 132 108 L137 133 C121 137 106 132 92 122 Z'],
+  ['chest', 'Chest', 'الصدر', 'M91 119 C105 130 119 136 137 132 L134 179 C124 188 106 188 88 179 Z'],
+  ['upper_back', 'Upper back', 'أعلى الظهر', 'M79 113 C84 107 89 103 95 101 L92 122 L88 179 L77 177 Z'],
+  ['lower_back', 'Lower back', 'أسفل الظهر', 'M77 174 C94 182 116 188 134 176 L131 207 C116 214 96 213 80 207 Z'],
+  ['arm', 'Arm', 'الذراع', 'M132 108 C145 114 153 123 153 138 L150 190 L136 193 L132 151 Z'],
+  ['elbow', 'Elbow', 'المرفق', 'M136 188 L150 187 L160 232 L146 238 L138 221 Z'],
+  ['wrist_hand', 'Wrist / hand', 'المعصم / اليد', 'M146 232 L160 230 L154 277 L142 273 L138 250 Z'],
+  ['hip', 'Hip', 'الورك', 'M80 204 C96 211 116 214 131 205 L137 274 L104 281 L74 274 Z'],
+  ['thigh', 'Thigh', 'الفخذ', 'M77 270 C92 277 117 281 137 270 L133 326 C121 337 91 337 77 326 Z'],
+  ['knee', 'Knee', 'الركبة', 'M77 323 C91 334 120 335 133 323 L133 353 C120 361 91 361 77 352 Z'],
+  ['leg', 'Leg', 'الساق', 'M77 349 C92 358 119 359 133 349 L131 430 L110 451 L94 451 L79 430 Z'],
+  ['ankle_foot', 'Ankle / foot', 'الكاحل / القدم', 'M79 427 L94 448 L110 448 L119 468 L84 468 L65 468 Z'],
+]
+
+const sideView = (key, label, ar, mirrored = false) => ({
+  key,
+  label,
+  ar,
+  mirrored,
+  regions:sideRegionPaths.map(([name, regionLabel, regionAr, d])=>
+    region(`${key}_${name}`, `${label} ${regionLabel.toLowerCase()}`, `${regionAr} ${ar}`, d),
+  ),
+})
+
+export const bodyChartViews = [
+  ...frontBackBodyChartViews,
+  sideView('left', 'Left', 'اليسار'),
+  sideView('right', 'Right', 'اليمين', true),
+]
+
 export const bodyChartRegionValues = new Set(
   bodyChartViews.flatMap((view) => view.regions.map(({ value }) => value)),
 )
@@ -80,10 +113,14 @@ function expandLegacyLocation(value) {
   if (typeof value !== 'string' || !value) return []
   if (bodyChartRegionValues.has(value)) return [value]
 
-  const colonMatch = value.match(/^(front|back):(.+)$/)
+  const colonMatch = value.match(/^(front|back|left|right):(.+)$/)
   if (colonMatch) {
     const [, view, name] = colonMatch
     if (lateralRegions.has(name)) {
+      if (view === 'left' || view === 'right') {
+        const sideValue = `${view}_${name}`
+        return bodyChartRegionValues.has(sideValue) ? [sideValue] : []
+      }
       return [`${view}_left_${name}`, `${view}_right_${name}`].filter((item) => bodyChartRegionValues.has(item))
     }
     const direct = `${view}_${name}`
@@ -92,9 +129,10 @@ function expandLegacyLocation(value) {
   }
 
   if (lateralRegions.has(value)) {
-    return ['front', 'back'].flatMap((view) =>
+    const frontAndBack = ['front', 'back'].flatMap((view) =>
       ['left', 'right'].map((side) => `${view}_${side}_${value}`),
     )
+    return [...frontAndBack, `left_${value}`, `right_${value}`]
   }
 
   return (centralRegionViews[value] || []).map((view) => `${view}_${value}`)
@@ -110,4 +148,29 @@ export function togglePainLocation(values, value) {
   return normalized.includes(value)
     ? normalized.filter((item) => item !== value)
     : [...normalized, value]
+}
+
+const primaryPainAreaRegions = {
+  ankle:'ankle_foot',
+  knee:'knee',
+  elbow:'elbow',
+  hip:'hip',
+  lumbar_spine:'lower_back',
+  wrist:'wrist_hand',
+  cervical_spine:'neck',
+  shoulder:'shoulder',
+}
+
+export function primaryPainAreaRegionValues(area, painSide = '') {
+  const regionName = primaryPainAreaRegions[area]
+  if (!regionName) return []
+
+  const candidates = [...bodyChartRegionValues].filter((value)=>value.endsWith(`_${regionName}`))
+  if (!lateralRegions.has(regionName) || !['left', 'right'].includes(painSide)) return candidates
+
+  return candidates.filter((value)=>
+    value.startsWith(`${painSide}_`) ||
+    value.startsWith(`front_${painSide}_`) ||
+    value.startsWith(`back_${painSide}_`),
+  )
 }
