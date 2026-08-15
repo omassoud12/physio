@@ -498,14 +498,14 @@ export default function PatientDashboard() {
         error={notice?.error}
       />
 
-      <BookingInstructions className="patient-booking-instructions" />
-
       <RecoveryJourney
         data={recovery}
         error={recoveryError}
         language={language}
         loading={recoveryLoading}
       />
+
+      <BookingInstructions className="patient-booking-instructions" />
 
       {!initialLoading && medicalProfileComplete === false && (
         <section className="panel patient-profile-required" dir="rtl" lang="ar" role="alert">

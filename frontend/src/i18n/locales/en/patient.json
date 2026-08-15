@@ -73,8 +73,8 @@
   },
   "recovery": {
     "loading": "Loading your recovery progress",
-    "eyebrow": "Recovery journey",
-    "title": "Your latest progress",
+    "eyebrow": "Your latest progress",
+    "title": "Recovery Journey",
     "disclaimer": "These clinician-recorded measures are a guide to your recovery and do not replace medical advice.",
     "error": "Your recovery progress could not be loaded. Please refresh the page to try again.",
     "status": {
@@ -90,8 +90,8 @@
     "remaining": "Estimated sessions remaining",
     "progress": "Overall progress",
     "note": "Clinician note",
-    "emptyTitle": "Your recovery journey starts after your first completed session",
-    "emptyDescription": "Your clinician's evaluation will appear here once your session is complete.",
+    "emptyTitle": "No evaluated sessions yet",
+    "emptyDescription": "Your recovery progress will appear here after your first evaluated session.",
     "nextAppointment": "Next appointment",
     "noNext": "No upcoming appointment",
     "withDoctor": "with {{name}}"

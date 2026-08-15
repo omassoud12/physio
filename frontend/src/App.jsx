@@ -8,6 +8,8 @@ import PhysiotherapistDashboard from './pages/dashboards/PhysiotherapistDashboar
 import AdminDashboard from './pages/dashboards/AdminDashboard.jsx'
 import MedicalIntake from './pages/medical/MedicalIntake.jsx'
 import MedicalRecordViewer from './pages/medical/MedicalRecordViewer.jsx'
+import PatientClinicalProfile from './pages/clinical/PatientClinicalProfile.jsx'
+import ShoulderAssessment from './features/clinical-assessments/shoulder/ShoulderAssessment.jsx'
 import RoleRoute from './components/RoleRoute.jsx'
 import './pages/dashboards/Dashboard.css'
 
@@ -21,6 +23,8 @@ function App() {
       <Route path="/patient/dashboard" element={<RoleRoute allowedRoles={['patient']}><PatientDashboard /></RoleRoute>} />
       <Route path="/patient/medical-profile" element={<RoleRoute allowedRoles={['patient']}><MedicalIntake /></RoleRoute>} />
       <Route path="/medical-records/patient/:patientId" element={<RoleRoute allowedRoles={['physiotherapist', 'admin']}><MedicalRecordViewer /></RoleRoute>} />
+      <Route path="/physiotherapist/patients/:patientId" element={<RoleRoute allowedRoles={['physiotherapist']}><PatientClinicalProfile /></RoleRoute>} />
+      <Route path="/physiotherapist/patients/:patientId/assessments/:assessmentId" element={<RoleRoute allowedRoles={['physiotherapist']}><ShoulderAssessment /></RoleRoute>} />
       <Route
         path="/physiotherapist/dashboard"
         element={<RoleRoute allowedRoles={['physiotherapist']}><PhysiotherapistDashboard /></RoleRoute>}

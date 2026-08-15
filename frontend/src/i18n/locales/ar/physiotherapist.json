@@ -94,7 +94,8 @@
     "record": "الملف {{number}}",
     "recordNotSet": "رقم الملف غير محدد",
     "unnamedPatient": "مريض بلا اسم",
-    "patientLabel": "ملف المريض {{name}}"
+    "patientLabel": "ملف المريض {{name}}",
+    "openClinicalProfile": "فتح الملف السريري"
   },
   "availability": {
     "weeklyTitle": "ساعات العمل الأسبوعية",

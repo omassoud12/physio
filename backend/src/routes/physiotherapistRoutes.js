@@ -2,6 +2,7 @@ import express from 'express';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { requireRole } from '../middleware/requireRole.js';
 import * as clinician from '../controllers/physiotherapistController.js';
+import * as clinicalAssessment from '../controllers/clinicalAssessmentController.js';
 
 const router = express.Router();
 router.use(requireAuth, requireRole('physiotherapist'));
@@ -15,5 +16,10 @@ router.get('/appointments/:id/evaluation-context', clinician.evaluationContext);
 router.post('/appointments/:id/complete', clinician.completeAppointment);
 router.patch('/appointments/:id/status', clinician.updateAppointmentStatus);
 router.get('/patients', clinician.patients);
+router.get('/patients/:patientId/clinical-profile', clinicalAssessment.clinicalProfile);
+router.post('/patients/:patientId/assessments', clinicalAssessment.createAssessment);
+router.get('/patients/:patientId/assessments/:assessmentId', clinicalAssessment.getAssessment);
+router.patch('/patients/:patientId/assessments/:assessmentId', clinicalAssessment.updateAssessment);
+router.post('/patients/:patientId/assessments/:assessmentId/reassess', clinicalAssessment.reassess);
 router.get('/patients/:id', clinician.patients);
 export default router;

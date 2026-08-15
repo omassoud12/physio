@@ -589,7 +589,7 @@ function PatientsPanel({ patients }) {
                     </span>
                   </small>
                 </div>
-                <Link className="text-button" to={`/medical-records/patient/${patient.id}`}>Dossier médical / الملف الطبي</Link>
+                <Link className="text-button" to={`/physiotherapist/patients/${patient.id}`}>{t('patients.openClinicalProfile')}</Link>
               </article>
             )
           })}

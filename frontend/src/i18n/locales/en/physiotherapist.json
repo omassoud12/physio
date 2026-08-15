@@ -82,7 +82,8 @@
     "record": "Record {{number}}",
     "recordNotSet": "Record not set",
     "unnamedPatient": "Unnamed patient",
-    "patientLabel": "Patient record for {{name}}"
+    "patientLabel": "Patient record for {{name}}",
+    "openClinicalProfile": "Open clinical profile"
   },
   "availability": {
     "weeklyTitle": "Weekly hours",

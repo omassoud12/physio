@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import DashboardLayout from '../dashboards/DashboardLayout.jsx'
+import useAuth from '../../auth/useAuth.js'
 import { bodyChartViews, normalizePainLocations } from './bodyChartRegions.js'
 import { primaryPainAreaOptions } from './painAreaOptions.js'
 import {
@@ -164,12 +165,11 @@ function PainSection({ pain = {} }) {
 
 export default function MedicalRecordViewer() {
   const { patientId } = useParams()
+  const { profile } = useAuth()
   const [record,setRecord]=useState(null)
   const [loading,setLoading]=useState(true)
   const [error,setError]=useState('')
-  let profile={}
-  try { profile=JSON.parse(localStorage.getItem('user_profile')||'{}') } catch { profile={} }
-  const back=profile.role==='admin'?'/admin/dashboard':'/physiotherapist/dashboard'
+  const back=profile?.role==='admin'?'/admin/dashboard':`/physiotherapist/patients/${patientId}`
 
   useEffect(()=>{
     let active=true

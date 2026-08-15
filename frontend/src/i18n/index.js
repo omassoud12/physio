@@ -9,6 +9,7 @@ import connectionEn from './locales/en/connection.json'
 import patientEn from './locales/en/patient.json'
 import physiotherapistEn from './locales/en/physiotherapist.json'
 import adminEn from './locales/en/admin.json'
+import clinicalEn from './locales/en/clinical.json'
 
 import commonAr from './locales/ar/common.json'
 import dashboardAr from './locales/ar/dashboard.json'
@@ -18,6 +19,7 @@ import connectionAr from './locales/ar/connection.json'
 import patientAr from './locales/ar/patient.json'
 import physiotherapistAr from './locales/ar/physiotherapist.json'
 import adminAr from './locales/ar/admin.json'
+import clinicalAr from './locales/ar/clinical.json'
 
 export const LANGUAGE_STORAGE_KEY = 'physiocare-language'
 export const SUPPORTED_LANGUAGES = ['en', 'ar']
@@ -49,6 +51,7 @@ const resources = {
     patient: patientEn,
     physiotherapist: physiotherapistEn,
     admin: adminEn,
+    clinical: clinicalEn,
   },
   ar: {
     common: commonAr,
@@ -59,6 +62,7 @@ const resources = {
     patient: patientAr,
     physiotherapist: physiotherapistAr,
     admin: adminAr,
+    clinical: clinicalAr,
   },
 }
 
@@ -102,6 +106,7 @@ i18n
       'patient',
       'physiotherapist',
       'admin',
+      'clinical',
     ],
     interpolation: {
       escapeValue: false,
