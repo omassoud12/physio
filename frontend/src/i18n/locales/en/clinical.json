@@ -38,11 +38,13 @@
     "affectedRegion": "Body-region assessment registry",
     "available": "Available",
     "comingSoon": "Not implemented yet",
+    "regionNotSelected": "Select this body region in the patient's medical record to enable the assessment.",
+    "startRegion": "Start {{region}} Assessment",
     "start": "Start Shoulder Assessment",
     "continue": "Continue Assessment",
     "view": "View Assessment",
     "reassess": "Reassess",
-    "noAssessment": "No shoulder assessment recorded yet.",
+    "noAssessment": "No clinical assessment recorded yet.",
     "lastSaved": "Last saved {{date}}",
     "lastAssessment": "Last assessment {{date}}",
     "draft": "Draft",
@@ -54,6 +56,27 @@
     "pain": "Pain improvement",
     "progress": "Progress vs previous session",
     "remaining": "Estimated remaining sessions"
+  },
+  "elbow": {
+    "title": "Elbow Clinical Assessment",
+    "subtitle": "A structured, hypothesis-led elbow examination and clinical record.",
+    "right": "Right Elbow",
+    "left": "Left Elbow",
+    "bilateral": "Both Elbows"
+  },
+  "neck": {
+    "title": "Neck / Cervical Spine Assessment",
+    "subtitle": "A targeted cervical examination with neurological and vascular safety pathways.",
+    "right": "Right Side",
+    "left": "Left Side",
+    "bilateral": "Bilateral"
+  },
+  "lumbar": {
+    "title": "Lumbar Spine Assessment",
+    "subtitle": "A targeted lower-back assessment with neurological and red-flag safety pathways.",
+    "right": "Right Side",
+    "left": "Left Side",
+    "bilateral": "Bilateral"
   },
   "assessment": {
     "role": "Doctor clinical assessment",

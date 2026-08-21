@@ -26,6 +26,35 @@ test('rejects unsupported assessment fields and body regions', () => {
   assert.throws(() => validateAssessmentMetadata({ body_region: 'knee' }), /not available/);
 });
 
+test('accepts elbow metadata only with the matching assessment type', () => {
+  const metadata = validateAssessmentMetadata({
+    body_region: 'elbow',
+    assessment_type: 'elbow_quick_assessment',
+  });
+  assert.equal(metadata.bodyRegion, 'elbow');
+  assert.throws(() => validateAssessmentMetadata({
+    body_region: 'elbow',
+    assessment_type: 'shoulder_quick_assessment',
+  }), /Invalid assessment type/);
+});
+
+test('accepts cervical metadata only with the matching assessment type', () => {
+  const metadata = validateAssessmentMetadata({
+    body_region: 'cervical',
+    assessment_type: 'cervical_quick_assessment',
+  });
+  assert.equal(metadata.bodyRegion, 'cervical');
+  assert.throws(() => validateAssessmentMetadata({
+    body_region: 'cervical',
+    assessment_type: 'elbow_quick_assessment',
+  }), /Invalid assessment type/);
+});
+
+test('accepts lumbar metadata only with the matching assessment type', () => {
+  assert.equal(validateAssessmentMetadata({ body_region: 'lumbar', assessment_type: 'lumbar_quick_assessment' }).bodyRegion, 'lumbar');
+  assert.throws(() => validateAssessmentMetadata({ body_region: 'lumbar', assessment_type: 'cervical_quick_assessment' }), /Invalid assessment type/);
+});
+
 test('requires an affected side when completing', () => {
   assert.throws(
     () => validateAssessmentMetadata({ status: 'completed', affected_side: '' }, { completing: true }),

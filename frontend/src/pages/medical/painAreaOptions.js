@@ -3,8 +3,8 @@ export const primaryPainAreaOptions = [
   ['knee', 'Knee', 'الركبة'],
   ['elbow', 'Elbow', 'المرفق'],
   ['hip', 'Hip', 'الورك'],
-  ['lumbar_spine', 'Lumbar spine', 'العمود الفقري القطني'],
+  ['lumbar_spine', 'Lumbar spine / Lower back', 'العمود الفقري القطني / أسفل الظهر'],
   ['wrist', 'Wrist', 'الرسغ'],
-  ['cervical_spine', 'Cervical spine', 'العمود الفقري العنقي'],
+  ['cervical_spine', 'Neck / Cervical spine', 'الرقبة / العمود الفقري العنقي'],
   ['shoulder', 'Shoulder', 'الكتف'],
 ]

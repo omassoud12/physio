@@ -10,6 +10,9 @@ import MedicalIntake from './pages/medical/MedicalIntake.jsx'
 import MedicalRecordViewer from './pages/medical/MedicalRecordViewer.jsx'
 import PatientClinicalProfile from './pages/clinical/PatientClinicalProfile.jsx'
 import ShoulderAssessment from './features/clinical-assessments/shoulder/ShoulderAssessment.jsx'
+import ElbowAssessment from './features/clinical-assessments/elbow/ElbowAssessment.jsx'
+import NeckAssessment from './features/clinical-assessments/neck/NeckAssessment.jsx'
+import LumbarAssessment from './features/clinical-assessments/lumbar/LumbarAssessment.jsx'
 import RoleRoute from './components/RoleRoute.jsx'
 import './pages/dashboards/Dashboard.css'
 
@@ -24,6 +27,9 @@ function App() {
       <Route path="/patient/medical-profile" element={<RoleRoute allowedRoles={['patient']}><MedicalIntake /></RoleRoute>} />
       <Route path="/medical-records/patient/:patientId" element={<RoleRoute allowedRoles={['physiotherapist', 'admin']}><MedicalRecordViewer /></RoleRoute>} />
       <Route path="/physiotherapist/patients/:patientId" element={<RoleRoute allowedRoles={['physiotherapist']}><PatientClinicalProfile /></RoleRoute>} />
+      <Route path="/physiotherapist/patients/:patientId/assessments/elbow/:assessmentId" element={<RoleRoute allowedRoles={['physiotherapist']}><ElbowAssessment /></RoleRoute>} />
+      <Route path="/physiotherapist/patients/:patientId/assessments/cervical/:assessmentId" element={<RoleRoute allowedRoles={['physiotherapist']}><NeckAssessment /></RoleRoute>} />
+      <Route path="/physiotherapist/patients/:patientId/assessments/lumbar/:assessmentId" element={<RoleRoute allowedRoles={['physiotherapist']}><LumbarAssessment /></RoleRoute>} />
       <Route path="/physiotherapist/patients/:patientId/assessments/:assessmentId" element={<RoleRoute allowedRoles={['physiotherapist']}><ShoulderAssessment /></RoleRoute>} />
       <Route
         path="/physiotherapist/dashboard"

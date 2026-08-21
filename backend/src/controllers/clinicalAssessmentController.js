@@ -1,9 +1,11 @@
 import { apiError, ok, sendError } from '../utils/http.js';
 import {
-  SHOULDER_ASSESSMENT_TYPE,
+  CERVICAL_SCHEMA_VERSION,
+  ELBOW_SCHEMA_VERSION,
+  LUMBAR_SCHEMA_VERSION,
   SHOULDER_SCHEMA_VERSION,
+  validateAssessmentData,
   validateAssessmentMetadata,
-  validateShoulderAssessmentData,
 } from '../services/clinicalAssessmentService.js';
 
 const assessmentSelect = 'id,patient_id,doctor_id,appointment_id,parent_assessment_id,body_region,assessment_type,schema_version,affected_side,status,assessment_data,assessment_date,completed_at,created_at,updated_at';
@@ -27,6 +29,32 @@ async function validateAppointment(req, patientId, appointmentId) {
   if (result.error) throw result.error;
   if (!result.data) throw apiError('The selected session is not available for this assessment', 400);
   return appointmentId;
+}
+
+async function assertPatientRegionSelected(req, patientId, bodyRegion) {
+  if (bodyRegion === 'shoulder') return
+  const result = await req.db.from('patient_medical_profiles')
+    .select('subjective_assessment').eq('patient_id', patientId).maybeSingle()
+  if (result.error) throw result.error
+  const subjective = result.data?.subjective_assessment || {}
+  if (!medicalRecordHasRegion(subjective, bodyRegion)) throw apiError(`${bodyRegion} must be selected in the patient medical record before opening this assessment`, 409)
+}
+
+export function medicalRecordHasRegion(subjective, bodyRegion) {
+  const primaryRegion = subjective.primary_pain_location
+  const chartRegions = Array.isArray(subjective.pain_locations) ? subjective.pain_locations : []
+  const primaryKey = { cervical:'cervical_spine', lumbar:'lumbar_spine' }[bodyRegion] || bodyRegion
+  const chartKey = { cervical:'neck', lumbar:'lower_back' }[bodyRegion] || bodyRegion
+  return primaryRegion === primaryKey || chartRegions.some((region) => (
+    region === chartKey || String(region).endsWith(`_${chartKey}`)
+  ))
+}
+
+function assessmentSchemaVersion(bodyRegion) {
+  if (bodyRegion === 'shoulder') return SHOULDER_SCHEMA_VERSION
+  if (bodyRegion === 'elbow') return ELBOW_SCHEMA_VERSION
+  if (bodyRegion === 'cervical') return CERVICAL_SCHEMA_VERSION
+  return LUMBAR_SCHEMA_VERSION
 }
 
 export async function clinicalProfile(req, res) {
@@ -81,6 +109,7 @@ export async function createAssessment(req, res) {
   try {
     const patient = await authorizedPatient(req, req.params.patientId);
     const metadata = validateAssessmentMetadata(req.body);
+    await assertPatientRegionSelected(req, patient.id, metadata.bodyRegion);
     const appointmentId = await validateAppointment(req, patient.id, req.body.appointment_id);
 
     if (!req.body.force_new) {
@@ -93,14 +122,14 @@ export async function createAssessment(req, res) {
     }
 
     const data = req.body.assessment_data || {};
-    validateShoulderAssessmentData(data);
+    validateAssessmentData(metadata.bodyRegion, data);
     const inserted = await req.db.from('clinical_assessments').insert({
       patient_id: patient.id,
       doctor_id: req.auth.user.id,
       appointment_id: appointmentId,
       body_region: metadata.bodyRegion,
       assessment_type: metadata.assessmentType,
-      schema_version: SHOULDER_SCHEMA_VERSION,
+      schema_version: assessmentSchemaVersion(metadata.bodyRegion),
       affected_side: metadata.side,
       status: 'draft',
       assessment_data: data,
@@ -117,6 +146,7 @@ export async function getAssessment(req, res) {
       .eq('id', req.params.assessmentId).eq('patient_id', patient.id).maybeSingle();
     if (assessment.error) throw assessment.error;
     if (!assessment.data) throw apiError('Clinical assessment not found', 404);
+    await assertPatientRegionSelected(req, patient.id, assessment.data.body_region);
 
     const [appointments, parent] = await Promise.all([
       req.db.from('appointments').select('id,treatment_type,starts_at,status')
@@ -139,6 +169,7 @@ export async function updateAssessment(req, res) {
       .eq('id', req.params.assessmentId).eq('patient_id', patient.id).maybeSingle();
     if (current.error) throw current.error;
     if (!current.data) throw apiError('Clinical assessment not found', 404);
+    await assertPatientRegionSelected(req, patient.id, current.data.body_region);
     if (current.data.doctor_id !== req.auth.user.id) throw apiError('Only the authoring physiotherapist can edit this assessment', 403);
     if (current.data.status === 'completed') throw apiError('Completed clinical assessments cannot be changed', 409);
 
@@ -150,7 +181,7 @@ export async function updateAssessment(req, res) {
       status: requestedStatus,
     }, { completing: requestedStatus === 'completed' });
     const assessmentData = req.body.assessment_data ?? current.data.assessment_data;
-    validateShoulderAssessmentData(assessmentData, { completed: requestedStatus === 'completed' });
+    validateAssessmentData(current.data.body_region, assessmentData, { completed: requestedStatus === 'completed' });
     const appointmentId = req.body.appointment_id === undefined
       ? current.data.appointment_id
       : await validateAppointment(req, patient.id, req.body.appointment_id);
@@ -176,6 +207,7 @@ export async function reassess(req, res) {
       .eq('id', req.params.assessmentId).eq('patient_id', patient.id).eq('status', 'completed').maybeSingle();
     if (parent.error) throw parent.error;
     if (!parent.data) throw apiError('Completed assessment not found', 404);
+    await assertPatientRegionSelected(req, patient.id, parent.data.body_region);
 
     const existing = await req.db.from('clinical_assessments').select(assessmentSelect)
       .eq('parent_assessment_id', parent.data.id).eq('doctor_id', req.auth.user.id).eq('status', 'draft')
@@ -189,7 +221,7 @@ export async function reassess(req, res) {
       parent_assessment_id: parent.data.id,
       body_region: parent.data.body_region,
       assessment_type: parent.data.assessment_type,
-      schema_version: SHOULDER_SCHEMA_VERSION,
+      schema_version: assessmentSchemaVersion(parent.data.body_region),
       affected_side: parent.data.affected_side,
       status: 'draft',
       assessment_data: {},

@@ -28,8 +28,8 @@ export function NotesField({ label = 'Clinical Notes', labelAr = 'ملاحظات
   return <label className="clinical-text-field"><DualLabel label={label} labelAr={labelAr}/><textarea rows={rows} value={value} placeholder={placeholder} onChange={(event)=>onChange(event.target.value)}/></label>
 }
 
-export function NumberField({ label, labelAr, value = '', onChange, min, max, suffix }) {
-  return <label className="clinical-number-field"><DualLabel label={label} labelAr={labelAr}/><span><input type="number" min={min} max={max} step="1" value={value??''} onChange={(event)=>onChange(event.target.value===''?'':Number(event.target.value))}/>{suffix&&<b>{suffix}</b>}</span></label>
+export function NumberField({ label, labelAr, value = '', onChange, min, max, suffix, readOnly = false }) {
+  return <label className="clinical-number-field"><DualLabel label={label} labelAr={labelAr}/><span><input type="number" min={min} max={max} step="1" value={value??''} readOnly={readOnly} onChange={(event)=>onChange(event.target.value===''?'':Number(event.target.value))}/>{suffix&&<b>{suffix}</b>}</span></label>
 }
 
 export function TextList({ label, labelAr, values = [], onChange }) {

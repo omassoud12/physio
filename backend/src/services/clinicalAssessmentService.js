@@ -1,4 +1,7 @@
 import { apiError } from '../utils/http.js';
+import { validateElbowAssessmentData } from './elbowAssessmentService.js';
+import { validateNeckAssessmentData } from './neckAssessmentService.js';
+import { validateLumbarAssessmentData } from './lumbarAssessmentService.js';
 
 export const BODY_REGIONS = new Set([
   'shoulder', 'hip', 'elbow', 'knee', 'ankle', 'cervical', 'wrist', 'lumbar',
@@ -7,6 +10,12 @@ export const ASSESSMENT_STATUSES = new Set(['draft', 'completed']);
 export const AFFECTED_SIDES = new Set(['right', 'left', 'bilateral']);
 export const SHOULDER_ASSESSMENT_TYPE = 'shoulder_quick_assessment';
 export const SHOULDER_SCHEMA_VERSION = 1;
+export const ELBOW_ASSESSMENT_TYPE = 'elbow_quick_assessment';
+export const ELBOW_SCHEMA_VERSION = 1;
+export const CERVICAL_ASSESSMENT_TYPE = 'cervical_quick_assessment';
+export const CERVICAL_SCHEMA_VERSION = 1;
+export const LUMBAR_ASSESSMENT_TYPE = 'lumbar_quick_assessment';
+export const LUMBAR_SCHEMA_VERSION = 1;
 
 const SECTION_KEYS = [
   'observation', 'palpation', 'articular', 'muscular', 'neurological',
@@ -244,15 +253,26 @@ export function validateShoulderAssessmentData(value, { completed = false } = {}
   return data;
 }
 
+export function validateAssessmentData(bodyRegion, value, options) {
+  if (bodyRegion === 'shoulder') return validateShoulderAssessmentData(value, options);
+  if (bodyRegion === 'elbow') return validateElbowAssessmentData(value, options);
+  if (bodyRegion === 'cervical') return validateNeckAssessmentData(value, options);
+  if (bodyRegion === 'lumbar') return validateLumbarAssessmentData(value, options);
+  throw apiError('This body-region assessment is not available yet', 400);
+}
+
 export function validateAssessmentMetadata(body, { completing = false } = {}) {
   const bodyRegion = String(body.body_region || 'shoulder');
-  const assessmentType = String(body.assessment_type || SHOULDER_ASSESSMENT_TYPE);
+  const typeByRegion = { shoulder: SHOULDER_ASSESSMENT_TYPE, elbow: ELBOW_ASSESSMENT_TYPE, cervical: CERVICAL_ASSESSMENT_TYPE, lumbar: LUMBAR_ASSESSMENT_TYPE };
+  const defaultType = typeByRegion[bodyRegion] || SHOULDER_ASSESSMENT_TYPE;
+  const assessmentType = String(body.assessment_type || defaultType);
   const status = String(body.status || 'draft');
   const side = body.affected_side || null;
-  if (!BODY_REGIONS.has(bodyRegion) || bodyRegion !== 'shoulder') throw apiError('This body-region assessment is not available yet', 400);
-  if (assessmentType !== SHOULDER_ASSESSMENT_TYPE) throw apiError('Invalid assessment type', 400);
+  if (!BODY_REGIONS.has(bodyRegion) || !['shoulder','elbow','cervical','lumbar'].includes(bodyRegion)) throw apiError('This body-region assessment is not available yet', 400);
+  const expectedType = typeByRegion[bodyRegion];
+  if (assessmentType !== expectedType) throw apiError('Invalid assessment type', 400);
   if (!ASSESSMENT_STATUSES.has(status)) throw apiError('Invalid assessment status', 400);
   if (side && !AFFECTED_SIDES.has(side)) throw apiError('Choose a valid affected side', 400);
-  if ((completing || status === 'completed') && !side) throw apiError('Choose the affected shoulder before completion', 400);
+  if ((completing || status === 'completed') && !side) throw apiError(`Choose the affected ${bodyRegion} before completion`, 400);
   return { bodyRegion, assessmentType, status, side };
 }

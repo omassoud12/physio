@@ -20,6 +20,23 @@ function age(profile, medical) {
   const birth=new Date(`${raw}T00:00:00Z`);const now=new Date();let years=now.getUTCFullYear()-birth.getUTCFullYear();if(now.getUTCMonth()<birth.getUTCMonth()||(now.getUTCMonth()===birth.getUTCMonth()&&now.getUTCDate()<birth.getUTCDate()))years-=1;return years
 }
 function signed(value) { return value===null||value===undefined?'—':`${value>0?'+':''}${value}%` }
+function selectedMedicalRegions(medicalRecord) {
+  const subjective = medicalRecord?.subjective_assessment || {}
+  const chartRegions = Array.isArray(subjective.pain_locations) ? subjective.pain_locations : []
+  return new Set(bodyRegions.filter((region) => (
+    subjective.primary_pain_location === region.sourceKey
+    || chartRegions.some((chartRegion) => chartRegion === region.chartKey || String(chartRegion).endsWith(`_${region.chartKey}`))
+  )).map((region) => region.key))
+}
+function assessmentName(assessment) {
+  const names={shoulder:{label:'Shoulder',labelAr:'الكتف'},elbow:{label:'Elbow',labelAr:'المرفق'},cervical:{label:'Neck / Cervical Spine',labelAr:'الرقبة / العمود الفقري العنقي'},lumbar:{label:'Lumbar Spine',labelAr:'العمود الفقري القطني'}}
+  const name=names[assessment.body_region]||{label:assessment.body_region,labelAr:assessment.body_region}
+  return {
+    label: assessment.parent_assessment_id?`${name.label} Reassessment`:`${name.label} Assessment`,
+    labelAr: assessment.parent_assessment_id?`إعادة تقييم ${name.labelAr}`:`تقييم ${name.labelAr}`,
+    region: name.label,
+  }
+}
 
 export default function PatientClinicalProfile() {
   const {patientId}=useParams()
@@ -39,18 +56,16 @@ export default function PatientClinicalProfile() {
     if(!data)return[]
     const completedNumbers=new Map(data.appointments.filter((item)=>item.status==='completed').sort((left,right)=>new Date(left.starts_at)-new Date(right.starts_at)).map((item,index)=>[item.id,index+1]))
     const appointmentEvents=data.appointments.map((item)=>({id:`appointment-${item.id}`,date:item.starts_at,type:'appointment',status:item.status,title:item.status==='completed'?`Session #${completedNumbers.get(item.id)}`:'Appointment',subtitle:item.treatment_type}))
-    const assessmentEvents=data.assessments.map((item)=>({id:`assessment-${item.id}`,date:item.assessment_date,type:'assessment',status:item.status,title:item.parent_assessment_id?'Shoulder Reassessment':'Initial Shoulder Assessment',subtitle:item.affected_side?`${item.affected_side} shoulder`:'Shoulder'}))
+    const assessmentEvents=data.assessments.map((item)=>{const name=assessmentName(item);return{id:`assessment-${item.id}`,date:item.assessment_date,type:'assessment',status:item.status,title:item.parent_assessment_id?name.label:`Initial ${name.region} Assessment`,subtitle:item.affected_side?`${item.affected_side} ${item.body_region}`:name.region}})
     return [...appointmentEvents,...assessmentEvents].sort((left,right)=>new Date(left.date)-new Date(right.date))
   },[data])
 
-  async function startAssessment(){setActionBusy(true);setError('');try{const definition=assessmentDefinition('shoulder');const response=await api.post(`/physiotherapist/patients/${patientId}/assessments`,{body_region:definition.bodyRegion,assessment_type:definition.assessmentType});navigate(definition.route(patientId,response.data.data.id))}catch{setError(t('profile.startError'));setActionBusy(false)}}
-  async function reassess(assessmentId){setActionBusy(true);setError('');try{const response=await api.post(`/physiotherapist/patients/${patientId}/assessments/${assessmentId}/reassess`);navigate(assessmentDefinition('shoulder').route(patientId,response.data.data.id))}catch{setError(t('profile.startError'));setActionBusy(false)}}
+  async function startAssessment(regionKey){setActionBusy(true);setError('');try{const definition=assessmentDefinition(regionKey);const response=await api.post(`/physiotherapist/patients/${patientId}/assessments`,{body_region:definition.bodyRegion,assessment_type:definition.assessmentType});navigate(definition.route(patientId,response.data.data.id))}catch{setError(t('profile.startError'));setActionBusy(false)}}
+  async function reassess(assessmentId,regionKey){setActionBusy(true);setError('');try{const response=await api.post(`/physiotherapist/patients/${patientId}/assessments/${assessmentId}/reassess`);navigate(assessmentDefinition(regionKey).route(patientId,response.data.data.id))}catch{setError(t('profile.startError'));setActionBusy(false)}}
 
   const medicalPath=`/medical-records/patient/${patientId}`
   const assessments=data?.assessments||[]
-  const shoulderDraft=assessments.find((item)=>item.body_region==='shoulder'&&item.status==='draft')
-  const shoulderCompleted=assessments.find((item)=>item.body_region==='shoulder'&&item.status==='completed')
-  const suggestedShoulder=JSON.stringify(data?.medical_record?.subjective_assessment||{}).toLowerCase().includes('shoulder')
+  const selectedRegions=selectedMedicalRegions(data?.medical_record)
 
   return <DashboardLayout role={t('profile.role')} title={t('profile.title')} subtitle={t('profile.subtitle')}>
     <main className="clinical-profile-shell">
@@ -73,7 +88,7 @@ export default function PatientClinicalProfile() {
         {tab==='overview'&&<div className="clinical-profile-grid"><RecoverySummary evaluation={data.latest_evaluation} t={t}/><section className="panel treatment-timeline"><DualLabel as="h2" label="Treatment Journey" labelAr="رحلة العلاج"/>{timeline.length?<ol>{timeline.map((event)=><li key={event.id} className={event.status==='completed'?'is-complete':''}><time>{formatUtcDate(event.date,language,{month:'short',day:'numeric'})}</time><div><strong>{event.title}</strong><span>{event.subtitle} · {event.status}</span></div></li>)}</ol>:<p>{t('profile.noEvents')}</p>}</section></div>}
         {tab==='medical'&&<section className="panel clinical-link-panel"><DualLabel as="h2" label="Medical Record" labelAr="الملف الطبي"/><p>{data.medical_record?`${data.medical_record.completion_percent}% · ${data.medical_record.completion_status}`:t('profile.noMedical')}</p><Link className="button" to={medicalPath}>{t('profile.openMedical')}</Link></section>}
         {tab==='documents'&&<section className="panel clinical-link-panel"><DualLabel as="h2" label="Medical Documents" labelAr="المستندات الطبية"/><strong>{data.document_count}</strong><Link className="button" to={medicalPath}>{t('profile.openDocuments')}</Link></section>}
-        {tab==='assessments'&&<AssessmentsTab patientId={patientId} assessments={assessments} draft={shoulderDraft} latest={shoulderCompleted} suggestedShoulder={suggestedShoulder} busy={actionBusy} onStart={startAssessment} onReassess={reassess} t={t} language={language}/>} 
+        {tab==='assessments'&&<AssessmentsTab patientId={patientId} assessments={assessments} selectedRegions={selectedRegions} busy={actionBusy} onStart={startAssessment} onReassess={reassess} t={t} language={language}/>}
         {tab==='sessions'&&<SessionsTab appointments={data.appointments} t={t} language={language}/>} 
         {tab==='recovery'&&<RecoverySummary evaluation={data.latest_evaluation} t={t} expanded/>}
       </>}
@@ -85,8 +100,9 @@ function RecoverySummary({evaluation,t,expanded=false}){
   return <section className={`panel doctor-recovery-summary ${expanded?'doctor-recovery-summary--expanded':''}`}><DualLabel as="h2" label="Recovery Journey" labelAr="رحلة التعافي"/>{evaluation?<div className="doctor-recovery-metrics"><article><span>{t('profile.performance')}</span><strong>{evaluation.session_performance_score} / 10</strong></article><article><span>{t('profile.pain')}</span><strong>{evaluation.pain_improvement_percent}%</strong></article><article><span>{t('profile.progress')}</span><strong>{signed(evaluation.progress_vs_previous_percent)}</strong></article><article><span>{t('profile.remaining')}</span><strong>{evaluation.estimated_sessions_remaining}</strong></article></div>:<p>{t('profile.recoveryEmpty')}</p>}{evaluation?.progress_note&&expanded&&<blockquote>{evaluation.progress_note}</blockquote>}</section>
 }
 
-function AssessmentsTab({patientId,assessments,draft,latest,suggestedShoulder,busy,onStart,onReassess,t,language}){
-  return <div className="clinical-assessments-tab"><section className="panel"><DualLabel as="h2" label="Clinical Assessments" labelAr="التقييمات السريرية"/><p>{t('profile.affectedRegion')}</p><div className="body-region-registry">{bodyRegions.map((region)=><article key={region.key} className={`${region.available?'is-available':''} ${region.key==='shoulder'&&suggestedShoulder?'is-suggested':''}`}><DualLabel as="h3" label={region.label} labelAr={region.labelAr}/><span>{region.available?t('profile.available'):t('profile.comingSoon')}</span>{region.key==='shoulder'&&latest&&<small>{t('profile.lastAssessment',{date:formatUtcDate(latest.assessment_date,language,{month:'short',day:'numeric',year:'numeric'})})}</small>}{region.available&&<div>{draft?<Link className="button" to={assessmentDefinition(region.key).route(patientId,draft.id)}>{t('profile.continue')}</Link>:latest?<button className="button" type="button" disabled={busy} onClick={()=>onReassess(latest.id)}>{t('profile.reassess')}</button>:<button className="button" type="button" disabled={busy} onClick={onStart}>{t('profile.start')}</button>}</div>}</article>)}</div></section><section className="panel assessment-history"><DualLabel as="h2" label="Assessment History" labelAr="سجل التقييمات"/>{assessments.length?<div>{assessments.map((assessment)=><article key={assessment.id}><div><DualLabel as="h3" label={assessment.parent_assessment_id?'Shoulder Reassessment':'Shoulder Assessment'} labelAr={assessment.parent_assessment_id?'إعادة تقييم الكتف':'تقييم الكتف'}/><span>{formatUtcDate(assessment.assessment_date,language,{month:'short',day:'numeric',year:'numeric'})} · {assessment.affected_side||'—'}</span></div><span className={`assessment-history__status assessment-history__status--${assessment.status}`}>{assessment.status==='draft'?t('profile.draft'):t('profile.completedStatus')}</span><div><Link className="text-button" to={assessmentDefinition(assessment.body_region).route(patientId,assessment.id)}>{assessment.status==='draft'?t('profile.continue'):t('profile.view')}</Link>{assessment.status==='completed'&&<button className="text-button" type="button" disabled={busy} onClick={()=>onReassess(assessment.id)}>{t('profile.reassess')}</button>}</div></article>)}</div>:<div className="clinical-empty-inline">{t('profile.noAssessment')}</div>}</section></div>
+function AssessmentsTab({patientId,assessments,selectedRegions,busy,onStart,onReassess,t,language}){
+  const visibleAssessments=assessments.filter((assessment)=>assessment.body_region==='shoulder'||selectedRegions.has(assessment.body_region))
+  return <div className="clinical-assessments-tab"><section className="panel"><DualLabel as="h2" label="Clinical Assessments" labelAr="التقييمات السريرية"/><p>{t('profile.affectedRegion')}</p><div className="body-region-registry">{bodyRegions.map((region)=>{const draft=assessments.find((item)=>item.body_region===region.key&&item.status==='draft');const latest=assessments.find((item)=>item.body_region===region.key&&item.status==='completed');const selected=selectedRegions.has(region.key);const enabled=region.available&&(region.key==='shoulder'||selected);return <article key={region.key} className={`${enabled?'is-available':''} ${selected?'is-suggested':''}`}><DualLabel as="h3" label={region.label} labelAr={region.labelAr}/><span>{!region.available?t('profile.comingSoon'):enabled?t('profile.available'):t('profile.regionNotSelected')}</span>{enabled&&latest&&<small>{t('profile.lastAssessment',{date:formatUtcDate(latest.assessment_date,language,{month:'short',day:'numeric',year:'numeric'})})}</small>}{enabled&&<div>{draft?<Link className="button" to={assessmentDefinition(region.key).route(patientId,draft.id)}>{t('profile.continue')}</Link>:latest?<button className="button" type="button" disabled={busy} onClick={()=>onReassess(latest.id,region.key)}>{t('profile.reassess')}</button>:<button className="button" type="button" disabled={busy} onClick={()=>onStart(region.key)}>{t('profile.startRegion',{region:region.label})}</button>}</div>}</article>})}</div></section><section className="panel assessment-history"><DualLabel as="h2" label="Assessment History" labelAr="سجل التقييمات"/>{visibleAssessments.length?<div>{visibleAssessments.map((assessment)=>{const name=assessmentName(assessment);return <article key={assessment.id}><div><DualLabel as="h3" label={name.label} labelAr={name.labelAr}/><span>{formatUtcDate(assessment.assessment_date,language,{month:'short',day:'numeric',year:'numeric'})} · {assessment.affected_side||'—'}</span></div><span className={`assessment-history__status assessment-history__status--${assessment.status}`}>{assessment.status==='draft'?t('profile.draft'):t('profile.completedStatus')}</span><div><Link className="text-button" to={assessmentDefinition(assessment.body_region).route(patientId,assessment.id)}>{assessment.status==='draft'?t('profile.continue'):t('profile.view')}</Link>{assessment.status==='completed'&&<button className="text-button" type="button" disabled={busy} onClick={()=>onReassess(assessment.id,assessment.body_region)}>{t('profile.reassess')}</button>}</div></article>})}</div>:<div className="clinical-empty-inline">{t('profile.noAssessment')}</div>}</section></div>
 }
 
 function SessionsTab({appointments,t,language}){

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { authorizedPatient } from '../src/controllers/clinicalAssessmentController.js';
+import { authorizedPatient, medicalRecordHasRegion } from '../src/controllers/clinicalAssessmentController.js';
 
 function requestWith(results) {
   return {
@@ -48,4 +48,16 @@ test('conceals an unrelated patient clinical profile', async () => {
     }), patient.id),
     (error) => error.statusCode === 404,
   );
+});
+
+test('maps cervical medical-record selections to the cervical assessment', () => {
+  assert.equal(medicalRecordHasRegion({ primary_pain_location: 'cervical_spine' }, 'cervical'), true);
+  assert.equal(medicalRecordHasRegion({ pain_locations: ['front_neck'] }, 'cervical'), true);
+  assert.equal(medicalRecordHasRegion({ primary_pain_location: 'shoulder' }, 'cervical'), false);
+});
+
+test('maps lumbar medical-record selections to the lumbar assessment', () => {
+  assert.equal(medicalRecordHasRegion({ primary_pain_location: 'lumbar_spine' }, 'lumbar'), true);
+  assert.equal(medicalRecordHasRegion({ pain_locations: ['back_lower_back'] }, 'lumbar'), true);
+  assert.equal(medicalRecordHasRegion({ primary_pain_location: 'hip' }, 'lumbar'), false);
 });
